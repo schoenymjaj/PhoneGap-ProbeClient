@@ -1,0 +1,214 @@
+
+/******************
+    GENERAL   
+ *****************/
+
+/*
+header h1 {
+    font-size: 10px;
+    font-family: Tahoma;
+    font-weight: bold;
+}
+*/
+
+#home {
+    background: url(../images/bckground/ProbeBackground.jpg) no-repeat center center fixed;
+    -webkit-background-size: auto;
+    -moz-background-size: auto;
+    -o-background-size: auto;
+    background-size: auto;
+    filter: alpha(opacity=10);
+}
+
+
+.noMargins {
+    margin: 0px 0px 0px 0px;
+    padding: 0px 0px 0px 0px;
+}
+
+.spacing {
+    padding-top: 20px;
+    text-align: center;
+}
+
+.insetBug {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+/*****************
+    SETTINGS POPUP 
+******************/
+.popupMessage {
+    max-width: 300px;
+}
+
+.buttonRight {
+    text-align: right;
+}
+
+/*
+ POSTER STYLES   
+ */
+.posterColumn1 {
+    /*
+    border: solid; 
+    border-color: red;
+      */
+    min-width: 100px;
+    max-width: 122px;
+    float: left;
+    height: 179px;
+    padding: 10px 0px 0px 0px;
+    margin: 0px 0px 0px 0px;
+}
+
+.posterColumn2 {
+    /*
+    border: solid; 
+    border-color: blue; 
+        */
+    overflow: hidden;
+    min-width: 150px;
+    height: 154px;
+    min-height: 179px;
+    padding: 10px 0px 0px 10px;
+    margin: 0px 0px 0px 0px;
+}
+
+.posterText {
+    padding: 0px 10px 10px 10px;
+    margin: 0px 0px 0px 0px;
+    text-align: left;
+    font-size: 100%;
+}
+
+    .posterText h3 {
+        padding: 2px 0px 0px 0px;
+        margin: 0px 0px 0px 0px;
+    }
+
+.posterHeaderCenter {
+    margin: 0px 0px 0px 0px;
+    padding: 0px 0px 0px 0px;
+    text-align: center;
+}
+
+.posterHeaderLeft {
+    margin: 0px 0px 0px 0px;
+    padding: 0px 0px 0px 0px;
+    text-align: left;
+}
+
+.posterGeneral {
+    font-size: 100%;
+    text-align: left;
+}
+
+    .posterGeneral h3 {
+        padding: 4px 0px 0px 0px;
+        margin: 0px 0px 0px 0px;
+        text-align: center;
+    }
+
+    .posterGeneral img {
+        height: 124px;
+        width: 100%;
+    }
+
+
+.myDebug {
+    border: solid;
+    border-color: red;
+}
+
+.dynamicFontSize {
+}
+
+
+/*
+    
+CLIENT TEST - NEW STYLES (MNS - 9/25/14
+    
+    */
+.summaryButton {
+}
+
+.submitButton {
+}
+
+
+/*Question Navigation Back and Next Buttons*/
+.questionNavButtonsParentDiv {
+    width: 100%;
+    height: 40px;
+}
+
+.backButtonDiv {
+    text-align: center;
+    padding: 0px 0px 0px 0px;
+    margin: 0px 0px 0px 0px;
+    float: left;
+    width: 27%;
+    height: 100%;
+}
+
+.legendDiv {
+    float: left;
+    width: 44%;
+    height: 100%;
+    text-align: center;
+}
+
+.legendTextDiv {
+    padding-top: 7px;
+}
+
+.nextButtonDiv {
+    text-align: center;
+    padding: 0px 0px 0px 0px;
+    margin: 0px 0px 0px 0px;
+    float: right;
+    width: 27%;
+    height: 100%;
+}
+
+@media only screen and (min-width: 476px) {
+    .backButtonCss {
+        height: 100%;
+        padding: 0px 0px 0px 0px;
+        margin: 0px 0px 0px 0px;
+    }
+
+    .nextButtonCss {
+        height: 100%;
+        padding: 0px 0px 0px 0px;
+        margin: 0px 0px 0px 0px;
+    }
+}
+
+@media only screen and (max-width: 475px) {
+    .backButtonCss {
+        height: 100%;
+        padding: 0px 10px 0px 0px;
+        margin: 0px 10px 0px 0px;
+        text-align: right;
+    }
+
+    .nextButtonCss {
+        height: 100%;
+        padding: 0px 0px 0px 10px;
+        margin: 0px 0px 0px 0px;
+        text-align: left;
+    }
+}
+
+/*
+    HOME PAGE BUTTONS   
+ */
+.GameReadOnlyButtons {
+    padding-right: 5px;
+    padding-left: 5px;
+}

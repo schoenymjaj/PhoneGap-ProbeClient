@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Event App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+    <!-- WEINRE SERVER - REMOTE DEBUGGING--> 
+    <!--<script src="./js/set-weinre.js"></script>-->                                        <!--USED ONLY FOR HTTPS CLIENTS-->
+    <!--<script src="https://169.254.80.80:8050/target/target-script-min.js#anonymous"></script>--> <!--USED ONLY FOR HTTPS CLIENTS-->
+    <!--<script src="http://192.168.1.195:8080//target/target-script-min.js#anonymous"></script>--> <!--USED ONLY FOR NON HTTPS CLIENTS-->
+        
+    <!-- the three things that jQuery Mobile needs to work -->
+    <!--custom themes design using themeroller be referenced before the jquery.com/mobile css-->
+    <link rel="stylesheet" href="./css/themes/ProbeTheme.V0.1.min.css" />
+    <link rel="stylesheet" href="./css/themes/jquery.mobile.icons.min.css" />
+
+    <!-- CDN jquery mobile CSS
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.3/jquery.mobile.structure-1.4.3.min.css" />
+    -->
+    <link rel="stylesheet" href="./js/jqm/jquery.mobile.structure-1.4.3.min.css" />
+
+    <link rel="stylesheet" href="./css/style.css" />
+
+    <!-- CDN jquery 
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    -->
+
+    <script src="./js/jquery/jquery-2.1.1.min.js"></script>
+
+    <script src="./js/jqm-config.js"></script>
+
+    <!-- CDN jquery mobile
+    <script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+    -->
+    <script src="./js/jqm/jquery.mobile-1.4.3.min.js"></script>
+
+    <!-- PhoneGap for debug -->
+    <script src="phonegap.js"></script>
+
+</head>
+<body data-env="development">
+
+    <!-- ================= Home ======================== -->
+    <section id="home" data-role="page" data-theme="a" data-title="Probe">
+        <header data-role="header" data-position="fixed">
+            <a id="#newgame" href="#" data-icon="plus" data-iconpos="notext">New Game</a>
+            <a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
+            <h1>Probe</h1>
+        </header>
+        <article data-role="content" style="margin: 0px 0px 0px 0px; padding: 0px 0px 0px 0px">
+            <div class="insetBug">
+                <div id="homePageContent"></div>
+            </div>
+        </article>
+        <footer data-role="footer" data-position="fixed">
+            <nav data-role="navbar" data-theme="a">
+                <ul>
+                    <li><a class="summaryButton" href="#" data-icon="star" data-theme="a">Summary</a></li>
+                    <li><a class="submitButton" href="#" data-icon="star" data-theme="a">Submit</a></li>
+                </ul>
+            </nav>
+        </footer>
+    </section>
+    <!-- ================= Question ======================== -->
+    <section id="question" data-role="page" data-theme="a" data-title="Probe">
+        <header data-role="header" data-position="fixed">
+            <a href="#" data-icon="home" data-iconpos="notext">Home</a>
+            <a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
+            <h1>Probe - Question</h1>
+        </header>
+        <article data-role="content" style="margin: 0px 0px 0px 0px; padding: 0px 10px 0px 10px">
+            <div id="questionText" data-theme="a"><h2>Question Text Goes Here</h2></div>
+
+
+            <div class="questionNavButtonsParentDiv">
+                <div class="backButtonDiv">
+                    <button id="backButton" class="backButtonCss ui-btn ui-btn-b ui-shadow ui-corner-all ui-icon-arrow-l ui-btn-icon-left">Back</button>
+                </div>
+                <div class="legendDiv"><div id="choiceListLegend" class="legendTextDiv"></div></div>
+                <div class="nextButtonDiv">
+                    <button id="nextButton" class="nextButtonCss ui-btn ui-btn-b ui-shadow ui-corner-all ui-icon-arrow-r ui-btn-icon-right">Next</button>
+               </div><div style="clear: both;"></div>
+            </div>
+
+            <div id="choiceList" data-theme="a"></div>
+        </article>
+        <footer data-role="footer" data-position="fixed">
+            <nav data-role="navbar" data-theme="a">
+                <ul>
+                    <li><a class="summaryButton" href="#" data-icon="star" data-theme="a">Summary</a></li>
+                    <li><a class="submitButton" href="#" data-icon="star" data-theme="a">Submit</a></li>
+                </ul>
+            </nav>
+        </footer>
+    </section>
+    <!-- ================= Summary ======================== -->
+    <section id="summary" data-role="page" data-theme="a" data-title="Probe">
+        <header data-role="header" data-position="fixed">
+            <a href="#home" data-icon="home" data-iconpos="notext">Home</a>
+            <a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
+            <h1>Probe - Summary</h1>
+        </header>
+        <article data-role="content" style="margin: 0px 0px 0px 0px; padding: 0px 10px 0px 10px">
+            <div class="insetBug">
+                <div id="summaryText" data-theme="a"><h2>Questions</h2></div>
+                <div id="questionList" data-theme="a"></div>
+            </div>
+
+        </article>
+        <footer data-role="footer" data-position="fixed">
+            <nav data-role="navbar" data-theme="a">
+                <ul>
+                    <li><a class="summaryButton" href="#" data-icon="star" data-theme="a">Summary</a></li>
+                    <li><a class="submitButton" href="#" data-icon="star" data-theme="a">Submit</a></li>
+                </ul>
+            </nav>
+        </footer>
+    </section>
+    <!-- ===================Menu Panel==========================-->
+    <div id="menu" data-role="panel" data-theme="a" data-display="overlay" data-position="left">
+        <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">Probe Menu</li>
+            <li data-icon="home"><a href="#">Home</a></li>
+            <li data-icon="plus"><a href="#">New Game</a></li>
+            <li data-icon="minus" class="ui-disabled"><a href="#">Cancel Game</a></li>
+            <li data-icon="info"><a href="#">About</a></li>
+        </ul>
+    </div><!-- /panel -->
+    <div id="popupMsg" data-theme="a">
+        <div data-role="header">
+            <h3 id="popMsgHeader"></h3>
+        </div>
+        <div data-role="content" class="ui-corner-bottom ui-content">
+            <div>
+                <h3 id="popupMsgContent"></h3>
+            </div>
+            <div class="buttonRight">
+                <a id="popupMsgYesBtn" href="#" data-role="button" data-inline="true" style="display:none">OK</a>
+                <a id="popupMsgNoBtn" href="#" data-role="button" data-inline="true" style="display:none">No</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/eventScript.js"></script>
+    <script src="./js/json/jsonpath-0.8.0.js"></script>
+    <script src="./js/commonScript.js"></script>
+    <script src="./js/appScript.js"></script>
+</body>
+</html>
