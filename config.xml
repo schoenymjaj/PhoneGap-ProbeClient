@@ -49,7 +49,8 @@ Mike Schoenfeld
     <gap:splash src="images/screen/android/screen-mdpi-portrait.png" gap:platform="android" gap:density="mdpi" />
     <gap:splash src="images/screen/android/screen-hdpi-portrait.png" gap:platform="android" gap:density="hdpi" />
     <gap:splash src="images/screen/android/screen-xhdpi-portrait.png" gap:platform="android" gap:density="xhdpi" />
-    <gap:splash src="images/icon/android/icon-144-xxhdpi.png" gap:platform="android" gap:density="xxhdpi" />  
+    <gap:splash src="images/icon/android/icon-144-xxhdpi.png" gap:platform="android" gap:density="xxhdpi" />
+    <gap:splash src="images/screen/windows/screen-480-800.jpg" gap:platform="winphone" />
     <feature name="http://api.phonegap.com/1.0/camera"/>
     <feature name="http://api.phonegap.com/1.0/file"/>
     <feature name="http://api.phonegap.com/1.0/geolocation"/>
