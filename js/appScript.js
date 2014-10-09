@@ -198,7 +198,7 @@ $(function () {
                 app.SetHomePageStyle(true); //the only time we set bckground image to full opacity -first time
                 gameInstructions = "<h3 style='text-align: center'>Welcome to the Probe App!</h3>" +
                                    "<p>You will need a game code from the game organizer in order to play.</p>" +
-                                   "<p>Click on the Plus icon on the menu bar." +
+                                   "<p>Click the Add icon on the top menu bar." +
                                     " After entering your code you may have to wait a few moments for Probe to retrieve your game.</p>" +
                                     "<p>Enter your first name and a nickname so you can be recognized. Answer each of the questions and click submit. Your game organizer will provide you with access to the game results.</p>";
 
