@@ -31,7 +31,8 @@ $(function () {
         
         root = GetRootUrl();
 
-        var probeVersion = '0.55';
+        var probeVersion = '0.57';
+        //alert('Probe Version: ' + probeVersion);
         var ProbeAPIurl = root + "api/";
         var ProbeMatchReporturl = root + "Reports/PlayerMatchSummary/";
         var ProbeTestReporturl = root + "Reports/PlayerTestDetail/";
@@ -78,7 +79,7 @@ $(function () {
                 }
 
                 if (codeFromURL == undefined) {
-                        app.SetHomePageInitialDisplay();
+                    app.SetHomePageInitialDisplay();
                 }
 
 
@@ -95,6 +96,7 @@ $(function () {
                     app.SetHomePageStyle(false);
                     app.GetGamePlayServer(codeFromURL);
                 }
+
 
 
             }); //$(document).on
@@ -185,14 +187,26 @@ $(function () {
 
                 listViewHtml += '</ul>';
 
+                $('#homePageContent').html(listViewHtml);
+                $('#homePageContent').css('color', 'black');
+                $('#gameList').listview().listview("refresh").trigger("create");
+                $('#home').trigger('create');
+
+
             }// if (app.IsGameInProgress() || gamePlayListQueue > 0) {
             else {
                 app.SetHomePageStyle(true); //the only time we set bckground image to full opacity -first time
-            }
+                gameInstructions = "<h3 style='text-align: center'>Welcome to the Probe App!</h3>" +
+                                   "<p>You will need a game code from the game organizer in order to play.</p>" +
+                                   "<p>Click on the Plus icon on the menu bar." +
+                                    " After entering your code you may have to wait a few moments for Probe to retrieve your game.</p>" +
+                                    "<p>Enter your first name and a nickname so you can be recognized. Answer each of the questions and click submit. Your game organizer will provide you with access to the game results.</p>";
 
-            $('#homePageContent').html(listViewHtml);
-            $('#gameList').listview().listview("refresh").trigger("create");
-            $('#home').trigger('create');
+                $('#homePageContent').html(gameInstructions);
+                $('#homePageContent').css('color', '#3388cc');
+                $('#home').trigger('create');
+
+            }
 
             app.BindPageStaticEvents("#home");
 
@@ -493,12 +507,15 @@ $(function () {
             gamePlayData = app.GetGamePlayLocalStorage();
             result = app.GetResultLocalStorage();
 
+            gameDescription = 'No Description';
+            if (gamePlayData.Description != null) gameDescription = gamePlayData.Description;
+
             promptforPlayerHtml =
                 '<div style="margin-top: 10px; font-weight:bold">' +
                 '<label for="gpName"><b>(' + gamePlayData.GameType + ' Game)</b>' +
                 '</label>' +
                 '<textarea name="gpName" id="gpName" disabled="disabled">' + gamePlayData.Name + ' (' +
-                gamePlayData.Description + ')</textarea>' +
+                gameDescription + ')</textarea>' +
                 '<label for="C">First Name</label>' +
                 '<input name="firstName" id="firstName" type="text" value="" data-clear-btn="true">' +
                 '<label for="nickName">Nick Name</label>' +
@@ -981,7 +998,8 @@ $(function () {
             $('#home').css("padding-top", "42px");
 
             if (initialState) {
-                $('#home').css('background-image', 'url(./images/bckground/ProbeBackground.jpg)');
+                //$('#home').css('background-image', 'url(./images/bckground/ProbeBackground.jpg)');
+                $('#home').css('background-image', 'url(./images/bckground/ProbeBackground-Opacity20.jpg)');
 
             } else {
                 $('#home').css('background-image', 'url(./images/bckground/ProbeBackground-Opacity3.jpg)');
