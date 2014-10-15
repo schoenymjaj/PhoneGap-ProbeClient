@@ -154,7 +154,7 @@ $(function () {
             if (app.IsGameInProgress() || gamePlayListQueue.length > 0) {
                 app.SetHomePageStyle(false);
 
-                listViewHtml += '<ul id="gameList" data-role="listview" data-inset="true">';
+                listViewHtml += '<ul id="gameList" data-role="listview" data-split-icon="bar-chart-o" data-inset="true">';
 
                 if (app.IsGameInProgress()) {
                     $("[data-icon='plus']").addClass('ui-disabled');
@@ -163,25 +163,37 @@ $(function () {
                     gamePlayData = app.GetGamePlayLocalStorage();
                     result = app.GetResultLocalStorage();
 
-                    listViewHtml += '<li data-role="list-divider">Active Game</li>' +
-                                    '<li data-icon="star" data-gameplay="active"><a href="#">' +
-                                     gamePlayData.Name +
-                                     '</a></li>';
+                    listViewHtml += '<li data-role="list-divider">Active Game<span class="ui-li-count">1</span></li>' +
+                                    '<li data-icon="star" data-gameplay="active"><a href="#"><span class="listviewGameName">' +
+                                     gamePlayData.Name + '</span>' +
+                                    '<p class="listviewPlayerName">' +
+                                     result.FirstName + '-' + result.NickName +
+                                     '</p>' + '</a></li>';
                 } else {
                     listViewHtml += '<li data-role="list-divider">No Active Game</li>'
                 }//if (app.IsGameInProgress()) {
 
 
                 if (gamePlayListQueue.length > 0) {
-                    listViewHtml += '<li data-role="list-divider">Submitted Games</li>';
+                    listViewHtml += '<li data-role="list-divider">Submitted Games<span class="ui-li-count">' + gamePlayListQueue.length + '</span></li>';
                 }
                 gamePlayListQueue.forEach(function (value, index, ar) {
-                    listViewHtml += '<li data-icon="star" data-gameplay="submitted"' +
+                    listViewHtml += '<li data-icon="bar-chart-o" data-gameplay="submitted"' +
                                     ' data-index="' + index + '"' +
                                     ' data-gameplayid="' + value.GamePlayId + '"' +
-                                    '><a href="#">' +
-                                     value.Name +
-                                     '</a></li>';
+                                    '><a href="#" class="gameResumeAction" ' +
+                                    ' data-index="' + index + '"' +
+                                    '><span class="listviewGameName">' +
+                                     value.Name + '</span><br/>' +
+                                     '<span class="listviewPlayerName">' +
+                                     value.FirstName + '-' + value.NickName +
+                                     '</span>' +
+                                     '</a>' +
+                                     '<a href="#" class="gameReportAction" ' +
+                                    ' data-index="' + index + '"' +
+                                     '></a>'
+                                     '</li>';
+
                 });
 
 
@@ -823,25 +835,38 @@ $(function () {
 
             switch (pageSelector) {
                 case "#home":
-                    $('[data-gameplay]').click(function (event) {
+                    $('[data-gameplay="active"]').click(function (event) {
+                        app.ResumeGame(GameState.Active);
+                    }); //$('[data-gameplay="active"]').click
 
-                        if(this.attributes["data-gameplay"].value == 'active') { //is it the active game selected
-                            app.ResumeGame(GameState.Active);
-                        } else if(this.attributes["data-gameplay"].value == 'submitted') {
-                            
-                            //copy gameplay out of queue into current gameplay (even though it's read-only)
-                            index = this.attributes["data-index"].value;
-                            gamePlayQueue = app.GetGamePlayQueueLocalStorage();
-                            gamePlayData = gamePlayQueue[index].GamePlay;
-                            result = gamePlayQueue[index].Result;
-                            app.PutGamePlayLocalStorage(gamePlayData);
-                            app.PutResultLocalStorage(result);
+                    $('[data-gameplay="submitted"] .gameResumeAction').click(function (event) {
 
-                            //will get GamePlay status info from server and then resume game (read-only)
-                            app.GetGamePlayStatusServer(result.GamePlayId);
+                        //copy gameplay out of queue into current gameplay (even though it's read-only)
+                        index = this.attributes["data-index"].value;
+                        gamePlayQueue = app.GetGamePlayQueueLocalStorage();
+                        gamePlayData = gamePlayQueue[index].GamePlay;
+                        result = gamePlayQueue[index].Result;
+                        app.PutGamePlayLocalStorage(gamePlayData);
+                        app.PutResultLocalStorage(result);
 
-                        }
-                    });
+                        //will get GamePlay status info from server and then resume game (read-only)
+                        app.GetGamePlayStatusServer(result.GamePlayId);
+
+                    }); //$('[data-gameplay="submitted" .gameResumeAction]').click
+
+                    $('[data-gameplay="submitted"] .gameReportAction').click(function (event) {
+                        index = this.attributes["data-index"].value;
+                        gamePlayQueue = app.GetGamePlayQueueLocalStorage();
+                        gamePlayData = gamePlayQueue[index].GamePlay;
+                        result = gamePlayQueue[index].Result;
+                        app.PutGamePlayLocalStorage(gamePlayData);
+                        app.PutResultLocalStorage(result);
+
+                        app.popUpHelper("Info","Not Yet Implemented", "Will determine if player has result access. if so will display results.")
+
+                        //app.DisplayReportPage();
+                    }); //$('[data-gameplay="submitted" .gameReportAction]').click
+
 
                     break;
                 case "#question":
@@ -1151,7 +1176,7 @@ $(function () {
             gamePlayQueue = app.GetGamePlayQueueLocalStorage();
             gamePlayListQueue = app.GetGamePlayListQueueLocalStorage();
 
-            queueNbrStart = Math.min(gamePlayQueue.length - 1, gamePlayQueueMax - 2); //we are only going to save 5 submitted games
+            queueNbrStart = Math.min(gamePlayQueue.length - 1, gamePlayQueueMax - 2); //we are only going to save (gamePlayQueueMax) submitted games
 
             for (var i = queueNbrStart; i >= 0; i--) {
                 gamePlayListQueue[i + 1] = {};
@@ -1162,8 +1187,13 @@ $(function () {
 
             gamePlayListQueue[0] = {};
             gamePlayQueue[0] = {};
+
+            //we want to save certain game data for the home page list of submitted games
             gamePlayListQueue[0]["GamePlayId"] = result["GamePlayId"];
             gamePlayListQueue[0]["Name"] = gamePlayData.Name;
+            gamePlayListQueue[0]["FirstName"] = result.FirstName;
+            gamePlayListQueue[0]["NickName"] = result.NickName;
+
             gamePlayQueue[0].GamePlay = gamePlayData;
             gamePlayQueue[0].Result = result;
             app.PutGamePlayListQueueLocalStorage(gamePlayListQueue);
