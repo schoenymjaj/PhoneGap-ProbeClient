@@ -170,7 +170,7 @@ $(function () {
                                      result.FirstName + '-' + result.NickName +
                                      '</p>' + '</a></li>';
                 } else {
-                    listViewHtml += '<li data-role="list-divider">No Active Game</li>'
+                    listViewHtml += '<li data-role="list-divider">No Active Game<span class="ui-li-count">0</span></li>'
                 }//if (app.IsGameInProgress()) {
 
 
@@ -351,6 +351,7 @@ $(function () {
 
         };//app.GetGamePlayServer
 
+
         /*
         Get GamePlayStatus from Probe Server
         Will record the ClientReportAccess boolean in result["ClientReportAccess"]
@@ -360,13 +361,60 @@ $(function () {
         */
         app.GetGamePlayStatusServer = function (gamePlayId) {
             console.log('func app.GetGamePlayStatusServer');
+            var clientReportAccess = false;
+            url = ProbeAPIurl + 'GamePlays/GetGamePlayById/' + gamePlayId;
+            console.log('func app.GetGamePlayStatusServer AJAX url:' + url);
+            app.ajaxHelper(url, 'GET', null)
+              .done(function (gamePlayStatusData) {
+                  console.log('return GetGamePlayStatus success');
+
+                  // On success, 'data' contains a GamePlay(only one level) JSON object
+                  if (gamePlayStatusData.errorid == undefined) {
+                      //SUCCESS
+                      clientReportAccess = gamePlayStatusData.ClientReportAccess;
+                  } else {
+                      //THERE WAS A PROBE BUSINESS ERROR
+                      errorMessage = gamePlayStatusData.errormessage;
+                      switch (gamePlayStatusData.errorid) {
+                          case 1:
+                              errorMessage = 'There is no game found for the id entered.';
+                              break;
+                          default:
+                              errorMessage = gamePlayStatusData.errormessage;
+                              break;
+                      }
+                      throw errorMessage;
+                  }
+
+              }) //done
+              .fail(function (jqxhr, textStatus, error) {
+                  console.log('return GetGamePlayStatus fail');
+                  probeError = error;
+                  if (probeError == "") {
+                      probeError = "The Probe web server could not be found. There may be connectivity issues."
+                  }
+                  var err = textStatus + ", " + probeError;
+                  throw err;
+              }); //fail
+            return clientReportAccess;
+        };//app.GetGamePlayStatusServer
+
+        /*
+        Get GamePlayStatus from Probe Server
+        Will record the ClientReportAccess boolean in result["ClientReportAccess"]
+        FYI. The GetJSON call to server is asynchronous. We wait for a good response, then
+        call the next display (read-only player info)
+
+        */
+        app.GetGamePlayStatusFromServer = function (gamePlayId) {
+            console.log('func app.GetGamePlayStatusFromServer');
 
             url = ProbeAPIurl + 'GamePlays/GetGamePlayById/' + gamePlayId;
 
             $.mobile.loading('show'); //to show the spinner
 
-            console.log('func app.GetGamePlayStatusServer AJAX url:' + url);
-            $.getJSON(url)
+            console.log('func app.GetGamePlayStatusFromServer AJAX url:' + url);
+            app.ajaxHelper(url, 'GET',null)
               .done(function (gamePlayStatusData) {
                   console.log('return GetGamePlayStatus success');
 
@@ -410,7 +458,7 @@ $(function () {
                   var err = textStatus + ", " + probeError;
                   app.popUpHelper("Error", 'Request Failed:' + err,null);
               }); //fail
-        };//app.GetGamePlayStatusServer
+        };//app.GetGamePlayStatusFromServer
 
         /*
         Submit Player and GamePlay Answers for Player
@@ -849,8 +897,20 @@ $(function () {
                         app.PutGamePlayLocalStorage(gamePlayData);
                         app.PutResultLocalStorage(result);
 
-                        //will get GamePlay status info from server and then resume game (read-only)
-                        app.GetGamePlayStatusServer(result.GamePlayId);
+                        try {
+                            $.mobile.loading('show'); //to show the spinner
+                            result["ClientReportAccess"] = app.GetGamePlayStatusServer(result.GamePlayId);
+                            app.PutResultLocalStorage(result);
+                        } catch (err) {
+                            $.mobile.loading('hide'); //to show the spinner
+                            app.popUpHelper("Error", "GetGamePlayStatusServer: " + err);
+                        }
+                        $.mobile.loading('hide'); //to show the spinner
+
+                        //set the home page for read-only view
+                        gameState = GameState.ReadOnly;
+                        app.SetHomePageStyle(false); //set backgrounded faded
+                        app.ResumeGame(GameState.ReadOnly); //resume game read-only
 
                     }); //$('[data-gameplay="submitted" .gameResumeAction]').click
 
@@ -862,7 +922,19 @@ $(function () {
                         app.PutGamePlayLocalStorage(gamePlayData);
                         app.PutResultLocalStorage(result);
 
-                        app.popUpHelper("Info","Not Yet Implemented", "Will determine if player has result access. if so will display results.")
+                        try {
+                            $.mobile.loading('show'); //to show the spinner
+                            if (app.GetGamePlayStatusServer(result.GamePlayId)) {
+                                $.mobile.loading('hide'); //to show the spinner
+                                app.DisplayReportPage();
+                            } else {
+                                $.mobile.loading('hide'); //to show the spinner
+                                app.popUpHelper("Info", "The game organizer has not made game results accessible to the players yet.");
+                            }
+                        } catch (err) {
+                            $.mobile.loading('hide'); //to show the spinner
+                            app.popUpHelper("Error", "GetGamePlayStatusServer: " + err);
+                        }
 
                         //app.DisplayReportPage();
                     }); //$('[data-gameplay="submitted" .gameReportAction]').click
