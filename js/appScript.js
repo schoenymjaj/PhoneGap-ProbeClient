@@ -1149,7 +1149,10 @@ $(function () {
                     + '/' + result.PlayerId + '/1'; //with mobile indicator attached
             }
 
-            window.location = url;
+            $(":mobile-pagecontainer").pagecontainer('change', '#report', { transition: 'none' });
+            $("#reportframeId").attr("src", url);
+
+            //window.location = url;
         };
 
         /*
