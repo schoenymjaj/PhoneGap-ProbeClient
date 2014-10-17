@@ -1135,6 +1135,8 @@ $(function () {
         */
         app.DisplayReportPage = function () {
             console.log('func app.DisplayReportPage');
+            $.mobile.loading('show'); //MNS
+
 
             gamePlayData = app.GetGamePlayLocalStorage();
             result = app.GetResultLocalStorage();
@@ -1149,10 +1151,23 @@ $(function () {
                     + '/' + result.PlayerId + '/1'; //with mobile indicator attached
             }
 
-            $(":mobile-pagecontainer").pagecontainer('change', '#report', { transition: 'none' });
-            $("#reportframeId").attr("src", url);
+            //the erasing of the contents of the iFrame (report) that may exist and the
+            //setTimout of .2 seconds is just to ensure the contents are erased before the 
+            //report page is displayed. Otherwise there is this double flash 
+            $('#reportframeId').attr("src", url);
+            setTimeout(function () {
 
-            //window.location = url;
+                $(':mobile-pagecontainer').pagecontainer('change', '#report', { transition: 'none' });
+                $('#report').css("padding-top", "42px"); //MNS
+
+                iFrameResize({
+                    //log: true,                  // Enable console logging
+                    enablePublicMethods: true,  // Enable methods within iframe hosted page
+                    autoResize: true
+                });
+            }, 500);
+
+            //window.location = url; //MNS COMMENTED OUT
         };
 
         /*
