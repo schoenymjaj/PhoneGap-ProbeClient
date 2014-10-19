@@ -1160,6 +1160,8 @@ $(function () {
                 $(':mobile-pagecontainer').pagecontainer('change', '#report', { transition: 'none' });
                 $('#report').css("padding-top", "42px"); //MNS
 
+                $('#reportframeId').iframeAutoHeight({ debug: true, diagnostics: false });
+
             }, 500);
 
             //window.location = url; //MNS COMMENTED OUT
