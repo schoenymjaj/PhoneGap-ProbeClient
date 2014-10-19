@@ -31,7 +31,7 @@ $(function () {
         
         root = GetRootUrl();
 
-        var probeVersion = '0.57';
+        var probeVersion = '0.60';
         //alert('Probe Version: ' + probeVersion);
         var ProbeAPIurl = root + "api/";
         var ProbeMatchReporturl = root + "Reports/PlayerMatchSummary/";
@@ -1160,11 +1160,6 @@ $(function () {
                 $(':mobile-pagecontainer').pagecontainer('change', '#report', { transition: 'none' });
                 $('#report').css("padding-top", "42px"); //MNS
 
-                iFrameResize({
-                    //log: true,                  // Enable console logging
-                    enablePublicMethods: true,  // Enable methods within iframe hosted page
-                    autoResize: true
-                });
             }, 500);
 
             //window.location = url; //MNS COMMENTED OUT
