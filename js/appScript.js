@@ -32,7 +32,7 @@ $(function () {
         root = GetRootUrl();
 
         var probeVersion = '0.60';
-        //alert('Probe Version: ' + probeVersion);
+        alert('Probe Version: ' + probeVersion);
         var ProbeAPIurl = root + "api/";
         var ProbeMatchReporturl = root + "Reports/PlayerMatchSummary/";
         var ProbeTestReporturl = root + "Reports/PlayerTestDetail/";
@@ -354,6 +354,8 @@ $(function () {
 
         /*
         (RETURNS ReportClientAccess indicator - true or false)
+        result["ClientReportAccess"] is recorded
+        result["PlayerCount"] is recorded
         Get GamePlayStatus from Probe Server 
         FYI. The GetJSON call to server is synchronous
         */
@@ -371,6 +373,9 @@ $(function () {
                   if (gamePlayStatusData.errorid == undefined) {
                       //SUCCESS
                       clientReportAccess = gamePlayStatusData.ClientReportAccess;
+                      result["ClientReportAccess"] = gamePlayStatusData.ClientReportAccess;;
+                      result["PlayerCount"] = gamePlayStatusData.PlayerCount;
+                      app.PutResultLocalStorage(result);
                   } else {
                       //THERE WAS A PROBE BUSINESS ERROR
                       errorMessage = gamePlayStatusData.errormessage;
@@ -840,8 +845,7 @@ $(function () {
                             app.PutResultLocalStorage(result);
 
                             try {
-                                result["ClientReportAccess"] = app.GetGamePlayStatusServer(result.GamePlayId);
-                                app.PutResultLocalStorage(result);
+                                app.GetGamePlayStatusServer(result.GamePlayId);
                             } catch (err) {
                                 $.mobile.loading('hide'); //to show the spinner
                                 app.popUpHelper("Error", "GetGamePlayStatusServer: " + err);
@@ -1160,7 +1164,8 @@ $(function () {
                 $(':mobile-pagecontainer').pagecontainer('change', '#report', { transition: 'none' });
                 $('#report').css("padding-top", "42px"); //MNS
 
-                $('#reportframeId').iframeAutoHeight({ debug: true, diagnostics: false });
+                alert('playercount=' + result["PlayerCount"]);
+                $('#reportframeId').iframeAutoHeight({ debug: false, diagnostics: false });
 
             }, 500);
 
