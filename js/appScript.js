@@ -31,8 +31,8 @@ $(function () {
         
         root = GetRootUrl();
 
-        var probeVersion = '0.60';
-        alert('Probe Version: ' + probeVersion);
+        var probeVersion = '0.61';
+        //alert('Probe Version: ' + probeVersion);
         var ProbeAPIurl = root + "api/";
         var ProbeMatchReporturl = root + "Reports/PlayerMatchSummary/";
         var ProbeTestReporturl = root + "Reports/PlayerTestDetail/";
@@ -1155,21 +1155,7 @@ $(function () {
                     + '/' + result.PlayerId + '/1'; //with mobile indicator attached
             }
 
-            //the erasing of the contents of the iFrame (report) that may exist and the
-            //setTimout of .2 seconds is just to ensure the contents are erased before the 
-            //report page is displayed. Otherwise there is this double flash 
-            $('#reportframeId').attr("src", url);
-            setTimeout(function () {
-
-                $(':mobile-pagecontainer').pagecontainer('change', '#report', { transition: 'none' });
-                $('#report').css("padding-top", "42px"); //MNS
-
-                alert('playercount=' + result["PlayerCount"]);
-                $('#reportframeId').iframeAutoHeight({ debug: false, diagnostics: false });
-
-            }, 500);
-
-            //window.location = url; //MNS COMMENTED OUT
+            window.location = url;
         };
 
         /*
