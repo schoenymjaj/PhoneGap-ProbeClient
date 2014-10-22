@@ -31,7 +31,7 @@ $(function () {
         
         root = GetRootUrl();
 
-        var probeVersion = '0.61';
+        var probeVersion = '0.62';
         //alert('Probe Version: ' + probeVersion);
         var ProbeAPIurl = root + "api/";
         var ProbeMatchReporturl = root + "Reports/PlayerMatchSummary/";
@@ -45,6 +45,7 @@ $(function () {
         var gameState = GameState.Idle;
         var gamePlayQueueMax = 10;
         var codeFromURL = undefined;
+        var ajaxCallMaxTries = 3;
 
         app.init = function () {
             //this occurs after document is ready (runs once)
@@ -362,46 +363,65 @@ $(function () {
         app.GetGamePlayStatusServer = function (gamePlayId) {
             console.log('func app.GetGamePlayStatusServer');
             var clientReportAccess = false; //global within the GetGamePlayStatusServer function
+            var ajaxCallTries = 0;
+            var ajaxIsSuccessful = true;
+            var errorMessage = "";
 
-            url = ProbeAPIurl + 'GamePlays/GetGamePlayById/' + gamePlayId;
-            console.log('func app.GetGamePlayStatusServer AJAX url:' + url);
-            app.ajaxHelper(url, 'GET', null)
-              .done(function (gamePlayStatusData) {
-                  console.log('return GetGamePlayStatus success');
+            do {
+                ajaxCallTries++;
+                console.log('func app.GetGamePlayStatusServer ajax try:' + ajaxCallTries);
 
-                  // On success, 'data' contains a GamePlay(only one level) JSON object
-                  if (gamePlayStatusData.errorid == undefined) {
-                      //SUCCESS
-                      clientReportAccess = gamePlayStatusData.ClientReportAccess;
-                      result["ClientReportAccess"] = gamePlayStatusData.ClientReportAccess;;
-                      result["PlayerCount"] = gamePlayStatusData.PlayerCount;
-                      app.PutResultLocalStorage(result);
-                  } else {
-                      //THERE WAS A PROBE BUSINESS ERROR
-                      errorMessage = gamePlayStatusData.errormessage;
-                      switch (gamePlayStatusData.errorid) {
-                          case 1:
-                              errorMessage = 'There is no game found for the id entered.';
-                              break;
-                          default:
-                              errorMessage = gamePlayStatusData.errormessage;
-                              break;
+                url = ProbeAPIurl + 'GamePlays/GetGamePlayById/' + gamePlayId;
+                console.log('func app.GetGamePlayStatusServer AJAX url:' + url);
+                app.ajaxHelper(url, 'GET', null)
+                  .done(function (gamePlayStatusData) {
+                      console.log('return GetGamePlayStatus success');
+
+                      // On success, 'data' contains a GamePlay(only one level) JSON object
+                      if (gamePlayStatusData.errorid == undefined) {
+                          //SUCCESS
+                          clientReportAccess = gamePlayStatusData.ClientReportAccess;
+                          result["ClientReportAccess"] = gamePlayStatusData.ClientReportAccess;;
+                          result["PlayerCount"] = gamePlayStatusData.PlayerCount;
+                          app.PutResultLocalStorage(result);
+                          ajaxIsSuccessful = true;
+                      } else {
+                          //THERE WAS A PROBE BUSINESS ERROR
+                          errorMessage = gamePlayStatusData.errormessage;
+                          switch (gamePlayStatusData.errorid) {
+                              case 1:
+                                  errorMessage = 'There is no game found for the id entered.';
+                                  break;
+                              default:
+                                  errorMessage = gamePlayStatusData.errormessage;
+                                  break;
+                          }
+                          ajaxIsSuccessful = false;
+
                       }
-                      throw errorMessage;
-                  }
 
-              }) //done
-              .fail(function (jqxhr, textStatus, error) {
-                  console.log('return GetGamePlayStatus fail');
-                  probeError = error;
-                  if (probeError == "") {
-                      probeError = "The Probe web server could not be found. There may be connectivity issues."
-                  }
-                  var err = textStatus + ", " + probeError;
-                  throw err;
-              }); //fail
+                  }) //done
+                  .fail(function (jqxhr, textStatus, error) {
+                      console.log('return GetGamePlayStatus fail');
+                      probeError = error;
+                      if (probeError == "") {
+                          probeError = "The Probe web server could not be found. There may be connectivity issues."
+                      }
+                      errorMessage = textStatus + ", " + probeError;
+                      ajaxIsSuccessful = false;
 
-            return clientReportAccess;
+                  }); //fail
+
+            } while (!ajaxIsSuccessful && ajaxCallTries < ajaxCallMaxTries)
+
+
+            if (errorMessage == "") {
+                return clientReportAccess;
+            } else {
+                throw errorMessage;
+            }
+
+            
         };//app.GetGamePlayStatusServer
 
         /*
