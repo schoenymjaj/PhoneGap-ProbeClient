@@ -31,7 +31,7 @@ $(function () {
         
         root = GetRootUrl();
 
-        var probeVersion = '0.62';
+        var probeVersion = '0.63';
         //alert('Probe Version: ' + probeVersion);
         var ProbeAPIurl = root + "api/";
         var ProbeMatchReporturl = root + "Reports/PlayerMatchSummary/";
@@ -368,7 +368,8 @@ $(function () {
             var errorMessage = "";
 
             do {
-                ajaxCallTries++;
+                errorMessage = ""; //error mess must be blank for each ajax try
+                ajaxCallTries++;   //counting ajax tries
                 console.log('func app.GetGamePlayStatusServer ajax try:' + ajaxCallTries);
 
                 url = ProbeAPIurl + 'GamePlays/GetGamePlayById/' + gamePlayId;
