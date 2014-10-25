@@ -298,7 +298,7 @@ $(function () {
                                         app.InitalizeGamePlay(gamePlayData);
                                         app.SetGamePlayPlayerPrompt(); //SUCCESS - NEXT STEP IS FOR PLAYER TO ENTER PLAYER INFO
                                     } else {
-                                        app.popUpHelper('Error', 'The Game \'' + gamePlayData.Name + '\' has already been submitted.', 'A device cannot submit the same game twice for this game type.');
+                                        app.popUpHelper('Error', 'Game \'' + gamePlayData.Name + '\' has already been submitted.', 'A device cannot submit the same game twice for this game type.');
                                     }//if (!app.IsGameSubmitted(gamePlayData.Id))
 
                                 } else {
@@ -938,7 +938,7 @@ $(function () {
 
                     $('.submitButton').click(function (event) {
 
-                        app.confirmDialog('You are about to submit the Game \'' + gamePlayData.Name + '\'.' + '<br/>Are you sure?',
+                        app.confirmDialog('Submit','You\'re about to submit the Game <span class="popupGameName">' + gamePlayData.Name + '</span>.' + '<p>Are you sure?</p>',
                             function () {
                                 $.mobile.loading('show'); //to show the spinner
                                 setTimeout(function () { app.ConfirmSubmit(); }, 1000); //give a 1 second delay. So the user see's the spinner when submitting
@@ -967,7 +967,7 @@ $(function () {
 
                         if (app.IsGameInProgress()) {
                             gamePlayData = app.GetGamePlayLocalStorage();
-                            app.popUpHelper('Error', 'There is a Game \'' + gamePlayData.Name + '\' that is in progress', 'You must cancel this game first to start a new game.');
+                            app.popUpHelper('Error', 'Game \'' + gamePlayData.Name + '\' is in progress', 'You must cancel this game first to start a new game.');
                             return;
                         }
 
@@ -985,12 +985,12 @@ $(function () {
 
                         if (!app.IsGameInProgress())
                         {
-                            app.popUpHelper('Error', 'There is no Game in progress',null);
+                            app.popUpHelper('Error', 'There\'s no Game in progress',null);
                             return
                         } else {
                             gamePlayData = app.GetGamePlayLocalStorage();
 
-                            app.confirmDialog('Are you sure you want to cancel the Game \'' + gamePlayData.Name + '\' that is in progress?',
+                            app.confirmDialog('Cancel', 'You\'re about to cancel the Game <span class="popupGameName">' + gamePlayData.Name + '</span> that\'s in progress.<p>Are you sure?</p>',
                                 function () {
                                     app.CancelGame();
                             });
@@ -1000,7 +1000,7 @@ $(function () {
                     });
 
                     $("#menu [data-icon='info']").click(function (event) {
-                        app.popUpHelper('Info', 'You are using the Probe application - version (' + probeVersion + ').', 'Powered by ProductivityEdge, Inc.');
+                        app.popUpHelper('Info', 'You are using the Probe application.<br/>Version: ' + probeVersion + '<br/>Powered by ProductivityEdge, Inc.');
                     });
 
 
@@ -1053,9 +1053,9 @@ $(function () {
             $.mobile.loading('hide'); //hide the spinner
             //depending on success or failure; we display a different popup over the home page
             if (returnErrMsg == null) {
-                app.popUpHelper('Info', 'The submission of the Game \'' + gamePlayData.Name + '\' was successful.', null);
+                app.popUpHelper('Info', 'The submission of the Game<br/><span class="popupGameName">' + gamePlayData.Name + '</span><br/> was successful.', null);
             } else {
-                app.popUpHelper('Error', 'The submission of the Game \'' + gamePlayData.Name + '\' was NOT successful.<br/>' + returnErrMsg, null);
+                app.popUpHelper('Error', 'The submission of the Game<br/><span class="popupGameName">' + gamePlayData.Name + '</span><br/> was NOT successful.<p>' + returnErrMsg + '</p>', null);
             }
         }//app.ConfirmSubmit
 
@@ -1346,19 +1346,19 @@ $(function () {
         /*
         Confirmation Dialog
         */
-        app.confirmDialog = function (text, callback) {
+        app.confirmDialog = function (header, text, callback) {
             console.log('func app.confirmDialog');
 
             var popupDialogId = 'popupDialog';
             $('<div data-role="popup" id="' + popupDialogId + '" data-confirmed="no" data-transition="fade" data-overlay-theme="a" data-theme="a" data-dismissible="false" style="max-width:500px;"> \
                     <div data-role="header" data-theme="a">\
-                        <h1>Question</h1>\
+                        <h1>' + header + '</h1>\
                     </div>\
-                    <div role="main" class="ui-content" data-theme="a">\
+                    <div role="main" class="ui-content popupContentFontSize" data-theme="a">\
                         <h3 class="ui-title">' + text + '</h3>\
                         <div style="text-align:right">\
-                        <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a optionConfirm" data-rel="back" data-theme="a">Yes</a>\
-                        <a "href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a optionCancel" data-rel="back" data-transition="flow" data-theme="a">No</a>\
+                        <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a optionConfirm popupButtonFontSize" data-rel="back" data-theme="a">Yes</a>\
+                        <a "href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a optionCancel popupButtonFontSize" data-rel="back" data-transition="flow" data-theme="a">No</a>\
                         <\div>\
                     </div>\
                 </div>')

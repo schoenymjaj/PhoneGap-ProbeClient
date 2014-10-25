@@ -49,6 +49,19 @@ header h1 {
     text-align: right;
 }
 
+.popupContentFontSize {
+    font-size: 80%;
+}
+
+.popupButtonFontSize {
+    font-size: 85%;
+}
+
+.popupGameName {
+    font-style: italic;
+    font-weight: bolder;
+}
+
 /*
  POSTER STYLES   
  */
