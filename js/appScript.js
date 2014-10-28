@@ -31,7 +31,7 @@ $(function () {
         
         root = GetRootUrl();
 
-        var probeVersion = '0.63';
+        var probeVersion = '0.64';
         //alert('Probe Version: ' + probeVersion);
         var ProbeAPIurl = root + "api/";
         var ProbeMatchReporturl = root + "Reports/PlayerMatchSummary/";
@@ -151,6 +151,13 @@ $(function () {
             gamePlayListQueue = app.GetGamePlayListQueueLocalStorage();
 
             listViewHtml = '';
+
+            //if the game state is idle; then we just want to make sure that the Add function is
+            //enabled and the Cancel function is disabled
+            if (gameState == GameState.Idle) {
+                $("[data-icon='plus']").removeClass('ui-disabled');
+                $("[data-icon='minus']").addClass('ui-disabled');
+            }
 
             if (app.IsGameInProgress() || gamePlayListQueue.length > 0) {
                 app.SetHomePageStyle(false);
@@ -351,7 +358,6 @@ $(function () {
               }); //fail
 
         };//app.GetGamePlayServer
-
 
         /*
         (RETURNS ReportClientAccess indicator - true or false)
@@ -954,7 +960,6 @@ $(function () {
                     //bind all GO HOME events
                     $('[data-icon="home"]').click(function (event) {
                         $('#menu').panel("close"); //if menu open
-
                         app.SetHomePageStyle(false);
                         app.SetHomePageInitialDisplay();
                         $(":mobile-pagecontainer").pagecontainer('change', '#home');
@@ -975,7 +980,7 @@ $(function () {
                         $("[data-icon='minus']").removeClass('ui-disabled');
                         app.SetHomePageStyle(false);
                         app.SetGamePlayCodePrompt();
-                        gameState = GameState.Idle; //just added MNS 7/27
+                        gameState = GameState.Idle;
                         $(":mobile-pagecontainer").pagecontainer('change', '#home');
                         
                     });
@@ -1116,13 +1121,20 @@ $(function () {
             app.SetHomePageStyle(true);
             $('#homePageContent').html('');
             $('#homePageContent').trigger("create");
-            $("[data-icon='plus']").removeClass('ui-disabled');
-            $("[data-icon='minus']").addClass('ui-disabled');
-            gameState = GameState.Idle;
+            app.EnableNewGame();
             app.SetHomePageInitialDisplay();
             $(":mobile-pagecontainer").pagecontainer('change', '#home', { transition: 'none' });
 
         };
+
+        /*
+        Enable New Game
+        */
+        app.EnableNewGame = function() {
+            $("[data-icon='plus']").removeClass('ui-disabled');
+            $("[data-icon='minus']").addClass('ui-disabled');
+            gameState = GameState.Idle;
+        }
 
         /*
         Start game

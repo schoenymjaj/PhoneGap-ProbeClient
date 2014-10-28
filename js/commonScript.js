@@ -123,7 +123,7 @@ GetRootUrl = function () {
 
     if (!isCordovaApp) {
         fullUrlSansQueryString = window.location.href.split('?')[0];
-        originalRoot = fullUrlSansQueryString.substr(0, fullUrlSansQueryString.length - 28); //was 20 for clienttest
+        originalRoot = fullUrlSansQueryString.substr(0, fullUrlSansQueryString.length - 16); //16 for Client/main.html
     } else {
         originalRoot = 'https://probe.azurewebsites.net/';
     }
