@@ -29,9 +29,9 @@ $(function () {
         */
 
         
-        root = GetRootUrl();
+        var root = GetRootUrl();
 
-        var probeVersion = '0.64';
+        var probeVersion = '0.65';
         //alert('Probe Version: ' + probeVersion);
         var ProbeAPIurl = root + "api/";
         var ProbeMatchReporturl = root + "Reports/PlayerMatchSummary/";
@@ -1001,6 +1001,20 @@ $(function () {
                             });
 
                         }
+
+                    });
+
+                    $("#menu [data-icon='book']").click(function (event) {
+
+                        url = root + 'Home/About/1'; //insert the portal About (for mobil) page.
+                        $('#infoFrameId').attr("src", url);
+                        setTimeout(function () {
+
+                            $(':mobile-pagecontainer').pagecontainer('change', '#info', { transition: 'none' });
+                            $('#report').css("padding-top", "42px"); //MNS
+
+                        }, 500);
+
 
                     });
 
