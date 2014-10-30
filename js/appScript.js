@@ -230,7 +230,11 @@ $(function () {
             }
 
             app.BindPageStaticEvents('#home');
-            app.BindPageStaticEvents('misc');
+
+            //dynamically bind dynamic button to About page event
+            $("#aboutBtn").click(function (event) {
+                app.DisplayAboutPage();
+            });
 
         };//app.SetHomePageInitialDisplay
 
@@ -1006,18 +1010,9 @@ $(function () {
 
                     });
 
+                    //bind the menu "About" event
                     $("[data-icon='book']").click(function (event) {
-
-                        url = root + 'Home/About/1'; //insert the portal About (for mobil) page.
-                        $('#infoFrameId').attr("src", url);
-                        setTimeout(function () {
-
-                            $(':mobile-pagecontainer').pagecontainer('change', '#info', { transition: 'none' });
-                            $('#report').css("padding-top", "42px"); //MNS
-
-                        }, 500);
-
-
+                        app.DisplayAboutPage();
                     });
 
                     break;
@@ -1180,6 +1175,22 @@ $(function () {
             gameState = gameStateArg;
             app.SetGamePlayPlayerPrompt();
         };
+
+        /*
+        Display the About (Info) page 
+        */
+        app.DisplayAboutPage = function () {
+            console.log('func app.DisplayAboutPage');
+
+            url = root + 'Home/About/1'; //insert the portal About (for mobil) page.
+            $('#infoFrameId').attr("src", url);
+            setTimeout(function () {
+
+                $(':mobile-pagecontainer').pagecontainer('change', '#info', { transition: 'none' });
+                $('#report').css("padding-top", "42px"); //MNS
+
+            }, 500);
+        }
 
         /*
         Display the report page
