@@ -229,7 +229,8 @@ $(function () {
 
             }
 
-            app.BindPageStaticEvents("#home");
+            app.BindPageStaticEvents('#home');
+            app.BindPageStaticEvents('misc');
 
         };//app.SetHomePageInitialDisplay
 
