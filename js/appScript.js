@@ -216,11 +216,12 @@ $(function () {
             }// if (app.IsGameInProgress() || gamePlayListQueue > 0) {
             else {
                 app.SetHomePageStyle(true); //the only time we set bckground image to full opacity -first time
-                gameInstructions = "<h3 style='text-align: center'>Welcome to the Probe App!</h3>" +
-                                   "<p>You will need a game code from the game organizer in order to play.</p>" +
-                                   "<p>Click the Add icon on the top menu bar." +
-                                    " After entering your code you may have to wait a few moments for Probe to retrieve your game.</p>" +
-                                    "<p>Enter your first name and a nickname so you can be recognized. Answer each of the questions and click submit. Your game organizer will provide you with access to the game results.</p>";
+                gameInstructions = '<h3 style="text-align: center">Welcome to the Probe App!</h3>' +
+                                   '<p>You will need a game code from the game organizer in order to play.</p>' +
+                                   '<p>Click the Add icon on the top menu bar.' +
+                                   ' After entering your code you may have to wait a few moments for Probe to retrieve your game.</p>' +
+                                    '<p>Enter your first name and a nickname so you can be recognized. Answer each of the questions and click submit. Your game organizer will provide you with access to the game results.</p>' +
+                                    '<button id="aboutBtn" class="ui-btn" data-icon="book">Want to know more?</button>';
 
                 $('#homePageContent').html(gameInstructions);
                 $('#homePageContent').css('color', '#3388cc');
@@ -1004,7 +1005,7 @@ $(function () {
 
                     });
 
-                    $("#menu [data-icon='book']").click(function (event) {
+                    $("[data-icon='book']").click(function (event) {
 
                         url = root + 'Home/About/1'; //insert the portal About (for mobil) page.
                         $('#infoFrameId').attr("src", url);
@@ -1017,11 +1018,6 @@ $(function () {
 
 
                     });
-
-                    $("#menu [data-icon='info']").click(function (event) {
-                        app.popUpHelper('Info', 'You are using the Probe application.<br/>Version: ' + probeVersion + '<br/>Powered by ProductivityEdge, Inc.');
-                    });
-
 
                     break;
             }
@@ -1112,11 +1108,14 @@ $(function () {
             $('#home').css("padding-top", "42px");
 
             if (initialState) {
-                //$('#home').css('background-image', 'url(./images/bckground/ProbeBackground.jpg)');
-                $('#home').css('background-image', 'url(./images/bckground/ProbeBackground-Opacity20.jpg)');
+                //$('#home').css('background-image', 'url(./images/bckground/ProbeBackground-Opacity20.jpg)');
+                $('#home').removeClass('backimageLowOpacity');
+                $('#home').addClass('backimageHighOpacity');
 
             } else {
-                $('#home').css('background-image', 'url(./images/bckground/ProbeBackground-Opacity3.jpg)');
+                //$('#home').css('background-image', 'url(./images/bckground/ProbeBackground-Opacity3.jpg)');
+                $('#home').removeClass('backimageHighOpacity');
+                $('#home').addClass('backimageLowOpacity');
             }
 
             app.SetBottomNavButtons(false, false); //From the home page. Always set the bottom nav bar bottoms to disabled.

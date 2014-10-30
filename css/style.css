@@ -12,7 +12,7 @@ header h1 {
 */
 
 #home {
-    background: url(../images/bckground/ProbeBackground.jpg) no-repeat center center fixed;
+    /*background: url(../images/bckground/ProbeBackground.jpg) no-repeat center center fixed;*/
     -webkit-background-size: auto;
     -moz-background-size: auto;
     -o-background-size: auto;
@@ -37,6 +37,75 @@ header h1 {
     margin-left: 15px;
     margin-right: 15px;
 }
+
+/*
+ responsive background image   
+ */
+@media only screen and (min-height: 2560px) { /*height: 2560px width 1440*/
+    .backimageLowOpacity {
+        background: url(../images/bckground/ProbeBackground-Opacity3.jpg) no-repeat center center fixed;
+    }
+    .backimageHighOpacity {
+        background: url(../images/bckground/ProbeBackground-Opacity20.jpg) no-repeat center center fixed;
+    }
+}
+@media only screen and (max-height: 2559px) and (min-height: 1912px) { /*MANY -height: 1920px width 1080*/
+    .backimageLowOpacity {
+        background: url(../images/bckground/ProbeBackground-Opacity3.jpg) no-repeat center center fixed;
+    }
+    .backimageHighOpacity {
+        background: url(../images/bckground/ProbeBackground-Opacity20.jpg) no-repeat center center fixed;
+    }
+}
+@media only screen and (max-height: 1911px) and (min-height: 1600px) { /*height: 1600px width 900*/
+    .backimageLowOpacity {
+        background: url(../images/bckground/ProbeBackground-Opacity3.jpg) no-repeat center center fixed;
+    }
+    .backimageHighOpacity {
+        background: url(../images/bckground/ProbeBackground-Opacity20.jpg) no-repeat center center fixed;
+    }
+}
+@media only screen and (max-height: 1599px) and (min-height: 1180px) { /*MANY -height: 1280px width 800*/
+    .backimageLowOpacity {
+        background: url(../images/bckground/ProbeBackground-Opacity3.jpg) no-repeat center center fixed;
+    }
+    .backimageHighOpacity {
+        background: url(../images/bckground/ProbeBackground-Opacity20.jpg) no-repeat center center fixed;
+    }
+}
+@media only screen and (max-height: 1179px) and (min-height: 1024px) { /*height: 1024px width 600*/
+    .backimageLowOpacity {
+        background: url(../images/bckground/ProbeBackground-Opacity3.jpg) no-repeat center center fixed;
+    }
+    .backimageHighOpacity {
+        background: url(../images/bckground/ProbeBackground-Opacity20.jpg) no-repeat center center fixed;
+    }
+}
+@media only screen and (max-height: 1023px) and (min-height: 800px) { /*MANY -height: 800px  width 480*/
+    .backimageLowOpacity {
+        background: url(../images/bckground/ProbeBackground-Opacity3.jpg) no-repeat center center fixed;
+    }
+    .backimageHighOpacity {
+        background: url(../images/bckground/ProbeBackground-Opacity20.jpg) no-repeat center center fixed;
+    }
+}
+@media only screen and (max-height: 799px) and (min-height: 480px) { /*MANY - height 480 width 320*/
+    .backimageLowOpacity {
+        background: url(../images/bckground/ProbeBackground-Opacity3.jpg) no-repeat center center fixed;
+    }
+    .backimageHighOpacity {
+        background: url(../images/bckground/ProbeBackground-Opacity20.jpg) no-repeat center center fixed;
+    }
+}
+@media only screen and (max-height: 479px) and (min-height: 0px) { /*height 320 width 240*/
+    .backimageLowOpacity {
+        background: url(../images/bckground/ProbeBackground-Opacity3.jpg) no-repeat center center fixed;
+    }
+    .backimageHighOpacity {
+        background: url(../images/bckground/ProbeBackground-Opacity20.jpg) no-repeat center center fixed;
+    }
+}
+
 
 /*****************
     SETTINGS POPUP 
@@ -245,3 +314,4 @@ CLIENT TEST - NEW STYLES (MNS - 9/25/14
 .gameReportAction {
 
 }
+
