@@ -29,7 +29,7 @@ $(function () {
         */
 
         
-        var root = GetRootUrl();
+        var root = GetRootUrl();  //root directory of the web site serving mobile app (i.e. in-common-app.com)
 
         var probeVersion = '0.65';
         //alert('Probe Version: ' + probeVersion);
@@ -43,9 +43,10 @@ $(function () {
         var GameState = { "Idle": 0, "Active": 1, "Submitted": 2, "ReadOnly": 3 };
         var SexType = { 'Unknow': 0, 'Male': 1, 'Female': 2 };
         var gameState = GameState.Idle;
-        var gamePlayQueueMax = 10;
+        var gamePlayQueueMax = 10;  //number of submitted games save client-side
         var codeFromURL = undefined;
-        var ajaxCallMaxTries = 3;
+        var ajaxCallMaxTries = 3;  //number of tries app will make on an ajax call to server
+        var aboutIFrameLoaded = false; //used specifically to display mobile loader (spinner) for About page
 
         app.init = function () {
             //this occurs after document is ready (runs once)
@@ -102,26 +103,12 @@ $(function () {
 
             }); //$(document).on
 
-
             //We needed to do this because mysteriously the page padding was dynamically changing to a value of 2.xxx
             //Don't know why.
             $(document).on("pagechange pagebeforechange popupafteropen popupafterclose resize", function (event) {
                 console.log('event pagechange-pagebeforechange popupafteropen popupafterclose resize');
                 app.AdjustPagePaddingTop();
             });
-
-            //THESE ARE DEBUG STATEMENTS BELOW
-            //$(document).on("pagecontainerchange", function (event) {
-            //    console.log('pagecontainerchange');
-            //    alert('pagecontainerchange');
-            //});
-
-            //$(document).on("touchend", function (event) {
-            //    console.log('touchend no default,propagation');
-            //    event.preventDefault();
-            //    event.stopPropagation();
-            //    //alert('touchend');
-            //});
 
             //sets the padding when window is resized. Not going to happen on a phone.
             $(window).resize(function ()
@@ -130,16 +117,20 @@ $(function () {
             });
 
             /*
-            pageinit on all pages - bind on pagebeforeshow event (all pages/w data-role page) - Set the Nav and Toolbars based on the page showing
+            the pageshow for info page bind and the iframe load bind are events bound just to show the user the spinner 
+            during the about page load. This can take a while because of the round trip. Also need hack to check
+            if iframe has loaded before pageshow. In this case we don't show the spinner
             */
-            $(document).on('pageinit', function () {
-                console.log('event doc pageinit');
-
-                $(document).on("pagebeforeshow", "[data-role='page']", function () {
-                    //app.setNavAndToolBars($(this)); //MNS
-                });
-
+            $(document).on('pageshow', '#info', function () {
+                if (!aboutIFrameLoaded) {
+                    $.mobile.loading('show'); //to show the spinner
+                }
+                aboutIFrameLoaded = false;
             });
+            $('#infoFrameId').get(0).onload = function () {
+                $.mobile.loading('hide'); //to show the spinner
+                aboutIFrameLoaded = true;
+            };
 
         }; //app.bindings = function () {
 
@@ -567,7 +558,7 @@ $(function () {
                 '<table><tr>' +
                 '<td><button id="startGamePlay" class="ui-btn" data-icon="action">Start Game</button></td>' +
                 '<td><button id="cancelGamePlay" class="ui-btn" data-icon="action">Cancel</button></td>' +
-                '<td><button id="reportGamePlay" class="ui-btn" data-icon="action">Reports</button></td>' +
+                '<td><button id="reportGamePlay" class="ui-btn" data-icon="action">Results</button></td>' +
                 '</tr></table></div>';
 
             $('#homePageContent').html(promptforPlayerHtml);
@@ -1212,7 +1203,6 @@ $(function () {
                     +result.GamePlayId
                     + '/' + result.PlayerId + '/1'; //with mobile indicator attached
             }
-
             window.location = url;
         };
 
