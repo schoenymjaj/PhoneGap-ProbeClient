@@ -76,7 +76,7 @@ $(function () {
                 codeFromURL = undefined;
                 if (QryStr('code') != undefined) {
                     if (QryStr('code') != "") {
-                        codeFromURL = QryStr('code')
+                        codeFromURL = decodeURI(QryStr('code'));
                     }
                 }
 
@@ -287,7 +287,7 @@ $(function () {
                     if (gamePlayData.errorid == undefined) {
                         //SUCCESS
                         //We've got the game play data; we also need the game configuration
-                        url = ProbeAPIurl + 'GameConfigurations/GetGameConfigurationByGame/' + gamePlayData.GameId;
+                        url = ProbeAPIurl + 'GameConfigurations/GetGameConfiguration/' + gamePlayData.Code;
                         console.log('func app.GetGamePlayServer AJAX url:' + url);
                         $.getJSON(url)
                             .done(function (gameConfig) {
@@ -363,7 +363,7 @@ $(function () {
         Get GamePlayStatus from Probe Server 
         FYI. The GetJSON call to server is synchronous
         */
-        app.GetGamePlayStatusServer = function (gamePlayId) {
+        app.GetGamePlayStatusServer = function (gameCode) {
             console.log('func app.GetGamePlayStatusServer');
             var clientReportAccess = false; //global within the GetGamePlayStatusServer function
             var ajaxCallTries = 0;
@@ -375,7 +375,7 @@ $(function () {
                 ajaxCallTries++;   //counting ajax tries
                 console.log('func app.GetGamePlayStatusServer ajax try:' + ajaxCallTries);
 
-                url = ProbeAPIurl + 'GamePlays/GetGamePlayById/' + gamePlayId;
+                url = ProbeAPIurl + 'GamePlays/GetGamePlayByCode/' + gameCode;
                 console.log('func app.GetGamePlayStatusServer AJAX url:' + url);
                 app.ajaxHelper(url, 'GET', null)
                   .done(function (gamePlayStatusData) {
@@ -437,20 +437,17 @@ $(function () {
             returnErrMsg = null;
 
             //create player object for POST
-            player = {};
-            player["GamePlayId"] = result["GamePlayId"];
-            player["FirstName"] = result["FirstName"];
-            player["NickName"] = result["NickName"];
-            (result["LastName"] != {}) ? player["LastName"] : result["LastName"]; //curently last name will always be empty 8/1/14
-            player["Sex"] = result["Sex"];
-
-            //mns debug
-            console.log('player["GamePlayId"]=' + player["GamePlayId"]);
-            console.log('result["GamePlayId"]=' + result["GamePlayId"]);
+            playerDTOin = {};
+            playerDTOin["GamePlayId"] = result["GamePlayId"];
+            playerDTOin["GameCode"] = result["GameCode"];
+            playerDTOin["FirstName"] = result["FirstName"];
+            playerDTOin["NickName"] = result["NickName"];
+            (result["LastName"] != {}) ? playerDTOin["LastName"] : result["LastName"]; //curently last name will always be empty 8/1/14
+            playerDTOin["Sex"] = result["Sex"];
 
             url = ProbeAPIurl + 'Players/PostPlayer';
             console.log('func app.PostGamePlayAnswersServer AJAX url:' + url);
-            app.ajaxHelper(url, 'POST', player)
+            app.ajaxHelper(url, 'POST', playerDTOin)
                 .done(function (playerDTO) {
                     console.log('return POSTPlayer success');
                     // On success, 'playerDTO' contains a Player object
@@ -466,6 +463,7 @@ $(function () {
                         for (i = 0; i < gamePlayData.GameQuestions.length; i++) {
                             gamePlayAnswers[i] = {};
                             gamePlayAnswers[i]["PlayerId"] = playerDTO.Id;
+                            gamePlayAnswers[i]["GameCode"] = result.GameCode;
                             gamePlayAnswers[i]["ChoiceId"] = result.GameQuestions[i]["SelChoiceId"];
                         }
 
@@ -676,6 +674,7 @@ $(function () {
             console.log('func app.InitalizeGamePlay');
 
             result["GamePlayId"] = JSONdata.Id;
+            result["GameCode"] = JSONdata.Code;
             result["FirstName"] = {};
             result["LastName"] = {};
             result["NickName"] = {};
@@ -869,7 +868,7 @@ $(function () {
                             app.PutResultLocalStorage(result);
 
                             try {
-                                app.GetGamePlayStatusServer(result.GamePlayId);
+                                app.GetGamePlayStatusServer(result.GameCode);
                             } catch (err) {
                                 $.mobile.loading('hide'); //to show the spinner
                                 app.popUpHelper("Error", "GetGamePlayStatusServer: " + err);
@@ -898,7 +897,7 @@ $(function () {
                             app.PutResultLocalStorage(result);
 
                             try {
-                                if (app.GetGamePlayStatusServer(result.GamePlayId)) {
+                                if (app.GetGamePlayStatusServer(result.GameCode)) {
                                     $.mobile.loading('hide'); //to show the spinner
                                     app.DisplayReportPage();
                                 } else {
@@ -1019,7 +1018,7 @@ $(function () {
 
             try {
                 $.mobile.loading('show'); //to show the spinner
-                result["ClientReportAccess"] = app.GetGamePlayStatusServer(result.GamePlayId);
+                result["ClientReportAccess"] = app.GetGamePlayStatusServer(result.GameCode);
                 app.PutResultLocalStorage(result);
             } catch (err) {
                 $.mobile.loading('hide'); //to show the spinner
@@ -1196,12 +1195,14 @@ $(function () {
 
             if (gamePlayData.GameType == "Match") {
                 url = ProbeMatchReporturl +
-                    +result.GamePlayId
-                    + '/' + result.PlayerId + '/1'; //with mobile indicator attached
+                    result.GamePlayId +
+                    '/' + result.GameCode +
+                    '/' + result.PlayerId + '/1'; //with mobile indicator attached
             } else {
                 url = ProbeTestReporturl +
-                    +result.GamePlayId
-                    + '/' + result.PlayerId + '/1'; //with mobile indicator attached
+                    result.GamePlayId +
+                    '/' + result.GameCode +
+                    '/' + result.PlayerId + '/1'; //with mobile indicator attached
             }
             window.location = url;
         };
@@ -1266,7 +1267,7 @@ $(function () {
         /*
         Queue Games Submitted - Keep the last 5
         */
-        app.QueueGamePlays = function () {
+        app.QueueGamePlays = function (gameState) {
             console.log('func app.QueueGamePlays');
 
             gamePlayData = app.GetGamePlayLocalStorage();
@@ -1289,9 +1290,11 @@ $(function () {
 
             //we want to save certain game data for the home page list of submitted games
             gamePlayListQueue[0]["GamePlayId"] = result["GamePlayId"];
+            gamePlayListQueue[0]["GameCode"] = result["GameCode"];
             gamePlayListQueue[0]["Name"] = gamePlayData.Name;
             gamePlayListQueue[0]["FirstName"] = result.FirstName;
             gamePlayListQueue[0]["NickName"] = result.NickName;
+            gamePlayListQueue[0]["GameState"] = gameState;
 
             gamePlayQueue[0].GamePlay = gamePlayData;
             gamePlayQueue[0].Result = result;
@@ -1486,7 +1489,7 @@ $(function () {
             $("[data-icon='plus']").removeClass('ui-disabled');
             $("[data-icon='minus']").addClass('ui-disabled');
 
-            app.QueueGamePlays();
+            app.QueueGamePlays(GameState.Submitted);
 
         };//app.SubmitSuccess
 
