@@ -108,8 +108,6 @@ window.onerror = function (msg, url, line) {
     } else {
         handleAppError(msg, url, line);
     }
-
-
 }
 
 /*

@@ -27,11 +27,9 @@ $(function () {
         /*
         Globals
         */
-
-        
         var root = GetRootUrl();  //root directory of the web site serving mobile app (i.e. in-common-app.com)
 
-        var probeVersion = '0.65';
+        var probeVersion = '0.66';
         //alert('Probe Version: ' + probeVersion);
         var ProbeAPIurl = root + "api/";
         var ProbeMatchReporturl = root + "Reports/PlayerMatchSummary/";
@@ -83,7 +81,6 @@ $(function () {
                 if (codeFromURL == undefined) {
                     app.SetHomePageInitialDisplay();
                 }
-
 
                 //bind "new game", and "go home events" - misc
                 app.BindPageStaticEvents('misc');
@@ -141,8 +138,6 @@ $(function () {
             console.log('func app.SetHomePageInitialDisplay');
             gamePlayListQueue = app.GetGamePlayListQueueLocalStorage();
 
-            listViewHtml = '';
-
             //if the game state is idle; then we just want to make sure that the Add function is
             //enabled and the Cancel function is disabled
             if (gameState == GameState.Idle) {
@@ -151,32 +146,76 @@ $(function () {
             }
 
             if (app.IsGameInProgress() || gamePlayListQueue.length > 0) {
-                app.SetHomePageStyle(false);
+                app.HomePageInitialDisplayListview();
+            }// if (app.IsGameInProgress() || gamePlayListQueue > 0) {
+            else {
+                app.HomePageInitialDisplayInstruct();
+            }
 
-                listViewHtml += '<ul id="gameList" data-role="listview" data-split-icon="bar-chart-o" data-inset="true">';
+            app.BindPageStaticEvents('#home');
 
-                if (app.IsGameInProgress()) {
-                    $("[data-icon='plus']").addClass('ui-disabled');
-                    $("[data-icon='minus']").removeClass('ui-disabled');
+            //dynamically bind dynamic button to About page event
+            $("#aboutBtn").click(function (event) {
+                app.DisplayAboutPage();
+            });
 
-                    gamePlayData = app.GetGamePlayLocalStorage();
-                    result = app.GetResultLocalStorage();
+        };//app.SetHomePageInitialDisplay
 
-                    listViewHtml += '<li data-role="list-divider">Active Game<span class="ui-li-count">1</span></li>' +
-                                    '<li data-icon="star" data-gameplay="active"><a href="#"><span class="listviewGameName">' +
-                                     gamePlayData.Name + '</span>' +
-                                    '<p class="listviewPlayerName">' +
-                                     result.FirstName + '-' + result.NickName +
-                                     '</p>' + '</a></li>';
-                } else {
-                    listViewHtml += '<li data-role="list-divider">No Active Game<span class="ui-li-count">0</span></li>'
-                }//if (app.IsGameInProgress()) {
+        /*
+        Set HomePageInitialDisplay- Game Listview
+        */
+        app.HomePageInitialDisplayListview = function () {
+            console.log('func app.HomePageInitialDisplayListview');
+
+            gamePlayListQueue = app.GetGamePlayListQueueLocalStorage();
+
+            app.SetHomePageStyle(false);
+            listViewHtml = '';
+            listViewHtml += '<ul id="gameList" data-role="listview" data-split-icon="bar-chart-o" data-inset="true">';
+
+            if (app.IsGameInProgress()) {
+                $("[data-icon='plus']").addClass('ui-disabled');
+                $("[data-icon='minus']").removeClass('ui-disabled');
+
+                gamePlayData = app.GetGamePlayLocalStorage();
+                result = app.GetResultLocalStorage();
+
+                listViewHtml += '<li data-role="list-divider">Active Game<span class="ui-li-count">1</span></li>' +
+                                '<li data-icon="star" data-gameplay="active"' +
+                                ' data-index="-1"' +
+                                '><a href="#"><span class="listviewGameName">' +
+                                 gamePlayData.Name + '</span>' +
+                                '<p class="listviewPlayerName">' +
+                                 result.FirstName + '-' + result.NickName +
+                                 '</p>' + '</a></li>';
+            } else if (app.IsGamesInQueue(GameState.Active)) {
+                $("[data-icon='plus']").addClass('ui-disabled');
+                $("[data-icon='minus']").removeClass('ui-disabled');
+
+                index = app.GetActiveGameIndexInQueue();
+
+                listViewHtml += '<li data-role="list-divider">Active Game<span class="ui-li-count">1</span></li>' +
+                                '<li data-icon="star" data-gameplay="active"' +
+                                ' data-index="' + app.GetActiveGameIndexInQueue() + '"' +
+                                '><a href="#"><span class="listviewGameName">' +
+                                 gamePlayListQueue[index].Name + '</span>' +
+                                '<p class="listviewPlayerName">' +
+                                 gamePlayListQueue[index].FirstName + '-' + gamePlayListQueue[index].NickName +
+                                 '</p>' + '</a></li>';
+
+            } else {
+                listViewHtml += '<li data-role="list-divider">No Active Game<span class="ui-li-count">0</span></li>'
+            }//if (app.IsGameInProgress()) {
 
 
-                if (gamePlayListQueue.length > 0) {
-                    listViewHtml += '<li data-role="list-divider">Submitted Games<span class="ui-li-count">' + gamePlayListQueue.length + '</span></li>';
-                }
-                gamePlayListQueue.forEach(function (value, index, ar) {
+            if (app.IsGamesInQueue(GameState.Submitted)) {
+                listViewHtml += '<li data-role="list-divider">Submitted Games<span class="ui-li-count">' + app.GetNbrGamesInQueue(GameState.Submitted) + '</span></li>';
+            }
+            gamePlayListQueue.forEach(function (value, index, ar) {
+
+                //only submitted games are displayed in the list here.
+                if (value.GameState == GameState.Submitted) {
+
                     listViewHtml += '<li data-icon="bar-chart-o" data-gameplay="submitted"' +
                                     ' data-index="' + index + '"' +
                                     ' data-gameplayid="' + value.GamePlayId + '"' +
@@ -191,43 +230,46 @@ $(function () {
                                      '<a href="#" class="gameReportAction" ' +
                                     ' data-index="' + index + '"' +
                                      '></a>'
-                                     '</li>';
+                    '</li>';
 
-                });
+                }
 
-
-                listViewHtml += '</ul>';
-
-                $('#homePageContent').html(listViewHtml);
-                $('#homePageContent').css('color', 'black');
-                $('#gameList').listview().listview("refresh").trigger("create");
-                $('#home').trigger('create');
-
-
-            }// if (app.IsGameInProgress() || gamePlayListQueue > 0) {
-            else {
-                app.SetHomePageStyle(true); //the only time we set bckground image to full opacity -first time
-                gameInstructions = '<h3 style="text-align: center">Welcome to the Probe App!</h3>' +
-                                   '<p>You will need a game code from the game organizer in order to play.</p>' +
-                                   '<p>Click the Add icon on the top menu bar.' +
-                                   ' After entering your code you may have to wait a few moments for Probe to retrieve your game.</p>' +
-                                    '<p>Enter your first name and a nickname so you can be recognized. Answer each of the questions and click submit. Your game organizer will provide you with access to the game results.</p>' +
-                                    '<button id="aboutBtn" class="ui-btn" data-icon="book">Want to know more?</button>';
-
-                $('#homePageContent').html(gameInstructions);
-                $('#homePageContent').css('color', '#3388cc');
-                $('#home').trigger('create');
-
-            }
-
-            app.BindPageStaticEvents('#home');
-
-            //dynamically bind dynamic button to About page event
-            $("#aboutBtn").click(function (event) {
-                app.DisplayAboutPage();
             });
 
-        };//app.SetHomePageInitialDisplay
+
+            listViewHtml += '</ul>';
+
+            $('#homePageContent').html(listViewHtml);
+            $('#homePageContent').css('color', 'black');
+            $('#gameList').listview().listview("refresh").trigger("create");
+            $('#home').trigger('create');
+
+        }//app.HomePageInitialDisplayListview
+
+        /*
+        Set HomePageInitialDisplay- Instructions
+        */
+        app.HomePageInitialDisplayInstruct = function () {
+            console.log('func app.HomePageInitialDisplayInstruct');
+
+            app.SetHomePageStyle(true); //the only time we set bckground image to full opacity -first time
+            gameInstructions = '<h3 style="text-align: center">Welcome to the Probe App!</h3>' +
+                               '<p>You will need a game code from a game organizer in order to play. Try the <a id="demoGameLink" data-democode="DEMO Match" href="#">demo game</a> if you don\'t have a code yet.</p>' +
+                               '<p>To enter a game code, click the Add icon on the top menu bar.' +
+                               ' After entering your code, you may have to wait a few moments for Probe to retrieve your game.</p>' +
+                                '<p>Enter your first name and a nickname so you can be recognized. Answer each of the questions and click submit. Your game organizer will provide you with access to the game results.</p>' +
+                                '<button id="aboutBtn" class="ui-btn" data-icon="book">Want to know more?</button>';
+
+            $('#homePageContent').html(gameInstructions);
+            $('#homePageContent').css('color', '#3388cc');
+            $('#home').trigger('create');
+
+            //let's kick start the 'DEMO Match' game
+            $("#demoGameLink").click(function (event) {
+                app.SetHomePageStyle(false);
+                app.GetGamePlayServer($(this).attr("data-democode"));
+            });
+        }//app.HomePageInitialDisplayInstruct
 
         /*
         Update the home page with a text box to enter game play code
@@ -240,7 +282,6 @@ $(function () {
                 '<div style="margin-top: 10px"><label for="code">Game Code</label>' +
                 '<input name="code" id="gameCode" type="text" ' +
                 'value="' +
-                ((codeFromURL != undefined) ? codeFromURL : "") +
                 '" ' +
                 'data-clear-btn="true">' +
                 '<table><tr>' +
@@ -384,6 +425,7 @@ $(function () {
                       // On success, 'data' contains a GamePlay(only one level) JSON object
                       if (gamePlayStatusData.errorid == undefined) {
                           //SUCCESS
+                          result = app.GetResultLocalStorage(result);
                           clientReportAccess = gamePlayStatusData.ClientReportAccess;
                           result["ClientReportAccess"] = gamePlayStatusData.ClientReportAccess;;
                           result["PlayerCount"] = gamePlayStatusData.PlayerCount;
@@ -436,6 +478,7 @@ $(function () {
 
             returnErrMsg = null;
 
+            result = app.GetResultLocalStorage();
             //create player object for POST
             playerDTOin = {};
             playerDTOin["GamePlayId"] = result["GamePlayId"];
@@ -641,7 +684,7 @@ $(function () {
                     return;
                 }
 
-                result = app.GetResultLocalStorage();
+                //result = app.GetResultLocalStorage();
                 result["FirstName"] = $('#firstName').val()
                 result["NickName"] = $('#nickName').val()
                 if ($('#sex-male').attr("checked") == "checked") {
@@ -657,7 +700,24 @@ $(function () {
             });
 
             $('#cancelGamePlay').click(function (event) {
-                app.CancelGame();
+
+                gamePlayData = app.GetGamePlayLocalStorage();
+                /*
+                if the game is active; then we want to ask if they really want to cancel. 
+                If the game is NOT active. Then we do a CancelGame (this does not harm since a submitted game is queued
+                */
+                if (app.IsGameInProgress()) {
+                    app.confirmDialog('Cancel', 'You\'re about to cancel the Game <span class="popupGameName">'
+                                                 + gamePlayData.Name
+                                                 + '</span> that\'s in progress.<p>Are you sure?</p>',
+                    function () {
+                        app.CancelGame();
+                    });
+                } else {
+                    app.CancelGame();
+                }
+
+
             });
 
             $('#reportGamePlay').click(function (event) {
@@ -851,6 +911,14 @@ $(function () {
             switch (pageSelector) {
                 case "#home":
                     $('[data-gameplay="active"]').click(function (event) {
+
+                        index = this.attributes["data-index"].value;
+
+                        //if index not -1; then we need to pop from queue. This puts active game back in the current game storage
+                        if (index != -1) {
+                            app.PopQueueGamePlays();
+                        }
+
                         app.ResumeGame(GameState.Active);
                     }); //$('[data-gameplay="active"]').click
 
@@ -861,25 +929,7 @@ $(function () {
 
                         //copy gameplay out of queue into current gameplay (even though it's read-only)
                         setTimeout(function () {
-                            gamePlayQueue = app.GetGamePlayQueueLocalStorage();
-                            gamePlayData = gamePlayQueue[index].GamePlay;
-                            result = gamePlayQueue[index].Result;
-                            app.PutGamePlayLocalStorage(gamePlayData);
-                            app.PutResultLocalStorage(result);
-
-                            try {
-                                app.GetGamePlayStatusServer(result.GameCode);
-                            } catch (err) {
-                                $.mobile.loading('hide'); //to show the spinner
-                                app.popUpHelper("Error", "GetGamePlayStatusServer: " + err);
-                            }
-
-                            //set the home page for read-only view
-                            gameState = GameState.ReadOnly;
-                            app.SetHomePageStyle(false); //set backgrounded faded
-                            app.ResumeGame(GameState.ReadOnly); //resume game read-only
-                            $.mobile.loading('hide'); //to show the spinner
-
+                            app.GameResumeAction(index);
                         }, 500);
 
                     }); //$('[data-gameplay="submitted" .gameResumeAction]').click
@@ -890,26 +940,7 @@ $(function () {
                         index = this.attributes["data-index"].value;
 
                         setTimeout(function () {
-                            gamePlayQueue = app.GetGamePlayQueueLocalStorage();
-                            gamePlayData = gamePlayQueue[index].GamePlay;
-                            result = gamePlayQueue[index].Result;
-                            app.PutGamePlayLocalStorage(gamePlayData);
-                            app.PutResultLocalStorage(result);
-
-                            try {
-                                if (app.GetGamePlayStatusServer(result.GameCode)) {
-                                    $.mobile.loading('hide'); //to show the spinner
-                                    app.DisplayReportPage();
-                                } else {
-                                    $.mobile.loading('hide'); //to show the spinner
-                                    app.popUpHelper("Info", "The game organizer has not made game results accessible to the players yet.");
-                                }
-                            } catch (err) {
-                                $.mobile.loading('hide'); //to show the spinner
-                                app.popUpHelper("Error", "GetGamePlayStatusServer: " + err);
-                            }
-                            $.mobile.loading('hide'); //to show the spinner
-
+                            app.GameReportAction(index);
                         }, 500);
 
                     }); //$('[data-gameplay="submitted" .gameReportAction]').click
@@ -964,34 +995,27 @@ $(function () {
 
                     //bind all "Add Game" (plus) icons events
                     $("[data-icon='plus'],#newGame").click(function (event) {
-                        $('#menu').panel("close"); //if menu open
-
-                        if (app.IsGameInProgress()) {
-                            gamePlayData = app.GetGamePlayLocalStorage();
-                            app.popUpHelper('Error', 'Game \'' + gamePlayData.Name + '\' is in progress', 'You must cancel this game first to start a new game.');
-                            return;
-                        }
-
-                        $("[data-icon='plus']").addClass('ui-disabled');
-                        $("[data-icon='minus']").removeClass('ui-disabled');
-                        app.SetHomePageStyle(false);
-                        app.SetGamePlayCodePrompt();
-                        gameState = GameState.Idle;
-                        $(":mobile-pagecontainer").pagecontainer('change', '#home');
-                        
+                        app.GameAddAction();
                     });
 
                     //bind all "Cancel Game" (plus) icons events
                     $("[data-icon='minus']").click(function (event) {
 
-                        if (!app.IsGameInProgress())
+                        if (!app.IsGameInProgress() && !app.IsGamesInQueue(GameState.Active))
                         {
                             app.popUpHelper('Error', 'There\'s no Game in progress',null);
                             return
                         } else {
-                            gamePlayData = app.GetGamePlayLocalStorage();
+                            //if the active game is on the queue; then lets pop it to the current and cancel it.
+                            if (app.IsGamesInQueue(GameState.Active)) {
+                                app.PopQueueGamePlays();
+                            }
 
-                            app.confirmDialog('Cancel', 'You\'re about to cancel the Game <span class="popupGameName">' + gamePlayData.Name + '</span> that\'s in progress.<p>Are you sure?</p>',
+                            gamePlayData = app.GetGamePlayLocalStorage();
+                            result = app.GetResultLocalStorage();
+                            app.confirmDialog('Cancel', 'You\'re about to cancel the Game <span class="popupGameName">'
+                                + gamePlayData.Name + ' (' + result.FirstName + '-' + result.NickName
+                                + ')</span> that\'s in progress.<p>Are you sure?</p>',
                                 function () {
                                     app.CancelGame();
                             });
@@ -1009,17 +1033,58 @@ $(function () {
             }
         };//app.BindPageStaticEvents 
 
-        app.gameResumeAction = function (index) {
-            gamePlayQueue = app.GetGamePlayQueueLocalStorage();
-            gamePlayData = gamePlayQueue[index].GamePlay;
-            result = gamePlayQueue[index].Result;
-            app.PutGamePlayLocalStorage(gamePlayData);
-            app.PutResultLocalStorage(result);
+        /*
+        Game Add Action
+        */
+        app.GameAddAction = function () {
+            console.log('func app.GameAddAction');
+
+            $('#menu').panel("close"); //if menu open
+
+            if (app.IsGameInProgress()) {
+                gamePlayData = app.GetGamePlayLocalStorage();
+                app.popUpHelper('Error', 'Game \'' + gamePlayData.Name + '\' is in progress', 'You must cancel this game first to start a new game.');
+                return;
+            } else if (app.IsGamesInQueue(GameState.Active)) {
+                gamePlayListQueue = app.GetGamePlayListQueueLocalStorage();
+                index = app.GetActiveGameIndexInQueue();
+                app.popUpHelper('Error', 'Game \'' + gamePlayListQueue[index].Name + '\' is in progress', 'You must cancel this game first to start a new game.');
+                return;
+            }
+
+            /*
+            the current game is not active; nor is a queued game active. So we can add a game
+            */
+            $("[data-icon='plus']").addClass('ui-disabled');
+            $("[data-icon='minus']").removeClass('ui-disabled');
+            app.SetHomePageStyle(false);
+            app.SetGamePlayCodePrompt();
+            gameState = GameState.Idle;
+            $(":mobile-pagecontainer").pagecontainer('change', '#home');
+
+        }//app.GameAddAction
+
+        /*
+        Game Resume Action (from Submitted State)
+        */
+        app.GameResumeAction = function (index) {
+            console.log('func app.GameResumeAction');
+
+            //get the game from the queue first
+            gamePlayQueueBeforPush = app.GetGamePlayQueueLocalStorage();
+            gamePlayDataBeforePush = gamePlayQueueBeforPush[index].GamePlay;
+            resultBeforePush = gamePlayQueueBeforPush[index].Result;
+
+            //if game is in progess, then we want to push active game onto the queue
+            if (app.IsGameInProgress()) {
+                app.PushQueueGamePlays(GameState.Active);
+            }
+
+            app.PutGamePlayLocalStorage(gamePlayDataBeforePush);
+            app.PutResultLocalStorage(resultBeforePush);
 
             try {
-                $.mobile.loading('show'); //to show the spinner
-                result["ClientReportAccess"] = app.GetGamePlayStatusServer(result.GameCode);
-                app.PutResultLocalStorage(result);
+                app.GetGamePlayStatusServer(resultBeforePush.GameCode);
             } catch (err) {
                 $.mobile.loading('hide'); //to show the spinner
                 app.popUpHelper("Error", "GetGamePlayStatusServer: " + err);
@@ -1030,9 +1095,39 @@ $(function () {
             app.SetHomePageStyle(false); //set backgrounded faded
             app.ResumeGame(GameState.ReadOnly); //resume game read-only
             $.mobile.loading('hide'); //to show the spinner
+        }//
 
+        /*
+        Game Report Action (from Submitted State)
+        */
+        app.GameReportAction = function (index) {
+            console.log('func app.GameReportAction');
 
-        }//app.gameResumeAction
+            //if game is in progess, then we want to push active game onto the queue
+            if (app.IsGameInProgress()) {
+                app.PushQueueGamePlays(GameState.Active);
+            }
+
+            gamePlayQueue = app.GetGamePlayQueueLocalStorage();
+            gamePlayData = gamePlayQueue[index].GamePlay;
+            result = gamePlayQueue[index].Result;
+            app.PutGamePlayLocalStorage(gamePlayData);
+            app.PutResultLocalStorage(result);
+
+            try {
+                if (app.GetGamePlayStatusServer(result.GameCode)) {
+                    $.mobile.loading('hide'); //to show the spinner
+                    app.DisplayReportPage();
+                } else {
+                    $.mobile.loading('hide'); //to show the spinner
+                    app.popUpHelper("Info", "The game organizer has not made game results accessible to the players yet.");
+                }
+            } catch (err) {
+                $.mobile.loading('hide'); //to show the spinner
+                app.popUpHelper("Error", "GetGamePlayStatusServer: " + err);
+            }
+            $.mobile.loading('hide'); //to show the spinner
+        }//app.GameReportAction
 
         /*
         Confirm Submit Logic
@@ -1187,25 +1282,38 @@ $(function () {
         */
         app.DisplayReportPage = function () {
             console.log('func app.DisplayReportPage');
-            $.mobile.loading('show'); //MNS
 
+                gamePlayData = app.GetGamePlayLocalStorage();
+                result = app.GetResultLocalStorage();
 
-            gamePlayData = app.GetGamePlayLocalStorage();
-            result = app.GetResultLocalStorage();
+                if (gamePlayData.GameType == "Match") {
 
-            if (gamePlayData.GameType == "Match") {
-                url = ProbeMatchReporturl +
-                    result.GamePlayId +
-                    '/' + result.GameCode +
-                    '/' + result.PlayerId + '/1'; //with mobile indicator attached
-            } else {
-                url = ProbeTestReporturl +
-                    result.GamePlayId +
-                    '/' + result.GameCode +
-                    '/' + result.PlayerId + '/1'; //with mobile indicator attached
-            }
-            window.location = url;
-        };
+                    //for match report - we have to check that there are least 2 players
+                    if (result.PlayerCount >= 2) {
+                        $.mobile.loading('show'); //MNS
+
+                        url = ProbeMatchReporturl +
+                            result.GamePlayId +
+                            '/' + result.GameCode +
+                            '/' + result.PlayerId + '/1'; //with mobile indicator attached
+                        window.location = url;
+
+                    }
+                    else {
+                        app.popUpHelper("Info", "There are not enough players that have submitted their games to report on the results. Please try again later.");
+                    }
+
+                } else { //Test Type
+                    $.mobile.loading('show'); //MNS
+
+                    url = ProbeTestReporturl +
+                        result.GamePlayId +
+                        '/' + result.GameCode +
+                        '/' + result.PlayerId + '/1'; //with mobile indicator attached
+                    window.location = url;
+                }
+
+        };//app.DisplayReportPage
 
         /*
         returns true if game is in progress
@@ -1229,8 +1337,9 @@ $(function () {
         app.IsAllQuestionsAnswered = function () {
             console.log('func app.IsAllQuestionsAnswered');
 
+            
             allAnswered = true;
-
+            result = app.GetResultLocalStorage();
             for (i = 0; i < gamePlayData.GameQuestions.length; i++) {
                 if (result.GameQuestions[i]["SelChoiceId"] == NO_ANSWER) allAnswered = false;
                 
@@ -1247,7 +1356,7 @@ $(function () {
             console.log('func app.NbrQuestionsAnswered');
 
             questionsAnswered = 0;
-
+            result = app.GetResultLocalStorage();
             for (i = 0; i < gamePlayData.GameQuestions.length; i++) {
                 if (result.GameQuestions[i]["SelChoiceId"] != NO_ANSWER) questionsAnswered++;
             }
@@ -1260,15 +1369,15 @@ $(function () {
         */
         app.NbrQuestions = function () {
             console.log('func app.NbrQuestions');
-
+            result = app.GetResultLocalStorage();
             return result.GameQuestions.length;
         };
 
         /*
-        Queue Games Submitted - Keep the last 5
+        (PUSH) Queue Games Submitted/Active - Keep the last gamePlayQueueMax
         */
-        app.QueueGamePlays = function (gameState) {
-            console.log('func app.QueueGamePlays');
+        app.PushQueueGamePlays = function (gameState) {
+            console.log('func app.PushQueueGamePlays');
 
             gamePlayData = app.GetGamePlayLocalStorage();
             result = app.GetResultLocalStorage();
@@ -1301,7 +1410,89 @@ $(function () {
             app.PutGamePlayListQueueLocalStorage(gamePlayListQueue);
             app.PutGamePlayQueueLocalStorage(gamePlayQueue);
 
-        };//app.QueueGamePlays
+        };//app.PushQueueGamePlays
+
+        /*
+        (POP) Queue Games Submitted/Active
+        */
+        app.PopQueueGamePlays = function () {
+            console.log('func app.PopQueueGamePlays');
+
+            gamePlayQueue = app.GetGamePlayQueueLocalStorage();
+            gamePlayListQueue = app.GetGamePlayListQueueLocalStorage();
+
+            app.PutGamePlayLocalStorage(gamePlayQueue[0].GamePlay);
+            app.PutResultLocalStorage(gamePlayQueue[0].Result);
+
+            queueNbrStart = 0;
+            for (var i = queueNbrStart; i < gamePlayQueue.length-1; i++) {
+                gamePlayListQueue[i] = gamePlayListQueue[i + 1];
+                gamePlayQueue[i] = gamePlayQueue[i + 1];
+            }
+
+            //removes the last item of the game play queue
+            gamePlayQueue.splice(gamePlayQueue.length - 1, 1);
+            gamePlayListQueue.splice(gamePlayQueue.length - 1, 1);
+
+            //store the new order queue
+            app.PutGamePlayListQueueLocalStorage(gamePlayListQueue);
+            app.PutGamePlayQueueLocalStorage(gamePlayQueue);
+
+        };//app.PopQueueGamePlays
+
+        /*
+        returns true if there are games in the queue
+        */
+        app.IsGamesInQueue = function (gameState) {
+            console.log('func app.IsGamesInQueue');
+            returnStatus = false;
+
+            gamePlayListQueue = app.GetGamePlayListQueueLocalStorage();
+            for (i = 0; i <= gamePlayListQueue.length - 1; i++) {
+                if (gamePlayListQueue[i].GameState == gameState) {
+                    returnStatus = true;
+                }
+                if (returnStatus) break;
+            }
+            return returnStatus;
+
+        };//app.IsGamesInQueue(gameState)
+
+        /*
+        Get number of games in queue
+        */
+        app.GetNbrGamesInQueue = function (gameState) {
+            console.log('func app.GetNbrGamesInQueue');
+            count = 0;
+
+            gamePlayListQueue = app.GetGamePlayListQueueLocalStorage();
+            for (i = 0; i <= gamePlayListQueue.length - 1; i++) {
+                if (gamePlayListQueue[i].GameState == gameState) {
+                    count++;
+                }
+            }
+            return count;
+
+        };//app.IsGamesInQueue(gameState)
+
+        /*
+        Gets index of Active Game in Queue
+        returns -1 if no active game in queue
+        */
+        app.GetActiveGameIndexInQueue = function () {
+            console.log('func app.GetActiveGameIndexInQueue');
+            index = -1;
+
+            gamePlayListQueue = app.GetGamePlayListQueueLocalStorage();
+            for (i = 0; i <= gamePlayListQueue.length - 1; i++) {
+                if (gamePlayListQueue[i].GameState == GameState.Active) {
+                    index = i;
+                }
+                if (index != -1) break;
+            }
+            return index;
+
+        };//app.IsGamesInQueue(gameState)
 
         /*
         return if the game has been submitted already (looking at the queue)
@@ -1489,7 +1680,7 @@ $(function () {
             $("[data-icon='plus']").removeClass('ui-disabled');
             $("[data-icon='minus']").addClass('ui-disabled');
 
-            app.QueueGamePlays(GameState.Submitted);
+            app.PushQueueGamePlays(GameState.Submitted);
 
         };//app.SubmitSuccess
 
