@@ -135,7 +135,7 @@ $(function () {
         Set Homepage Initial Display - Listview of active game and previous games played
         */
         app.SetHomePageInitialDisplay = function () {
-            console.log('func app.SetHomePageInitialDisplay');
+            console.log('func app.SetHomePageInitialDisplay w:' + $(window).height() + ' h:' + $(window).height());
             gamePlayListQueue = app.GetGamePlayListQueueLocalStorage();
 
             //if the game state is idle; then we just want to make sure that the Add function is
@@ -1085,6 +1085,7 @@ $(function () {
 
             try {
                 app.GetGamePlayStatusServer(resultBeforePush.GameCode);
+                $.mobile.loading('hide'); //to show the spinner
             } catch (err) {
                 $.mobile.loading('hide'); //to show the spinner
                 app.popUpHelper("Error", "GetGamePlayStatusServer: " + err);
@@ -1159,19 +1160,22 @@ $(function () {
         AdjustPagePaddingTop
         */
         app.AdjustPagePaddingTop = function () {
-            console.log('func AdjustPagePaddingTop');
+            //console.log('func AdjustPagePaddingTop');
 
+            padding = '2.5em';
             switch ($.mobile.pageContainer.pagecontainer("getActivePage").attr('id')) {
                 case "home":
-                    console.log('change the padding to 44px for home');
-                    $('#home').css("padding-top", "42px");
+                    console.log('change the padding to ' + padding + ' for home');
+                    $('#home').css("padding-top", padding);
                     break;
                 case "question":
-                    $('#question').css("padding-top", "42px");
+                    $('#question').css("padding-top", "2em");
                     break;
                 case "summary":
-                    $('#summary').css("padding-top", "42px");
+                    $('#summary').css("padding-top", "2em");
                     break;
+                default:
+                    $('#homePageContent').css("padding-top", padding);
             }
 
         }
