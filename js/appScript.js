@@ -253,10 +253,10 @@ $(function () {
             console.log('func app.HomePageInitialDisplayInstruct');
 
             app.SetHomePageStyle(true); //the only time we set bckground image to full opacity -first time
-            gameInstructions = '<h3 style="text-align: center">Welcome to the Probe App!</h3>' +
+            gameInstructions = '<h3 style="text-align: center">Welcome to the <i>In Common</i> App!</h3>' +
                                '<p>You will need a game code from a game organizer in order to play. Try the <a id="demoGameLink" data-democode="DEMO Match" href="#">demo game</a> if you don\'t have a code yet.</p>' +
                                '<p>To enter a game code, click the Add icon on the top menu bar.' +
-                               ' After entering your code, you may have to wait a few moments for Probe to retrieve your game.</p>' +
+                               ' After entering your code, you may have to wait a few moments for <i>In Common</i> to retrieve your game.</p>' +
                                 '<p>Enter your first name and a nickname so you can be recognized. Answer each of the questions and click submit. Your game organizer will provide you with access to the game results.</p>' +
                                 '<button id="aboutBtn" class="ui-btn" data-icon="book">Want to know more?</button>';
 
@@ -357,7 +357,7 @@ $(function () {
 
                                 probeError = error;
                                 if (probeError == "") {
-                                    probeError = "The Probe web server could not be found. There may be connectivity issues."
+                                    probeError = "The In Common web server could not be found. There may be connectivity issues."
                                 }
                                 var err = textStatus + ", " + probeError;
 
@@ -389,7 +389,7 @@ $(function () {
 
                   probeError = error;
                   if (probeError == "") {
-                      probeError = "The Probe web server could not be found. There may be connectivity issues."
+                      probeError = "The In Common web server could not be found. There may be connectivity issues."
                   }
                   var err = textStatus + ", " + probeError;
                   app.popUpHelper("Error", 'Request Failed:' + err,null);
@@ -451,7 +451,7 @@ $(function () {
                       console.log('return GetGamePlayStatus fail');
                       probeError = error;
                       if (probeError == "") {
-                          probeError = "The Probe web server could not be found. There may be connectivity issues."
+                          probeError = "The In Common web server could not be found. There may be connectivity issues."
                       }
                       errorMessage = textStatus + ", " + probeError;
                       ajaxIsSuccessful = false;
@@ -548,7 +548,7 @@ $(function () {
 
                             probeError = error;
                             if (probeError == "") {
-                                probeError = "The Probe web server could not be found. There may be connectivity issues."
+                                probeError = "The In Common web server could not be found. There may be connectivity issues."
                             }
                             return returnErrMsg = textStatus + ", " + probeError;
                         });//fail for POST GamePlayAnswers
@@ -558,7 +558,7 @@ $(function () {
 
                     probeError = error;
                     if (probeError == "") {
-                        probeError = "The Probe web server could not be found. There may be connectivity issues."
+                        probeError = "The In Common web server could not be found. There may be connectivity issues."
                     }
                     return returnErrMsg = textStatus + ", " + probeError;
                 }); //fail for POST Player
@@ -1160,23 +1160,27 @@ $(function () {
         AdjustPagePaddingTop
         */
         app.AdjustPagePaddingTop = function () {
-            //console.log('func AdjustPagePaddingTop');
-
+            console.log('func AdjustPagePaddingTop');
             padding = '2.5em';
             switch ($.mobile.pageContainer.pagecontainer("getActivePage").attr('id')) {
                 case "home":
-                    console.log('change the padding to ' + padding + ' for home');
+                    padding = "2.5em"
                     $('#home').css("padding-top", padding);
                     break;
                 case "question":
-                    $('#question').css("padding-top", "2em");
+                    padding = "2.0em"
+                    $('#question').css("padding-top", padding);
                     break;
                 case "summary":
-                    $('#summary').css("padding-top", "2em");
+                    padding = "2.0em"
+                    $('#summary').css("padding-top", padding);
                     break;
-                default:
-                    $('#homePageContent').css("padding-top", padding);
+                case "info":
+                    padding = "3em"
+                    $('#info').css("padding-top", padding);
+                    break;
             }
+            console.log('change the padding to ' + padding );
 
         }
 
@@ -1190,7 +1194,7 @@ $(function () {
             console.log('func app.SetHomePageStyle');
             $('footer').hide(); //hide footer on the page
 
-            $('#home').css("padding-top", "42px");
+            //$('#home').css("padding-top", "42px");
 
             if (initialState) {
                 //$('#home').css('background-image', 'url(./images/bckground/ProbeBackground-Opacity20.jpg)');
@@ -1276,7 +1280,7 @@ $(function () {
             setTimeout(function () {
 
                 $(':mobile-pagecontainer').pagecontainer('change', '#info', { transition: 'none' });
-                $('#report').css("padding-top", "42px"); //MNS
+                $('#info').css("padding-top", "3em");
 
             }, 500);
         }

@@ -4,9 +4,9 @@
 	id        = "com.productivityedge.probe"
 	versionCode="1"
 	version   = "0.1">
-    <name>Probe</name>
+    <name>In Common</name>
     <description>
-Probe party game application</description>
+In Common social media game application</description>
 <author href="productivityedge.com" email="mns@productivityedge.com">
 Mike Schoenfeld
 </author>
