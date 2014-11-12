@@ -24,6 +24,7 @@ Mike Schoenfeld
     <preference name="android-installLocation" value="auto" />
     <preference name="BackgroundColor" value="0xffffffff "/>
     <preference name="KeepRunning" value="true"/>
+    <preference name="KeyboardDisplayRequiresUserAction" value="false" /> 
     <icon src="images/icon/ios/icon-57.png" gap:platform="ios" width="57" height="57" />
     <icon src="images/icon/ios/icon-72.png" gap:platform="ios" width="72" height="72" />
     <icon src="images/icon/ios/icon-57-2x.png" gap:platform="ios" width="114" height="114" />

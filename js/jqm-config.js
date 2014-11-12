@@ -2,7 +2,7 @@
 All jquery mobile configuration will be set HERE
 */
 $(document).on("mobileinit", function () {
-    $.mobile.defaultPageTransition = "slide";
+    $.mobile.defaultPageTransition = "none";
 
     $.mobile.loader.prototype.options.text = "Please wait...";
     $.mobile.loader.prototype.options.textVisible = true;

@@ -11,13 +11,16 @@ header h1 {
 }
 */
 
-#home {
-    /*background: url(../images/bckground/ProbeBackground.jpg) no-repeat center center fixed;*/
-    -webkit-background-size: auto;
-    -moz-background-size: auto;
-    -o-background-size: auto;
-    background-size: auto;
-    filter: alpha(opacity=10);
+body {
+    /*overflow-y:hidden;*/ /*we need this because jqm erroneously creates vertical scrollbar for menus and popup markup outside a page*/
+}
+
+#home, #question, #summary, #info, #menu {
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    /*filter: alpha(opacity=10);*/
 }
 
 
@@ -42,68 +45,50 @@ header h1 {
  responsive background image   
  */
 @media only screen and (min-height: 2560px) { /*height: 2560px width 1440*/
-    .backimageLowOpacity {
-        background: url(../images/bckground/ProbeBackground-Opacity3.jpg) no-repeat center center fixed;
-    }
-    .backimageHighOpacity {
-        background: url(../images/bckground/ProbeBackground-Opacity20.jpg) no-repeat center center fixed;
+    .backimageInCommon {
+        background: url(../images/bckground/1440x2560_BG.jpg) no-repeat center center fixed;
     }
 }
 @media only screen and (max-height: 2559px) and (min-height: 1912px) { /*MANY -height: 1920px width 1080*/
-    .backimageLowOpacity {
-        background: url(../images/bckground/ProbeBackground-Opacity3.jpg) no-repeat center center fixed;
-    }
-    .backimageHighOpacity {
-        background: url(../images/bckground/ProbeBackground-Opacity20.jpg) no-repeat center center fixed;
+    .backimageInCommon {
+        background: url(../images/bckground/1080x1920_BG.jpg) no-repeat center center fixed;
     }
 }
 @media only screen and (max-height: 1911px) and (min-height: 1600px) { /*height: 1600px width 900*/
-    .backimageLowOpacity {
-        background: url(../images/bckground/ProbeBackground-Opacity3.jpg) no-repeat center center fixed;
-    }
-    .backimageHighOpacity {
-        background: url(../images/bckground/ProbeBackground-Opacity20.jpg) no-repeat center center fixed;
+    .backimageInCommon {
+        background: url(../images/bckground/900x1600_BG.jpg) no-repeat center center fixed;
     }
 }
 @media only screen and (max-height: 1599px) and (min-height: 1180px) { /*MANY -height: 1280px width 800*/
-    .backimageLowOpacity {
-        background: url(../images/bckground/ProbeBackground-Opacity3.jpg) no-repeat center center fixed;
-    }
-    .backimageHighOpacity {
-        background: url(../images/bckground/ProbeBackground-Opacity20.jpg) no-repeat center center fixed;
+    .backimageInCommon {
+        background: url(../images/bckground/800x1280_BG.jpg) no-repeat center center fixed;
     }
 }
 @media only screen and (max-height: 1179px) and (min-height: 1024px) { /*height: 1024px width 600*/
-    .backimageLowOpacity {
-        background: url(../images/bckground/ProbeBackground-Opacity3.jpg) no-repeat center center fixed;
-    }
-    .backimageHighOpacity {
-        background: url(../images/bckground/ProbeBackground-Opacity20.jpg) no-repeat center center fixed;
+    .backimageInCommon {
+        background: url(../images/bckground/600x1024_BG.jpg) no-repeat center center fixed;
     }
 }
 @media only screen and (max-height: 1023px) and (min-height: 800px) { /*MANY -height: 800px  width 480*/
-    .backimageLowOpacity {
-        background: url(../images/bckground/ProbeBackground-Opacity3.jpg) no-repeat center center fixed;
-    }
-    .backimageHighOpacity {
-        background: url(../images/bckground/ProbeBackground-Opacity20.jpg) no-repeat center center fixed;
+    .backimageInCommon {
+        background: url(../images/bckground/480x800_BG.jpg) no-repeat center center fixed;
     }
 }
 @media only screen and (max-height: 799px) and (min-height: 480px) { /*MANY - height 480 width 320*/
-    .backimageLowOpacity {
-        background: url(../images/bckground/ProbeBackground-Opacity3.jpg) no-repeat center center fixed;
-    }
-    .backimageHighOpacity {
-        background: url(../images/bckground/ProbeBackground-Opacity20.jpg) no-repeat center center fixed;
+    .backimageInCommon {
+        background: url(../images/bckground/320x480_BG.jpg) no-repeat center center fixed;
     }
 }
 @media only screen and (max-height: 479px) and (min-height: 0px) { /*height 320 width 240*/
-    .backimageLowOpacity {
-        background: url(../images/bckground/ProbeBackground-Opacity3.jpg) no-repeat center center fixed;
+    .backimageInCommon {
+        background: url(../images/bckground/240x320_BG.jpg) no-repeat center center fixed;
     }
-    .backimageHighOpacity {
-        background: url(../images/bckground/ProbeBackground-Opacity20.jpg) no-repeat center center fixed;
-    }
+}
+
+
+.headerImage {
+    text-align: center; 
+    margin: 0px 0px 0px 0px;
 }
 
 
@@ -222,7 +207,15 @@ CLIENT TEST - NEW STYLES (MNS - 9/25/14
 }
 
 
-/*Question Navigation Back and Next Buttons*/
+/*
+    QUESTION PAGE
+*/
+
+.questionText {
+    color: black;
+    font-weight: bold;
+}
+
 .questionNavButtonsParentDiv {
     width: 100%;
     height: 40px;
@@ -315,3 +308,9 @@ CLIENT TEST - NEW STYLES (MNS - 9/25/14
 
 }
 
+/*
+  SUMMARY PAGE   
+ */
+.summaryTest {
+    padding-bottom: 1px;
+}
