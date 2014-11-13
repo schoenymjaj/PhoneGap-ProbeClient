@@ -116,75 +116,6 @@ body {
     font-weight: bolder;
 }
 
-/*
- POSTER STYLES   
- */
-.posterColumn1 {
-    /*
-    border: solid; 
-    border-color: red;
-      */
-    min-width: 100px;
-    max-width: 122px;
-    float: left;
-    height: 179px;
-    padding: 10px 0px 0px 0px;
-    margin: 0px 0px 0px 0px;
-}
-
-.posterColumn2 {
-    /*
-    border: solid; 
-    border-color: blue; 
-        */
-    overflow: hidden;
-    min-width: 150px;
-    height: 154px;
-    min-height: 179px;
-    padding: 10px 0px 0px 10px;
-    margin: 0px 0px 0px 0px;
-}
-
-.posterText {
-    padding: 0px 10px 10px 10px;
-    margin: 0px 0px 0px 0px;
-    text-align: left;
-    font-size: 100%;
-}
-
-    .posterText h3 {
-        padding: 2px 0px 0px 0px;
-        margin: 0px 0px 0px 0px;
-    }
-
-.posterHeaderCenter {
-    margin: 0px 0px 0px 0px;
-    padding: 0px 0px 0px 0px;
-    text-align: center;
-}
-
-.posterHeaderLeft {
-    margin: 0px 0px 0px 0px;
-    padding: 0px 0px 0px 0px;
-    text-align: left;
-}
-
-.posterGeneral {
-    font-size: 100%;
-    text-align: left;
-}
-
-    .posterGeneral h3 {
-        padding: 4px 0px 0px 0px;
-        margin: 0px 0px 0px 0px;
-        text-align: center;
-    }
-
-    .posterGeneral img {
-        height: 124px;
-        width: 100%;
-    }
-
 
 .myDebug {
     border: solid;
@@ -211,9 +142,22 @@ CLIENT TEST - NEW STYLES (MNS - 9/25/14
     QUESTION PAGE
 */
 
-.questionText {
+.nextButton {
+
+}
+
+.backButton {
+
+} 
+
+.bodyText {
     color: black;
     font-weight: bold;
+}
+
+.questionText {
+    padding-top: 6px;
+    font-size: 1.4em;
 }
 
 .questionNavButtonsParentDiv {
@@ -231,14 +175,13 @@ CLIENT TEST - NEW STYLES (MNS - 9/25/14
 }
 
 .legendDiv {
-    float: left;
-    width: 44%;
-    height: 100%;
     text-align: center;
 }
 
 .legendTextDiv {
-    padding-top: 7px;
+    text-align: center;
+    padding-top: 8px;
+    padding-bottom: 0px;
 }
 
 .nextButtonDiv {
@@ -250,6 +193,8 @@ CLIENT TEST - NEW STYLES (MNS - 9/25/14
     height: 100%;
 }
 
+/*we will keep these for now, but the backButtonCss and nextButtonCss
+    are currently not being used - MNS 11/13/14*/
 @media only screen and (min-width: 476px) {
     .backButtonCss {
         height: 100%;

@@ -803,8 +803,10 @@ $(function () {
             gamePlayData = app.GetGamePlayLocalStorage();
             result = app.GetResultLocalStorage();
 
+            $('#choiceListLegend').html('<span class="bodyText">Question #' + (questionNbr + 1) + ' of ' + app.NbrQuestions() + '</span>');
+
             question = gamePlayData.GameQuestions[questionNbr].Question;
-            questionText = '<span class="questionText">' + question.Text + '?</span>';
+            questionText = '<span class="bodyText">' + question.Text + '?</span>';
 
             fieldset = '<fieldset data-role="controlgroup">';
             question.Choices.forEach(function (value, index, ar) {
@@ -823,8 +825,7 @@ $(function () {
             });
             fieldset += '</fieldset>'
 
-            $('#questionText h2').html(questionText);
-            $('#choiceListLegend').html('<span class="questionText">Question #' + (questionNbr + 1) + ' of ' + app.NbrQuestions() + '</span>');
+            $('#questionText').html(questionText);
             $('#choiceList').html(fieldset);
 
             if (gameState != GameState.ReadOnly)
@@ -849,11 +850,11 @@ $(function () {
                 //set choice number of answer
                 result["GameQuestions"][currentQuestionNbr]["SelChoiceId"] = radioButtonSelectedID.substr(7, radioButtonSelectedID.length - 6);
                 app.PutResultLocalStorage(result);
-                app.SetBottomNavButtons(true, true);
+                app.SetBottomNavButtons(true, true, true, true);
 
             }); //$("input[name ='choice']").on('change', function () {
 
-            app.SetBottomNavButtons(true, true); //set summary and submit button to enabled
+            app.SetBottomNavButtons(true, true, true, true); //set summary and submit button to enabled
 
             $(":mobile-pagecontainer").pagecontainer('change', '#question', { transition: transitionType });
 
@@ -870,7 +871,7 @@ $(function () {
             gamePlayData = app.GetGamePlayLocalStorage();
             result = app.GetResultLocalStorage();
 
-            summaryText = '<span class="questionText">Questions - ' + app.NbrQuestionsAnswered() + ' out of ' + app.NbrQuestions() + ' answered</span>'
+            summaryText = '<span class="bodyText">Questions - ' + app.NbrQuestionsAnswered() + ' out of ' + app.NbrQuestions() + ' answered</span>'
 
 
             listViewHtml = '<ul data-role="listview" data-inset="true">';
@@ -900,7 +901,7 @@ $(function () {
                 app.SetQuestionPage(currentQuestionNbr, 'none');
             });
 
-            app.SetBottomNavButtons(false, true); //set summary to disabled and submit button to enabled
+            app.SetBottomNavButtons(false, true, false, false); //set summary to disabled and submit button to enabled
 
             $(":mobile-pagecontainer").pagecontainer('change', '#summary');
 
@@ -956,7 +957,7 @@ $(function () {
 
                     //FYI. jquery would not work with #question as a pre-cursor to #backButton
                     //$('#qfooter #backButton').click(function (event) { MNS DEBUG
-                    $('#backButton').click(function (event) {
+                    $('.backButton').click(function (event) {
                             (currentQuestionNbr == 0) ? currentQuestionNbr = result.GameQuestions.length - 1 : currentQuestionNbr--;
                         app.SetQuestionPage(currentQuestionNbr, 'none');
                     });
@@ -966,7 +967,7 @@ $(function () {
                     });
 
                     //$('#qfooter #nextButton').click(function (event) { //MNS DEBUG
-                    $('#nextButton').click(function (event) {
+                    $('.nextButton').click(function (event) {
                             (currentQuestionNbr == result.GameQuestions.length - 1) ? currentQuestionNbr = 0 : currentQuestionNbr++;
                         app.SetQuestionPage(currentQuestionNbr, 'none');
                     });
@@ -1228,7 +1229,7 @@ $(function () {
             //$('#home').removeClass('backimageInCommon');
             //$('#home').addClass('backimageInCommon');
 
-            app.SetBottomNavButtons(false, false); //From the home page. Always set the bottom nav bar bottoms to disabled.
+            app.SetBottomNavButtons(false, false, false, false); //From the home page. Always set the bottom nav bar bottoms to disabled.
 
         };
 
@@ -1656,8 +1657,21 @@ $(function () {
         will override all other conditions. i.e if submit is set to true, but not all questions have been
         answered then submit be disabled. If set to false, it will be disabled no matter what.
         */
-        app.SetBottomNavButtons = function (summaryButtonInd, submitButtonInd) {
+        app.SetBottomNavButtons = function (summaryButtonInd, submitButtonInd, backButtonInd, nextButtonInd) {
             console.log('func app.SetBottomNavButtons');
+
+            if (backButtonInd) {
+
+                if ($('.backButton').hasClass('ui-disabled')) {
+                    $('.backButton').removeClass('ui-disabled');
+                }
+
+            } else {
+
+                if (!$('.backButton').hasClass('ui-disabled')) {
+                    $('.backButton').addClass('ui-disabled');
+                }
+            }//if (backButtonInd)
 
             if (summaryButtonInd) {
 
@@ -1686,6 +1700,19 @@ $(function () {
                 }
             }//if (submitButtonInd)
 
+            if (nextButtonInd) {
+
+                if ($('.nextButton').hasClass('ui-disabled')) {
+                    $('.nextButton').removeClass('ui-disabled');
+                }
+
+            } else {
+
+                if (!$('.nextButton').hasClass('ui-disabled')) {
+                    $('.nextButton').addClass('ui-disabled');
+                }
+            }//if (backButtonInd)
+
     }//app.SetBottomNavButtons
 
         /*
@@ -1702,7 +1729,7 @@ $(function () {
             gameState = GameState.ReadOnly;
 
             //set summary page for read-only game state
-            app.SetBottomNavButtons(false, false);
+            app.SetBottomNavButtons(false, false, false, false);
 
             //set the newgame and cancel game buttons (enable new game, disable cancel game)
             $("[data-icon='plus']").removeClass('ui-disabled');
