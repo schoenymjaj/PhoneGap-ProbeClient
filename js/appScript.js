@@ -27,9 +27,9 @@ $(function () {
         /*
         Globals
         */
+        var probeVersion = '0.66';
         var root = GetRootUrl();  //root directory of the web site serving mobile app (i.e. in-common-app.com)
 
-        var probeVersion = '0.66';
         //alert('Probe Version: ' + probeVersion);
         var ProbeAPIurl = root + "api/";
         var ProbeMatchReporturl = root + "Reports/PlayerMatchSummary/";
@@ -1296,8 +1296,7 @@ $(function () {
         */
         app.DisplayAboutPage = function () {
             console.log('func app.DisplayAboutPage');
-
-            url = root + 'Home/About/1'; //insert the portal About (for mobil) page.
+            url = root + 'Home/About/' + GetMobileIndForAPI(); //insert the portal About (for mobil) page.
             $('#infoFrameId').attr("src", url);
             setTimeout(function () {
 
@@ -1325,7 +1324,7 @@ $(function () {
                         url = ProbeMatchReporturl +
                             result.GamePlayId +
                             '/' + result.GameCode +
-                            '/' + result.PlayerId + '/1'; //with mobile indicator attached
+                            '/' + result.PlayerId + '/' + GetMobileIndForAPI(); //with mobile indicator attached
                         window.location = url;
 
                     }
@@ -1339,7 +1338,7 @@ $(function () {
                     url = ProbeTestReporturl +
                         result.GamePlayId +
                         '/' + result.GameCode +
-                        '/' + result.PlayerId + '/1'; //with mobile indicator attached
+                        '/' + result.PlayerId + '/' + GetMobileIndForAPI(); //with mobile indicator attached
                     window.location = url;
                 }
 
