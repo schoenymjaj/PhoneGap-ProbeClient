@@ -45,6 +45,7 @@ $(function () {
         var codeFromURL = undefined;
         var ajaxCallMaxTries = 3;  //number of tries app will make on an ajax call to server
         var aboutIFrameLoaded = false; //used specifically to display mobile loader (spinner) for About page
+        var adjustedTopPadding = false //this is a hack to ensure top padding is correct the first time home page is rendered
 
         app.init = function () {
             //this occurs after document is ready (runs once)
@@ -96,14 +97,11 @@ $(function () {
                     app.GetGamePlayServer(codeFromURL);
                 }
 
-            }); //$(document).on
+                //We needed to do this because mysteriously the page padding dynamically changes occassionaly. The
+                //top padding is done after the pageshow
+                app.AdjustPagePaddingTop(); //will check to see that padding is not off
 
-            //We needed to do this because mysteriously the page padding was dynamically changing to a value of 2.xxx
-            //Don't know why.
-            //$(document).on("pagechange pagebeforechange popupafteropen popupafterclose resize", function (event) {
-            //    console.log('event pagechange-pagebeforechange popupafteropen popupafterclose resize');
-            //    app.AdjustPagePaddingTop();
-            //});
+            }); //$(document).on
 
             //sets the padding when window is resized. Not going to happen on a phone.
             $(window).resize(function ()
@@ -242,7 +240,7 @@ $(function () {
             $('#homePageContent').html(listViewHtml);
             $('#homePageContent').css('color', 'black');
             $('#gameList').listview().listview("refresh").trigger("create");
-            $('#home').trigger('create');
+            //$('#home').trigger('create');
 
         }//app.HomePageInitialDisplayListview
 
@@ -896,11 +894,6 @@ $(function () {
             $('#questionList').listview().trigger("create")
             $('#summary article').css("overflow", "hidden");
 
-            //COMMENTED OUT MNS 11/12/14 - CAUSES THE FOOTER TO BECOME GLOBAL AND TOP/BOTTOM PADDING CHANGES - BAD THINGS THAT CAUSED SHIFTS IN THE CONTENT SECTION
-            //$('#summary').trigger('create');
-            //don't need the refresh. In fact is creates a mysterious scroll bar
-            //$('#questionList').listview().listview("refresh").trigger("create"); 
-
             //setup event handler for summary page listview to return to a specific question
             $('[data-qnum]').click(function (event) {
                 currentQuestionNbr = parseInt(this.attributes["data-qnum"].value);
@@ -1167,6 +1160,29 @@ $(function () {
                 app.popUpHelper('Error', 'The submission of the Game<br/><span class="popupGameName">' + gamePlayData.Name + '</span><br/> was NOT successful.<p>' + returnErrMsg + '</p>', null);
             }
         }//app.ConfirmSubmit
+
+        /*
+        AdjustPagePaddingTop
+        */
+        app.AdjustPagePaddingTop = function () {
+            console.log('func AdjustPagePaddingTop');
+            paddingtop = "44px";
+            paddingbottom = "58px";
+            badPaddingThreshold = 30;
+
+            //we will only adjust once and only for the home page if the top-padding is less than 30
+            if (!adjustedTopPadding) {
+                if ($.mobile.pageContainer.pagecontainer("getActivePage").attr('id') == "home") {
+                    if (parseInt($('#home').css("padding-top")) < badPaddingThreshold) {
+                        $('#home').css("padding-top", paddingtop);
+                        adjustedTopPadding = true; //this won't be needed again.
+                        console.log('change the padding to ' + paddingtop);
+                    }
+                }
+
+            }
+        }//app.AdjustPagePaddingTop
+
 
         app.SetHeaderImage = function () {
 
