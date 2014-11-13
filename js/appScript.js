@@ -897,7 +897,7 @@ $(function () {
             //setup event handler for summary page listview to return to a specific question
             $('[data-qnum]').click(function (event) {
                 currentQuestionNbr = parseInt(this.attributes["data-qnum"].value);
-                app.SetQuestionPage(currentQuestionNbr, 'slide');
+                app.SetQuestionPage(currentQuestionNbr, 'none');
             });
 
             app.SetBottomNavButtons(false, true); //set summary to disabled and submit button to enabled
@@ -958,7 +958,7 @@ $(function () {
                     //$('#qfooter #backButton').click(function (event) { MNS DEBUG
                     $('#backButton').click(function (event) {
                             (currentQuestionNbr == 0) ? currentQuestionNbr = result.GameQuestions.length - 1 : currentQuestionNbr--;
-                        app.SetQuestionPage(currentQuestionNbr, 'slide');
+                        app.SetQuestionPage(currentQuestionNbr, 'none');
                     });
 
                     $('.summaryButton').click(function (event) {
@@ -968,7 +968,7 @@ $(function () {
                     //$('#qfooter #nextButton').click(function (event) { //MNS DEBUG
                     $('#nextButton').click(function (event) {
                             (currentQuestionNbr == result.GameQuestions.length - 1) ? currentQuestionNbr = 0 : currentQuestionNbr++;
-                        app.SetQuestionPage(currentQuestionNbr, 'slide');
+                        app.SetQuestionPage(currentQuestionNbr, 'none');
                     });
 
                     break;
