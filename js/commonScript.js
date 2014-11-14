@@ -150,6 +150,9 @@ GetRootUrl = function () {
 
 }
 
+/*
+    Will return 1 if the app is browser based and 2 if the app is native (cordova)
+*/
 GetMobileIndForAPI = function () {
     if (document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1) {
         return 2;

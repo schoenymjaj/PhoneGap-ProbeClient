@@ -27,13 +27,13 @@ $(function () {
         /*
         Globals
         */
-        var probeVersion = '0.66';
+        var probeVersion = '0.67';
         var root = GetRootUrl();  //root directory of the web site serving mobile app (i.e. in-common-app.com)
 
         //alert('Probe Version: ' + probeVersion);
         var ProbeAPIurl = root + "api/";
-        var ProbeMatchReporturl = root + "Reports/PlayerMatchSummary/";
-        var ProbeTestReporturl = root + "Reports/PlayerTestDetail/";
+        var ProbeMatchSummaryAPIurl = ProbeAPIurl + "Reports/GetPlayerMatchSummaryData/";
+        var ProbeTestDetailAPIurl = ProbeAPIurl + "Reports/GetPlayerTestDetailData/";
 
         var currentQuestionNbr = 0;
         var NO_ANSWER = -1;
@@ -131,7 +131,7 @@ $(function () {
         Set Homepage Initial Display - Listview of active game and previous games played
         */
         app.SetHomePageInitialDisplay = function () {
-            console.log('func app.SetHomePageInitialDisplay w:' + $(window).height() + ' h:' + $(window).height());
+            console.log('func app.SetHomePageInitialDisplay w:' + $(window).width() + ' h:' + $(window).height());
             gamePlayListQueue = app.GetGamePlayListQueueLocalStorage();
 
             app.SetHeaderImage(); //need to set header based on the size of the window
@@ -646,6 +646,11 @@ $(function () {
                     $('#startGamePlay').text('Resume Game');
                 }
 
+                $('#gpName').css("color", "black"); //needs a little help with the chosen background
+                $('#firstName').css("color", "black"); //needs a little help with the chosen background
+                $('#nickName').css("color", "black"); //needs a little help with the chosen background
+
+
                 //$('#cancelGamePlay').hide(); //if game is not idle; we don't want to give the user the cancel ability here (too easy)
             }//if (gameState != GameState.Idle)
 
@@ -821,7 +826,7 @@ $(function () {
                 '<input name="choice" id="choice-' + selectChoiceId + '" type="radio" data-theme="a"' + checkedStr + '>'
 
                 fieldset +=
-                '<label for="choice-' + selectChoiceId + '" data-theme="a">' + choiceText + '</label>';
+                '<label for="choice-' + selectChoiceId + '" data-theme="a" class="style:"color:black">' + choiceText + '</label>';
             });
             fieldset += '</fieldset>'
 
@@ -834,6 +839,7 @@ $(function () {
 
             } else {
                 $("input[name ='choice']").checkboxradio().checkboxradio('disable').trigger("create");
+                $('[for^="choice-"]').css("color", "black"); //needs a little help with the chosen background
             }
 
             //Style choice list with proper spacing
@@ -1195,21 +1201,21 @@ $(function () {
              */
             if (height >= 2560)
             {
-                $('header img').attr("src", "./images/header/header180x40.jpg")
+                $('header img').attr("src", "./images/header/header432x40.png")
             } else if (height <= 2559 && height >= 1912) {
-                $('header img').attr("src", "./images/header/header180x40.jpg")
+                $('header img').attr("src", "./images/header/header324x40.png")
             } else if (height <= 1911 && height >= 1600) {
-                $('header img').attr("src", "./images/header/header180x40.jpg")
+                $('header img').attr("src", "./images/header/header270x40.png")
             } else if (height <= 1599 && height >= 1180) {
-                $('header img').attr("src", "./images/header/header180x40.jpg")
+                $('header img').attr("src", "./images/header/header240x40.png")
             } else if (height <= 1179 && height >= 1024) {
-                $('header img').attr("src", "./images/header/header180x40.jpg")
+                $('header img').attr("src", "./images/header/header180x40.png")
             } else if (height <= 1023 && height >= 800) {
-                $('header img').attr("src", "./images/header/header180x40.jpg")
+                $('header img').attr("src", "./images/header/header180x40.png")
             } else if (height <= 799 && height >= 480) {
-                $('header img').attr("src", "./images/header/header180x40.jpg")
+                $('header img').attr("src", "./images/header/header180x40.png")
             } else if (height <= 479 && height >= 0) {
-                $('header img').attr("src", "./images/header/header180x40.jpg")
+                $('header img').attr("src", "./images/header/header144x40.png")
             }
 
         }
@@ -1307,42 +1313,177 @@ $(function () {
         }
 
         /*
-        Display the report page
+        DisplayReportPage
         */
         app.DisplayReportPage = function () {
             console.log('func app.DisplayReportPage');
+            alert('reports under constructions');
+            return;
 
-                gamePlayData = app.GetGamePlayLocalStorage();
-                result = app.GetResultLocalStorage();
+            gamePlayData = app.GetGamePlayLocalStorage();
+            result = app.GetResultLocalStorage();
 
-                if (gamePlayData.GameType == "Match") {
+            if (gamePlayData.GameType == "Match") {
+                $('footer').hide(); //hide footer on the page
 
-                    //for match report - we have to check that there are least 2 players
-                    if (result.PlayerCount >= 2) {
-                        $.mobile.loading('show'); //MNS
+                app.DrawPlayerMatchSummary(result.GamePlayId, result.GameCode, result.PlayerId)
 
-                        url = ProbeMatchReporturl +
-                            result.GamePlayId +
-                            '/' + result.GameCode +
-                            '/' + result.PlayerId + '/' + GetMobileIndForAPI(); //with mobile indicator attached
-                        window.location = url;
 
-                    }
-                    else {
-                        app.popUpHelper("Info", "There are not enough players that have submitted their games to report on the results. Please try again later.");
-                    }
+                $(":mobile-pagecontainer").pagecontainer('change', '#report', { transition: 'none' });
 
-                } else { //Test Type
+
+                //for match report - we have to check that there are least 2 players
+                /* MNS - GO CLIENT
+                if (result.PlayerCount >= 2) {
                     $.mobile.loading('show'); //MNS
 
-                    url = ProbeTestReporturl +
+                    url = ProbeMatchReporturl +
                         result.GamePlayId +
                         '/' + result.GameCode +
                         '/' + result.PlayerId + '/' + GetMobileIndForAPI(); //with mobile indicator attached
                     window.location = url;
+
                 }
+                else {
+                    app.popUpHelper("Info", "There are not enough players that have submitted their games to report on the results. Please try again later.");
+                }
+                */
+
+            } else { //Test Type
+                /* MNS GO CLIENT
+                $.mobile.loading('show'); //MNS
+
+                url = ProbeTestReporturl +
+                    result.GamePlayId +
+                    '/' + result.GameCode +
+                    '/' + result.PlayerId + '/' + GetMobileIndForAPI(); //with mobile indicator attached
+                window.location = url;
+                */
+            }
 
         };//app.DisplayReportPage
+
+        /*
+        Display the PlayerMatchSummary report
+        */
+        app.DrawPlayerMatchSummary = function (gamePlayId, gameCode, playerId) {
+            console.log('func app.DrawPlayerMatchSummary');
+
+            /*
+            var gamePlayId = '@ViewBag.GamePlayId';
+            var gameCode = '@ViewBag.GameCode';
+            var playerId = '@ViewBag.PlayerId';
+            */
+
+            url = ProbeMatchSummaryAPIurl + gamePlayId + '/' + gameCode + '/' + playerId
+            console.log('func app.DrawPlayerMatchSummary AJAX url:' + url);
+            $.getJSON(url)
+            .done(function(data) {
+                console.log('return DrawPlayerMatchSummary AJAX success');
+                //HANDLER FOR INTERACTIVITY
+                selectHandler = function () {
+                    console.log('selectHandler');
+                    var selectedItem = chart.getSelection()[0]; //will get player name
+                    if (selectedItem) {
+                        var matchedPlayerId = data[selectedItem.row].Id;
+                        console.log('The player selected ' + matchedPlayerId);
+
+                        //MNS - WILL NEED TO REPLACE THIS WITH A CALL TO THE REPORT FUNCTION ON CLIENT!!!!!!!!!!!!!!!!!!!!!!!
+                        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        window.location = '@Url.Content("~")' + 'Reports/PlayerMatchDetail/'
+                            + gamePlayId + '/' + gameCode + '/' + playerId + '/' + matchedPlayerId + (DoStyleMobile() ? '/1' : '');
+
+                    }
+                };
+
+
+                /*
+                SETUP REPORT HEADER
+                Header will be different - dependent on the mobile indicator
+                Back button will not exist if report loads within an iFrame (then its in mobile mode)
+                */
+                //$('#header').html('<span class="reportLabel">Game</span>: ' + '@ViewBag.GamePlayName' + '<br/><span class="reportLabel reportLabelMargin">Player</span>: ' + '@ViewBag.PlayerName');
+                //$('#appHome').click(function (event) {
+                //    //if client is cordova app then we use back function, if not then we know the client is a browser so we use a url and relocate
+                //    if (ClientIsCordovaApp()) {
+                //        window.history.go(-1);
+                //    } else {
+                //        window.location = '@Request.Url.Scheme' + '://' + '@Request.Url.Authority' + '@VirtualPathUtility.ToAbsolute("~/")' + 'client/'
+                //    }
+                //});
+                //$('.reportReturnLink').hide();
+
+                /*
+                SETUP GOOGLE CHART DATA
+                */
+                maxTickValue = 0;
+
+                var dSeries = new Array(data.length + 1);
+                dSeries[0] = new Array(3)
+                dSeries[0][0] = 'Player';
+                dSeries[0][1] = 'Matches';
+                dSeries[0][2] = { role: 'annotation' };
+                for (var i = 0; i < data.length; i++) {
+                    dSeries[i + 1] = new Array(3)
+                    dSeries[i + 1][0] = data[i].Name;
+                    dSeries[i + 1][1] = data[i].Value;
+
+                    legendStr = '(' + data[i].Value + ')';
+                    legendStr = data[i].Name + '(' + data[i].Value + ')';
+                    dSeries[i + 1][2] = legendStr;
+
+                    maxTickValue = Math.max(maxTickValue, data[i].Value);
+                }
+                var tdata = google.visualization.arrayToDataTable(dSeries);
+
+                /*
+                SETUP V-AXIS
+                */
+                var vAxisText = '# Matches out of ' + '@ViewBag.NbrQuestions';
+
+                /*
+                SETUP GOOGLE CHART STYLE THROUGH OPTIONS
+                */
+
+                //We're going use just 5 gridlines (vertical). The first will be 0 (doesn't count)
+                //, the last will be the max
+                tickArray = GetChartAxisTickets(0, maxTickValue, 4);
+
+                var options = {};
+                options = {
+                    height: Math.round(70 * data.length),
+                    chartArea: { left: 10, top: 25, right: 10, width: '95%', height: '75%' }, //WIDTH CONTROLS IF YOU CAN SEE THE LAST TICK NUMBER
+                    hAxis: {
+                        title: vAxisText,
+                        format: '#',
+                        titleTextStyle: { fontSize: '20' },
+                        ticks: tickArray
+                    },
+                    bar: { groupWidth: "75%" }, //CONTROLS SIZE OF BAR AND SPACE BETWEEN BARS
+                    annotations: {
+                        textStyle: {
+                            fontName: 'Times-Roman',
+                            fontSize: 13,
+                            bold: true,
+                            italic: true,
+                            opacity: 0.8          // The transparency of the text.
+                        }
+                    },
+                    legend: { position: 'top', alignment: 'end', textStyle: { color: 'blue', fontSize: 16 } },
+                };
+
+
+                var chart = new google.visualization.BarChart($('#chart_div')[0]); //jquery for document.getElementById
+                google.visualization.events.addListener(chart, 'select', selectHandler);
+                chart.draw(tdata, options);
+
+            })
+            .fail(function (jqxhr, textStatus, error) {
+                console.log('fail');
+            });
+
+        }//app.DrawPlayerMatchSummary
+
 
         /*
         returns true if game is in progress

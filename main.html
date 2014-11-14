@@ -38,6 +38,15 @@
     -->
     <script src="./js/jqm/jquery.mobile-1.4.3.min.js"></script>
 
+    <!--
+        support for google charts and the In Common reports
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+    -->
+    <script type="text/javascript" src="https://www.google.com/jsapi "></script>
+    <script type="text/javascript">
+        google.load("visualization", "1", { packages: ["corechart"] });
+    </script>
+
     <!-- PhoneGap for debug -->
     <script src="phonegap.js"></script>
 
@@ -47,7 +56,7 @@
     <!-- ================= Home ======================== -->
     <section id="home" data-role="page" data-theme="a" data-title="In Common" class="backimageInCommon">
         <header data-role="header" data-position="fixed" data-id="hdrPersist">
-            <div class="headerImage"><img src="./images/header/header180x40.jpg" alt="In Common Logo" /></div>
+            <div class="headerImage"><img src="./images/header/header180x40.png" alt="In Common Logo" /></div>
             <a id="#newgame" href="#" data-icon="plus" data-iconpos="notext">New Game</a>
             <a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
         </header>
@@ -75,7 +84,20 @@
             <a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
         </header>
         <article data-role="content" style="margin: 0px 0px 0px 0px; padding: 0px 10px 0px 10px">
-            <div id="choiceListLegend" class="legendTextDiv"></div>
+
+            <div class="questionNavButtonsParentDiv" style="width: 100%">
+                <div>
+                    <table style="margin: auto">
+                        <tr>
+                            <td><button class="backButton" data-icon="carat-l" data-iconpos="notext">Back</button></td>
+                            <td><div id="choiceListLegend" class="legendTextDiv"></div></td>
+                            <td><button class="nextButton" data-icon="carat-r" data-iconpos="notext">Next</button></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!--<div id="choiceListLegend" class="legendTextDiv"></div>-->
             <div id="questionText" class="questionText" data-theme="a">Question Text Goes Here</div>
             <div id="choiceList" data-theme="a"></div>
         </article>
@@ -139,6 +161,36 @@
             </nav>
         </footer>
     </section>
+    <!-- ================= Report ======================== -->
+    <section id="report" data-role="page" data-theme="a" data-title="In Common" class="backimageInCommon">
+        <header data-role="header" data-position="fixed" data-id="hdrPersist">
+            <div class="headerImage"><img src="./images/header/header180x40.jpg" alt="In Common Logo" /></div>
+            <a href="#home" data-icon="home" data-iconpos="notext">Home</a>
+            <a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
+        </header>
+        <article data-role="content" style="margin: 0px 0px 0px 0px; padding: 0px 10px 0px 10px">
+            <div class="insetBug">
+                <div id="title" class="reportTitle">Player Match Totals</div>
+                <div class="reportReturnLink"></div>
+                <div class="reportResetSytle"></div>
+                <div id="header" class="reportHeader"></div>
+                <div id="parent_chart_div">
+                    <div id="chart_div" class="chartDiv"></div>
+                </div>
+            </div>
+        </article>
+        <footer data-role="footer" data-position="fixed" data-id="ftrPersist">
+            <nav data-role="navbar" data-theme="a">
+                <ul>
+                    <li><a class="backButton" href="#" data-icon="carat-l" data-iconpos="notext" data-theme="a">Back</a></li>
+                    <li><a class="summaryButton" href="#" data-icon="grid" data-theme="a">Summary</a></li>
+                    <li><a class="submitButton" href="#" data-icon="cloud" data-theme="a">Submit</a></li>
+                    <li><a class="nextButton" href="#" data-icon="carat-r" data-iconpos="notext" data-theme="a">Next</a></li>
+                </ul>
+
+            </nav>
+        </footer>
+    </section>
     <!-- ===================Menu Panel==========================-->
     <div id="menu" data-role="panel" data-theme="a" data-display="overlay" data-position="left" class="backimageInCommon">
         <ul data-role="listview" data-inset="true">
@@ -167,6 +219,7 @@
     <script src="./js/eventScript.js"></script>
     <script src="./js/json/jsonpath-0.8.0.js"></script>
     <script src="./js/commonScript.js"></script>
+    <script src="./js/commonGraphicScript.js"></script>
     <script src="./js/appScript.js"></script>
     </body>
     </html>
