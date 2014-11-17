@@ -15,7 +15,7 @@ body {
     /*overflow-y:hidden;*/ /*we need this because jqm erroneously creates vertical scrollbar for menus and popup markup outside a page*/
 }
 
-#home, #question, #summary, #info, #report, #menu {
+#home, #question, #summary, #info, #chartreport, #tablereport, #menu {
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -167,7 +167,7 @@ CLIENT TEST - NEW STYLES (MNS - 9/25/14
 .questionNavButtonsParentDiv {
     width: 100%;
     height: 40px;
-    padding-bottom: 5px;
+    padding-bottom: 8px;
 }
 
 .backButtonDiv {
@@ -264,3 +264,121 @@ CLIENT TEST - NEW STYLES (MNS - 9/25/14
 .summaryTest {
     padding-bottom: 1px;
 }
+
+/*
+ REPORTS PAGE   
+ */
+.reportTitle {
+    margin-top: 3px;
+    font-size:  1.1em;
+    font-weight: bolder;
+    color: black;
+    float: left; 
+    width: 70%
+    /*text-align: center;*/
+}
+
+.reportGameHeader {
+    font-size: 1em;
+    font-weight: bolder;
+    color: black;
+}
+
+.reportHeader {
+    font-size: 1em;
+    font-weight: bolder;
+    color: black;
+}
+
+.reportLabel {
+    font-size: 1em;
+    color: black;
+}
+
+.reportLabelText {
+    font-size: 0.9em;
+    color: #f6f6f6;
+}
+
+.reportLabelMargin {
+    margin-left: 0px;
+}
+
+.reportReturnLink {
+    float: right;
+    margin-top: 0px;
+}
+
+.reportResetSytle {
+    clear:both;
+}
+
+.chartDiv {
+    overflow: hidden; /*avoid unneeded scrollbars*/
+}
+
+.tableHeader {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    font-size: 1em;
+    font-weight: bold;
+    color: black;
+}
+
+.googleReportTableBGTransparent {
+    background: transparent;
+    opacity: 1.0;
+}
+
+.googleReportTableHeader {
+    font-weight: bold;
+    color: white;
+    background-color: #262626;
+    text-align: left;
+    /*
+    border: solid;
+    border-width: 1px;
+    border-color: #bbbbbb;
+        */
+}
+
+.googleReportTableNonHeader {
+    text-align: left;
+    background-color: #ededed;
+}
+
+.googleReportCell {
+    color: #262626;
+}
+
+.googleReportCellWB {
+    color: #262626;
+    word-break:break-all;
+}
+
+.googleReportCellYES {
+    color: #262626;
+}
+
+.googleReportCellYESWB {
+    color: #262626;
+    word-break:break-all;
+}
+
+.googleReportCellNO {
+    color: red;
+}
+
+.googleReportCellNOWB {
+    color: red;
+    word-break:break-all;
+}
+
+.tableMatch {
+    width: 100%;
+}
+
+.tableNonMatch {
+    width: 100%;
+}
+

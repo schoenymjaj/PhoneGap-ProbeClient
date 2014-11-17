@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>Event App</title>
+    <title>In Common</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
@@ -42,9 +42,10 @@
         support for google charts and the In Common reports
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
     -->
-    <script type="text/javascript" src="https://www.google.com/jsapi "></script>
+
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
-        google.load("visualization", "1", { packages: ["corechart"] });
+        google.load("visualization", "1", { packages: ["corechart", "table"] });
     </script>
 
     <!-- PhoneGap for debug -->
@@ -79,7 +80,7 @@
     <!-- ================= Question ======================== -->
     <section id="question" data-role="page" data-theme="a" data-title="In Common" class="backimageInCommon">
         <header data-role="header" data-position="fixed" data-id="hdrPersist">
-            <div class="headerImage"><img src="./images/header/header180x40.jpg" alt="In Common Logo" /></div>
+            <div class="headerImage"><img src="./images/header/header180x40.png" alt="In Common Logo" /></div>
             <a href="#" data-icon="home" data-iconpos="notext">Home</a>
             <a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
         </header>
@@ -115,7 +116,7 @@
     <!-- ================= Summary ======================== -->
     <section id="summary" data-role="page" data-theme="a" data-title="In Common" class="backimageInCommon">
         <header data-role="header" data-position="fixed" data-id="hdrPersist">
-            <div class="headerImage"><img src="./images/header/header180x40.jpg" alt="In Common Logo" /></div>
+            <div class="headerImage"><img src="./images/header/header180x40.png" alt="In Common Logo" /></div>
             <a href="#home" data-icon="home" data-iconpos="notext">Home</a>
             <a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
         </header>
@@ -141,7 +142,7 @@
     <!-- ================= Info ======================== -->
     <section id="info" data-role="page" data-theme="a" data-title="In Common" class="backimageInCommon">
         <header data-role="header" data-position="fixed" data-id="hdrPersist">
-            <div class="headerImage"><img src="./images/header/header180x40.jpg" alt="In Common Logo" /></div>
+            <div class="headerImage"><img src="./images/header/header180x40.png" alt="In Common Logo" /></div>
             <a href="#" data-icon="back" data-rel="back" data-iconpos="notext" data-transition="none">Return</a>
             <a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
         </header>
@@ -161,23 +162,48 @@
             </nav>
         </footer>
     </section>
-    <!-- ================= Report ======================== -->
-    <section id="report" data-role="page" data-theme="a" data-title="In Common" class="backimageInCommon">
+    <!-- ================= Chart Report ================== -->
+    <section id="chartreport" data-role="page" data-theme="a" data-title="In Common" class="backimageInCommon">
         <header data-role="header" data-position="fixed" data-id="hdrPersist">
-            <div class="headerImage"><img src="./images/header/header180x40.jpg" alt="In Common Logo" /></div>
-            <a href="#home" data-icon="home" data-iconpos="notext">Home</a>
+            <div class="headerImage"><img src="./images/header/header180x40.png" alt="In Common Logo" /></div>
+            <a href="#" data-icon="back" data-rel="back" data-iconpos="notext" data-transition="none">Return</a>
             <a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
         </header>
-        <article data-role="content" style="margin: 0px 0px 0px 0px; padding: 0px 10px 0px 10px">
-            <div class="insetBug">
-                <div id="title" class="reportTitle">Player Match Totals</div>
-                <div class="reportReturnLink"></div>
-                <div class="reportResetSytle"></div>
-                <div id="header" class="reportHeader"></div>
-                <div id="parent_chart_div">
-                    <div id="chart_div" class="chartDiv"></div>
-                </div>
+        <article data-role="content" style="margin: 0px 0px 0px 0px; padding: 0px 5px 0px 5px">
+            <div id="charttitle" class="reportTitle">Player Match Totals</div>
+            <div class="reportReturnLink"></div>
+            <div class="reportResetSytle"></div>
+            <div id="chartheader" class="reportHeader"></div>
+            <div id="chartparent_chart_div">
+                <div id="chart_div" class="chartDiv"></div>
             </div>
+        </article>
+        <footer data-role="footer" data-position="fixed" data-id="ftrPersist">
+            <nav data-role="navbar" data-theme="a">
+                <ul>
+                    <li><a class="backButton" href="#" data-icon="carat-l" data-iconpos="notext" data-theme="a">Back</a></li>
+                    <li><a class="summaryButton" href="#" data-icon="grid" data-theme="a">Summary</a></li>
+                    <li><a class="submitButton" href="#" data-icon="cloud" data-theme="a">Submit</a></li>
+                    <li><a class="nextButton" href="#" data-icon="carat-r" data-iconpos="notext" data-theme="a">Next</a></li>
+                </ul>
+
+            </nav>
+        </footer>
+    </section>
+    <!-- ================= Table Report ================== -->
+    <section id="tablereport" data-role="page" data-theme="a" data-title="In Common" class="backimageInCommon">
+        <header data-role="header" data-position="fixed" data-id="hdrPersist">
+            <div class="headerImage"><img src="./images/header/header180x40.png" alt="In Common Logo" /></div>
+            <a href="#" data-icon="back" data-rel="back" data-iconpos="notext" data-transition="none">Return</a>
+            <a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
+        </header>
+        <article data-role="content" style="margin: 0px 0px 0px 0px; padding: 0px 5px 0px 5px">
+            <div id="tabletitle" class="reportTitle">Player - Player Match Details</div>
+            <div class="reportReturnLink"></div>
+            <div class="reportResetSytle"></div>
+            <div id="tableheader" class="reportHeader"></div>
+            <div class="tableHeader"></div>
+            <div id="table_div" class="tableMatch"></div>
         </article>
         <footer data-role="footer" data-position="fixed" data-id="ftrPersist">
             <nav data-role="navbar" data-theme="a">

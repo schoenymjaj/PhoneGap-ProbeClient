@@ -33,6 +33,7 @@ $(function () {
         //alert('Probe Version: ' + probeVersion);
         var ProbeAPIurl = root + "api/";
         var ProbeMatchSummaryAPIurl = ProbeAPIurl + "Reports/GetPlayerMatchSummaryData/";
+        var ProbeMatchDetailAPIurl = ProbeAPIurl + "Reports/GetPlayerMatchDetailData/";
         var ProbeTestDetailAPIurl = ProbeAPIurl + "Reports/GetPlayerTestDetailData/";
 
         var currentQuestionNbr = 0;
@@ -40,6 +41,7 @@ $(function () {
         var result = {};
         var GameState = { "Idle": 0, "Active": 1, "Submitted": 2, "ReadOnly": 3 };
         var SexType = { 'Unknow': 0, 'Male': 1, 'Female': 2 };
+        var ReportType = { 'MatchSummary': 0, 'MatchDetail': 1, 'TestDetail': 2 };
         var gameState = GameState.Idle;
         var gamePlayQueueMax = 10;  //number of submitted games save client-side
         var codeFromURL = undefined;
@@ -319,8 +321,8 @@ $(function () {
         app.GetGamePlayServer = function (gameCode) {
             console.log('func app.GetGamePlayServer MNS');
 
-            url = ProbeAPIurl + 'GamePlays/GetGamePlay/' + gameCode;
             $.mobile.loading('show'); //to show the spinner
+            url = ProbeAPIurl + 'GamePlays/GetGamePlay/' + gameCode;
 
             console.log('func app.GetGamePlayServer AJAX url:' + url);
             $.getJSON(url)
@@ -358,13 +360,7 @@ $(function () {
                                 console.log('return GetGameConfiguration fail');
                                 $.mobile.loading('hide'); //to hide the spinner
 
-                                probeError = error;
-                                if (probeError == "") {
-                                    probeError = "The In Common web server could not be found. There may be connectivity issues."
-                                }
-                                var err = textStatus + ", " + probeError;
-
-                                app.popUpHelper("Error", 'Request Failed:' + err,null);
+                                app.popUpHelper('Error', app.GetAJAXFailureErrMessage('Get Game Play Config',textStatus, error), null);
                             });
                         
                     } else {
@@ -390,12 +386,7 @@ $(function () {
                   console.log('return GetGamePlay fail');
                   $.mobile.loading('hide'); //to hide the spinner
 
-                  probeError = error;
-                  if (probeError == "") {
-                      probeError = "The In Common web server could not be found. There may be connectivity issues."
-                  }
-                  var err = textStatus + ", " + probeError;
-                  app.popUpHelper("Error", 'Request Failed:' + err,null);
+                  app.popUpHelper('Error',app.GetAJAXFailureErrMessage('Get Game Play', textStatus, error), null);
               }); //fail
 
         };//app.GetGamePlayServer
@@ -452,11 +443,8 @@ $(function () {
                   }) //done
                   .fail(function (jqxhr, textStatus, error) {
                       console.log('return GetGamePlayStatus fail');
-                      probeError = error;
-                      if (probeError == "") {
-                          probeError = "The In Common web server could not be found. There may be connectivity issues."
-                      }
-                      errorMessage = textStatus + ", " + probeError;
+
+                      errorMessage = app.GetAJAXFailureErrMessage('Get Game Play Status', textStatus, error);
                       ajaxIsSuccessful = false;
 
                   }); //fail
@@ -549,21 +537,13 @@ $(function () {
                         .fail(function (jqxhr, textStatus, error) {
                             console.log('return POSTGamePlayAnswers fail');
 
-                            probeError = error;
-                            if (probeError == "") {
-                                probeError = "The In Common web server could not be found. There may be connectivity issues."
-                            }
-                            return returnErrMsg = textStatus + ", " + probeError;
+                            return returnErrMsg = app.GetAJAXFailureErrMessage('Post GamePlay Answers', textStatus, error);
                         });//fail for POST GamePlayAnswers
                 })//done for POST Player
                 .fail(function (jqxhr, textStatus, error) {
                     console.log('return POSTPlayer fail');
 
-                    probeError = error;
-                    if (probeError == "") {
-                        probeError = "The In Common web server could not be found. There may be connectivity issues."
-                    }
-                    return returnErrMsg = textStatus + ", " + probeError;
+                    return returnErrMsg = app.GetAJAXFailureErrMessage('Post Player', textStatus, error);
                 }); //fail for POST Player
 
             return returnErrMsg;
@@ -983,7 +963,7 @@ $(function () {
 
                     $('.submitButton').click(function (event) {
 
-                        app.confirmDialog('Submit','You\'re about to submit the Game <span class="popupGameName">' + gamePlayData.Name + '</span>.' + '<p>Are you sure?</p>',
+                        app.confirmDialog('Submit', 'You\'re about to submit the Game <span class="popupGameName">' + gamePlayData.Name + '</span>.' + '<p>Are you sure?</p>',
                             function () {
                                 $.mobile.loading('show'); //to show the spinner
                                 setTimeout(function () { app.ConfirmSubmit(); }, 1000); //give a 1 second delay. So the user see's the spinner when submitting
@@ -1313,52 +1293,52 @@ $(function () {
         }
 
         /*
+        Load Google Chart Libraries
+        */
+        app.LoadGoogleChartLibs = function () {
+            var jq = document.createElement('script'); jq.type = 'text/javascript';
+            // Path to jquery.js file, eg. Google hosted version
+            jq.src = 'https://www.google.com/jsapi';
+            document.getElementsByTagName('head')[0].appendChild(jq);
+
+            setTimeout(function () {
+                google.load("visualization", "1", { packages: ["corechart", "table"] });
+            }, 2000);
+        };
+
+        /*
         DisplayReportPage
         */
         app.DisplayReportPage = function () {
             console.log('func app.DisplayReportPage');
-            alert('reports under constructions');
-            return;
 
             gamePlayData = app.GetGamePlayLocalStorage();
             result = app.GetResultLocalStorage();
 
-            if (gamePlayData.GameType == "Match") {
-                $('footer').hide(); //hide footer on the page
+            //We need to check if google is defined. If not the result reports will not work.
+            //The device was not connected when first loading the app.
+            if (typeof google != 'undefined') {
 
-                app.DrawPlayerMatchSummary(result.GamePlayId, result.GameCode, result.PlayerId)
+                if (gamePlayData.GameType == "Match") {
+                    $('footer').hide(); //hide footer on the page
 
+                    if (result.PlayerCount >= 2) {
+                        app.DrawReport(ReportType.MatchSummary, result.GamePlayId, result.GameCode, result.PlayerId, 0);
+                    }
+                    else {
+                        app.popUpHelper("Info", "There are not enough players that have submitted their games to report on the results. Please try again later.");
+                    }
 
-                $(":mobile-pagecontainer").pagecontainer('change', '#report', { transition: 'none' });
-
-
-                //for match report - we have to check that there are least 2 players
-                /* MNS - GO CLIENT
-                if (result.PlayerCount >= 2) {
-                    $.mobile.loading('show'); //MNS
-
-                    url = ProbeMatchReporturl +
-                        result.GamePlayId +
-                        '/' + result.GameCode +
-                        '/' + result.PlayerId + '/' + GetMobileIndForAPI(); //with mobile indicator attached
-                    window.location = url;
-
+                } else { //Test Type
+                    app.DrawReport(ReportType.TestDetail, result.GamePlayId, result.GameCode, result.PlayerId, 0);
                 }
-                else {
-                    app.popUpHelper("Info", "There are not enough players that have submitted their games to report on the results. Please try again later.");
-                }
-                */
 
-            } else { //Test Type
-                /* MNS GO CLIENT
-                $.mobile.loading('show'); //MNS
 
-                url = ProbeTestReporturl +
-                    result.GamePlayId +
-                    '/' + result.GameCode +
-                    '/' + result.PlayerId + '/' + GetMobileIndForAPI(); //with mobile indicator attached
-                window.location = url;
-                */
+            } else {
+                app.confirmDialog('Error', 'Your device must be connected to display results.<br/><span style="color: #00edf0">Is your device connected now?</span><i> (you may have to confirm/retry a couple of times)</i>',
+                function () {
+                    location.reload(true); //will reload the page and all libraries
+                });
             }
 
         };//app.DisplayReportPage
@@ -1366,52 +1346,117 @@ $(function () {
         /*
         Display the PlayerMatchSummary report
         */
-        app.DrawPlayerMatchSummary = function (gamePlayId, gameCode, playerId) {
-            console.log('func app.DrawPlayerMatchSummary');
+        app.DrawReport = function (reportType, gamePlayId,gameCode,playerId,matchedPlayerId) {
+            console.log('func app.DrawReport');
 
-            /*
-            var gamePlayId = '@ViewBag.GamePlayId';
-            var gameCode = '@ViewBag.GameCode';
-            var playerId = '@ViewBag.PlayerId';
-            */
+            switch (reportType) {
+                case ReportType.MatchSummary:
+                    url = ProbeMatchSummaryAPIurl + gamePlayId + '/' + gameCode + '/' + playerId;
+                    $(":mobile-pagecontainer").pagecontainer('change', '#chartreport', { transition: 'none' });
+                    console.log('func app.DrawPlayerMatchSummary AJAX url:' + url);
+                    break;
+                case ReportType.MatchDetail:
+                    url = ProbeMatchDetailAPIurl + gamePlayId + '/' + gameCode + '/' + playerId + '/' + matchedPlayerId;
+                    $(":mobile-pagecontainer").pagecontainer('change', '#tablereport', { transition: 'none' });
+                    console.log('func app.DrawPlayerMatchDetail AJAX url:' + url);
+                    break;
+                case ReportType.TestDetail:
+                    url = ProbeTestDetailAPIurl + gamePlayId + '/' + gameCode + '/' + playerId;
+                    $(":mobile-pagecontainer").pagecontainer('change', '#tablereport', { transition: 'none' });
+                    console.log('func app.DrawPlayerTestDetail AJAX url:' + url);
+                    break;
+            }
 
-            url = ProbeMatchSummaryAPIurl + gamePlayId + '/' + gameCode + '/' + playerId
-            console.log('func app.DrawPlayerMatchSummary AJAX url:' + url);
-            $.getJSON(url)
-            .done(function(data) {
-                console.log('return DrawPlayerMatchSummary AJAX success');
-                //HANDLER FOR INTERACTIVITY
-                selectHandler = function () {
-                    console.log('selectHandler');
-                    var selectedItem = chart.getSelection()[0]; //will get player name
-                    if (selectedItem) {
-                        var matchedPlayerId = data[selectedItem.row].Id;
-                        console.log('The player selected ' + matchedPlayerId);
+            $.mobile.loading('show'); //to show the spinner
+            $.getJSON(url) //call is asychronous
+            .done(function (data) {
+                if (data.errorid == undefined) {
+                    //SUCCESS
 
-                        //MNS - WILL NEED TO REPLACE THIS WITH A CALL TO THE REPORT FUNCTION ON CLIENT!!!!!!!!!!!!!!!!!!!!!!!
-                        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        window.location = '@Url.Content("~")' + 'Reports/PlayerMatchDetail/'
-                            + gamePlayId + '/' + gameCode + '/' + playerId + '/' + matchedPlayerId + (DoStyleMobile() ? '/1' : '');
+                    //Setup the divs that hold the results (report page)
+                    var resize = false;
+                    $('parent_chart_div').css('min-height:500px;height: 100%;width: 100%;margin:auto;background:#fff;text-align:center');
+                    $('chart_div').css('min-height:500px;height: 100%;width: 100%;margin:auto;background:#fff;text-align:center');
 
+                    switch (reportType) {
+                        case ReportType.MatchSummary:
+
+                            $(window).resize(function () {
+                                resize = true;
+                                app.RenderPlayerMatchSummary(data);
+                            });
+
+                            $('#chart_div').html(''); //erase any old chart
+                            app.RenderPlayerMatchSummary(data);
+                            break;
+                        case ReportType.MatchDetail:
+
+                            $(window).resize(function () {
+                                resize = true;
+                                app.RenderPlayerMatchDetail(data);
+                            });
+
+                            $('#table_div').html(''); //erase any old table
+                            app.RenderPlayerMatchDetail(data);
+                            break;
+                        case ReportType.TestDetail:
+
+                            $(window).resize(function () {
+                                resize = true;
+                                app.RenderPlayerTestDetail(data);
+                            });
+
+                            $('#table_div').html(''); //erase any old table
+                            app.RenderPlayerTestDetail(data);
+                            break;
                     }
-                };
 
+                    $.mobile.loading('hide'); //to hide the spinner
+                } else {
+                    $.mobile.loading('hide'); //to hide the spinner
+                    errorMessage = 'There was an In Common server connection error.';
+                    app.popUpHelper('Error', errorMessage, 'Please try again.');
+                }
+            })
+            .fail(function (jqxhr, textStatus, error) {
+                $.mobile.loading('hide'); //to hide the spinner
+
+                app.popUpHelper('Error',app.GetAJAXFailureErrMessage('Reporting', textStatus, error), null);
+            });
+
+        }//app.DrawPlayerMatchSummary
+
+        /*
+        Actual rendering of the PlayerMatchSummary report
+        */
+        app.RenderPlayerMatchSummary = function (data) {
+            console.log('return DrawPlayerMatchSummary AJAX success');
+
+            gamePlayData = app.GetGamePlayLocalStorage();
+            result = app.GetResultLocalStorage();
+
+            //HANDLER FOR INTERACTIVITY
+            selectHandler = function () {
+                console.log('selectHandler');
+                var selectedItem = chart.getSelection()[0]; //will get player name
+                if (selectedItem) {
+                    var matchedPlayerId = data[selectedItem.row].Id;
+                    console.log('The player selected ' + matchedPlayerId);
+                    app.DrawReport(ReportType.MatchDetail,result.GamePlayId,result.GameCode,result.PlayerId,matchedPlayerId)
+                }
+            };//selectHandler = function ()
+
+            try {
 
                 /*
                 SETUP REPORT HEADER
                 Header will be different - dependent on the mobile indicator
                 Back button will not exist if report loads within an iFrame (then its in mobile mode)
                 */
-                //$('#header').html('<span class="reportLabel">Game</span>: ' + '@ViewBag.GamePlayName' + '<br/><span class="reportLabel reportLabelMargin">Player</span>: ' + '@ViewBag.PlayerName');
-                //$('#appHome').click(function (event) {
-                //    //if client is cordova app then we use back function, if not then we know the client is a browser so we use a url and relocate
-                //    if (ClientIsCordovaApp()) {
-                //        window.history.go(-1);
-                //    } else {
-                //        window.location = '@Request.Url.Scheme' + '://' + '@Request.Url.Authority' + '@VirtualPathUtility.ToAbsolute("~/")' + 'client/'
-                //    }
-                //});
-                //$('.reportReturnLink').hide();
+                $('#chartheader').html('<span class="reportLabel">Game :</span> ' +
+                                       '<span class="reportLabelText">' + gamePlayData.Name + '</span>' +
+                                       '<br/><span class="reportLabel reportLabelMargin">Player:</span> ' +
+                                       '<span class="reportLabelText">' + app.GetPlayerName()) + '</span>';
 
                 /*
                 SETUP GOOGLE CHART DATA
@@ -1419,10 +1464,11 @@ $(function () {
                 maxTickValue = 0;
 
                 var dSeries = new Array(data.length + 1);
-                dSeries[0] = new Array(3)
+                dSeries[0] = new Array(4)
                 dSeries[0][0] = 'Player';
                 dSeries[0][1] = 'Matches';
                 dSeries[0][2] = { role: 'annotation' };
+                dSeries[0][3] = { role: 'style' };
                 for (var i = 0; i < data.length; i++) {
                     dSeries[i + 1] = new Array(3)
                     dSeries[i + 1][0] = data[i].Name;
@@ -1431,6 +1477,7 @@ $(function () {
                     legendStr = '(' + data[i].Value + ')';
                     legendStr = data[i].Name + '(' + data[i].Value + ')';
                     dSeries[i + 1][2] = legendStr;
+                    dSeries[i + 1][3] = 'color: #262626';  //#f6f6f6
 
                     maxTickValue = Math.max(maxTickValue, data[i].Value);
                 }
@@ -1439,7 +1486,7 @@ $(function () {
                 /*
                 SETUP V-AXIS
                 */
-                var vAxisText = '# Matches out of ' + '@ViewBag.NbrQuestions';
+                var vAxisText = '# Matches out of ' + app.NbrQuestions();
 
                 /*
                 SETUP GOOGLE CHART STYLE THROUGH OPTIONS
@@ -1451,14 +1498,16 @@ $(function () {
 
                 var options = {};
                 options = {
-                    height: Math.round(70 * data.length),
+                    height: Math.round(90 * data.length),
                     chartArea: { left: 10, top: 25, right: 10, width: '95%', height: '75%' }, //WIDTH CONTROLS IF YOU CAN SEE THE LAST TICK NUMBER
+                    colors: ['#262626'],
                     hAxis: {
                         title: vAxisText,
                         format: '#',
                         titleTextStyle: { fontSize: '20' },
                         ticks: tickArray
                     },
+                    backgroundColor: 'transparent',
                     bar: { groupWidth: "75%" }, //CONTROLS SIZE OF BAR AND SPACE BETWEEN BARS
                     annotations: {
                         textStyle: {
@@ -1469,21 +1518,215 @@ $(function () {
                             opacity: 0.8          // The transparency of the text.
                         }
                     },
-                    legend: { position: 'top', alignment: 'end', textStyle: { color: 'blue', fontSize: 16 } },
+                    legend: { position: 'top', alignment: 'end', textStyle: { color: 'black', fontSize: 16 } },
                 };
-
 
                 var chart = new google.visualization.BarChart($('#chart_div')[0]); //jquery for document.getElementById
                 google.visualization.events.addListener(chart, 'select', selectHandler);
                 chart.draw(tdata, options);
 
-            })
-            .fail(function (jqxhr, textStatus, error) {
-                console.log('fail');
-            });
+            } catch (err) {
+                app.popUpHelper('Error',app.GetGoogleChartFailureErrMessage('Chart Player Match Summary',err), null);
+            }//try
+        };//app.RenderPlayerMatchSummary
 
-        }//app.DrawPlayerMatchSummary
+        /*
+        Actual rendering of the PlayerMatchDetail report
+        */
+        app.RenderPlayerMatchDetail = function (data) {
+            console.log('return DrawPlayerMatchDetail AJAX success');
 
+            gamePlayData = app.GetGamePlayLocalStorage();
+            result = app.GetResultLocalStorage();
+
+            //SET COLUMN WIDTHS
+            setColumnWidths = function () {
+                //$('.googleReportTableHeader:contains("Percnt Choice")').css('width', '30px'); //set the width of the percent choice column
+                $('.googleReportTableHeader:contains("%")').css('width', '30px'); //set the width of the percent choice column
+                $('.googleReportTableHeader:contains("Matchup Choice")').css('width', '50px'); //set the width of the percent choice column
+            };
+
+            try {
+
+
+            /*
+            SETUP REPORT HEADER
+            Header will be different - dependent on the mobile indicator
+            */
+            //$('reportGameHeader')
+            if (data.length >= 1) {
+                $('#tableheader').html('<span class="reportLabel" style="margin-right: 20px">Game</span>: ' +
+                                       '<span class="reportLabelText">' + gamePlayData.Name + '</span>' +
+                                       '<br/><span class="reportLabel" style="margin-right: 17px">Player</span>: ' +
+                                       '<span class="reportLabelText">' + data[0].PlayerName + '</span>' +
+                                       '<br/><span class="reportLabel reportLabelMargin">Matchup:</span> ' +
+                                       '<span class="reportLabelText">' + data[0].MatchedPlayerName) + '</span>';
+                //$('.reportReturnLink').hide();
+            }
+
+            /*
+            SETUP GOOGLE TABLE DATA
+            */
+            var tdata = new google.visualization.DataTable();
+
+            tdata.addColumn('string', 'Question');
+            tdata.addColumn('string', 'Player Choice');
+            tdata.addColumn('string', 'Matchup Choice');
+            //tdata.addColumn('number', 'Percnt Choice');
+            tdata.addColumn('number', '%');
+
+            rowlength = 4;
+            rowVector = new Array(rowlength);
+
+            matchCount = 0;
+            for (var i = 0; i < data.length; i++) {
+
+                cellClassName = 'googleReportCellNOWB';
+                if (data[i].Match == 1) {
+                    cellClassName = 'googleReportCellYESWB'
+                    matchCount++;
+                } else {
+                    cellClassName = 'googleReportCellNOWB';
+                }
+
+                row = 0;
+                rowVector[row++] = { v: data[i].Question, p: { 'className': 'googleReportCell' } };
+                rowVector[row++] = { v: data[i].PlayerChoice, p: { 'className': 'googleReportCellWB' } };
+                rowVector[row++] = { v: data[i].MatchedPlayerChoice, p: { 'className': cellClassName } };
+                rowVector[row++] = { v: data[i].PercentChosen, p: { 'className': 'googleReportCell' } };
+
+                tdata.addRow(rowVector);
+            }
+
+            $('.tableHeader').html(matchCount + ' Matches out of ' + data.length + ' Questions');
+
+            var options = {
+                allowHtml: true,
+                alternatingRowStyle: true,
+                cssClassNames: {
+                    headerCell: 'googleReportTableHeader',
+                    tableCell: 'googleReportTableNonHeader',
+                    tableRow: 'googleReportTableNonHeader'
+                },
+                backgroundColor: 'transparent' //doesn't work for tables
+            };
+
+            var tableAll = new google.visualization.Table(document.getElementById('table_div'));
+            google.visualization.events.addListener(tableAll, 'ready', setColumnWidths);
+            tableAll.draw(tdata, options);
+
+            app.AlignTableCellContent();
+
+            } catch (err) {
+                app.popUpHelper('Error', app.GetGoogleChartFailureErrMessage('Chart Player Match Detail', err), null);
+            }//try
+
+        };//app.RenderPlayerMatchDetail
+
+        /*
+        Display the PlayerTestDetail report
+        */
+        app.RenderPlayerTestDetail = function (data) {
+            console.log('return DrawPlayerTestDetail AJAX success');
+
+            gamePlayData = app.GetGamePlayLocalStorage();
+            result = app.GetResultLocalStorage();
+
+            //HANDLER FOR INTERACTIVITY
+            selectHandler = function () {
+                console.log('selectHandler');
+                var selectedItem = chart.getSelection()[0]; //will get question id
+                if (selectedItem) {
+                    var questionId = data[selectedItem.row].QuestionId;
+                    console.log('The question selected ' + questionId);
+
+                    //no handling of an event at this time (9/4/14)
+                }
+            };//selectHandler = function ()
+
+            try {
+
+            /*
+            SETUP REPORT HEADER
+               Header will be different - dependent on the mobile indicator
+            */
+            if (data.length >= 1) {
+                $('#tableheader').html('<span class="reportLabel">Game</span> : ' +
+                    '<span class="reportLabelText">' + gamePlayData.Name + '</span>' +
+                    '<br/><span class="reportLabel reportLabelMargin">Player:</span> ' +
+                    '<span class="reportLabelText">' + data[0].PlayerName + '</span>' +
+                    ' <span class="reportLabel reportLabelMargin">Score:</span> ' + CalcTestScore(data) + '%');
+            }
+
+            /*
+            SETUP GOOGLE TABLE DATA
+            */
+            var tdata = new google.visualization.DataTable();
+
+            tdata.addColumn('string', 'Question');
+            tdata.addColumn('string', 'Selections');
+            tdata.addColumn('string', 'Correct Choices');
+
+            rowlength = 3;
+            rowVector = new Array(rowlength);
+
+            correctCount = 0;
+            for (var i = 0; i < data.length; i++) {
+
+                cellClassName = 'googleReportCellNOWB';
+                if (data[i].QuestionCorrect == 1) {
+                    cellClassName = 'googleReportCellYESWB'
+                    correctCount++;
+                } else {
+                    cellClassName = 'googleReportCellNOWB';
+                }
+
+                row = 0;
+                rowVector[row++] = { v: data[i].Question, p: { 'className': 'googleReportCell' } };
+                rowVector[row++] = { v: data[i].SelectedChoices, p: { 'className': cellClassName } };
+                rowVector[row++] = { v: data[i].CorrectChoices, p: { 'className': 'googleReportCellWB' } };
+
+                tdata.addRow(rowVector);
+            }
+
+            $('.tableHeader').html(correctCount + ' Correct out of ' + data.length + ' Questions');
+
+            var options = {
+                allowHtml: true,
+                cssClassNames: {
+                    headerCell: 'googleReportTableHeader',
+                    tableCell: 'googleReportTableNonHeader',
+                    tableRow: 'googleReportTableNonHeader'
+                }
+            };
+
+            var tableAll = new google.visualization.Table(document.getElementById('table_div'));
+            google.visualization.events.addListener(tableAll, 'select', selectHandler);
+            tableAll.draw(tdata, options);
+
+            app.AlignTableCellContent();
+
+            } catch (err) {
+                app.popUpHelper('Error', app.GetGoogleChartFailureErrMessage('Chart Player Test Detail', err), null);
+            }//try
+
+        };//app.RenderPlayerTestDetail
+
+        /*
+        Dynamically align table cell content
+        */
+        app.AlignTableCellContent = function () {
+            console.log('func app.AlignTableCellContent');
+
+            //set the alignment of the cell contents. Can only do this after the fact
+            $('.googleReportTableHeader').css('vertical-align', 'top');
+            $('.googleReportCellYES').css('vertical-align', 'top');
+            $('.googleReportCellNO').css('vertical-align', 'top');
+            $('.googleReportCell').css('vertical-align', 'top');
+            $('.googleReportCellYESWB').css('vertical-align', 'top');
+            $('.googleReportCellNOWB').css('vertical-align', 'top');
+            $('.googleReportCellWB').css('vertical-align', 'top');
+        };
 
         /*
         returns true if game is in progress
@@ -1500,6 +1743,14 @@ $(function () {
             }
             return gameInProgress;
         };
+
+        /*
+        get player name
+        */
+        app.GetPlayerName = function() {
+            result = app.GetResultLocalStorage();
+            return result.FirstName + '-' + result.NickName;
+        }
 
         /*
         returns true if all questions are answered, otherwise it returns false
@@ -1688,6 +1939,33 @@ $(function () {
         };//app.IsGameSubmitted 
 
         /*
+        Handle AJAX Failure
+        */
+        app.GetAJAXFailureErrMessage = function (requestDesc, textStatus, error) {
+
+            errorDetailDescLine = '';
+            if (textStatus != 'error' || error != '') {
+                errorDetailDescLine = '<br/>(' + textStatus + ", " + error + ')';
+            }
+
+            return 'There were connectivity issues for <i>' + requestDesc + '</i>.' + errorDetailDescLine;
+        };
+
+        /*
+        Handle Google Chart Failure
+        */
+        app.GetGoogleChartFailureErrMessage = function (requestDesc, error) {
+
+            errorDetailDescLine = '';
+            if (error != '') {
+                errorDetailDescLine = '<br/>(' + error + ')';
+            }
+
+            return 'There were connectivity issues for <i>' + requestDesc + '</i>.' + errorDetailDescLine;
+        };
+
+
+        /*
         Popup Helper
         */
         app.popUpHelper = function (header, msg1, msg2) {
@@ -1764,12 +2042,13 @@ $(function () {
                         callback();
                     }
                 }
-                });
+            });
             popupDialogObj.popup('open');
             popupDialogObj.find(".optionConfirm").first().on('click', function () {
                 popupDialogObj.attr('data-confirmed', 'yes');
             });
         }//app.confirmDialog 
+
 
         /*
         GetConfigurationValue

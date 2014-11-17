@@ -26,3 +26,12 @@ GetChartAxisTickets = function (minValue, maxValue, nbrOfTicks) {
 
     return tickArray;
 }//GetChartAxisTickets
+
+CalcTestScore = function(data) {
+
+    nbrCorrect = 0;
+    for (var i = 0; i < data.length; i++) {
+        if (data[i].QuestionCorrect == 1) nbrCorrect++;
+    }
+    return Math.round(nbrCorrect * 100 / data.length);
+}//CalcTestScore
