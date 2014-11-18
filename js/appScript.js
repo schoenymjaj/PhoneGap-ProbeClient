@@ -298,7 +298,11 @@ $(function () {
             $('#callGetPlays').click(function (event) {
                 gameCode = $('#gameCode').val();
                 if (gameCode.length > 0) { //check to see that a game code was entered
-                    app.GetGamePlayServer($('#gameCode').val());
+                    if ($('#gameCode').val() != 'incommon-settings') {
+                        app.GetGamePlayServer($('#gameCode').val());
+                    } else {
+                        app.popUpHelper('Info', 'screen width = ' + $(window).width() + '</br>' + 'screen height = ' + $(window).height(), null);
+                    }
                 } else {
                     app.popUpHelper('Error', 'The game code cannot be blank.', 'Please enter a game code.');
                 }
