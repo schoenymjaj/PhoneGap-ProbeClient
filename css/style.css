@@ -15,7 +15,7 @@ body {
     /*overflow-y:hidden;*/ /*we need this because jqm erroneously creates vertical scrollbar for menus and popup markup outside a page*/
 }
 
-#home, #question, #summary, #info, #chartreport, #tablereport, #menu {
+#home, #question, #summary, #about, #chartreport, #tablereport, #about, #menu {
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -198,38 +198,6 @@ CLIENT TEST - NEW STYLES (MNS - 9/25/14
     height: 100%;
 }
 
-/*we will keep these for now, but the backButtonCss and nextButtonCss
-    are currently not being used - MNS 11/13/14*/
-@media only screen and (min-width: 476px) {
-    .backButtonCss {
-        height: 100%;
-        padding: 0px 0px 0px 0px;
-        margin: 0px 0px 0px 0px;
-    }
-
-    .nextButtonCss {
-        height: 100%;
-        padding: 0px 0px 0px 0px;
-        margin: 0px 0px 0px 0px;
-    }
-}
-
-@media only screen and (max-width: 475px) {
-    .backButtonCss {
-        height: 100%;
-        padding: 0px 10px 0px 0px;
-        margin: 0px 10px 0px 0px;
-        text-align: right;
-    }
-
-    .nextButtonCss {
-        height: 100%;
-        padding: 0px 0px 0px 10px;
-        margin: 0px 0px 0px 0px;
-        text-align: left;
-    }
-}
-
 /*
     HOME PAGE BUTTONS   
  */
@@ -351,27 +319,44 @@ CLIENT TEST - NEW STYLES (MNS - 9/25/14
     color: #262626;
 }
 
-.googleReportCellWB {
-    color: #262626;
-    word-break:break-all;
-}
-
 .googleReportCellYES {
     color: #262626;
-}
-
-.googleReportCellYESWB {
-    color: #262626;
-    word-break:break-all;
 }
 
 .googleReportCellNO {
     color: red;
 }
 
-.googleReportCellNOWB {
-    color: red;
-    word-break:break-all;
+/* we do word break depending on the width of the device*/
+@media only screen and (min-width: 901px) {
+    .googleReportCellNOWB {
+        color: red;
+    }
+
+    .googleReportCellYESWB {
+        color: #262626;
+    }
+
+    .googleReportCellWB {
+        color: #262626;
+    }
+}
+
+@media only screen and (max-width: 900px) {
+    .googleReportCellNOWB {
+        color: red;
+        word-break: break-all;
+    }
+
+    .googleReportCellYESWB {
+        color: #262626;
+        word-break: break-all;
+    }
+
+    .googleReportCellWB {
+        color: #262626;
+        word-break: break-all;
+    }
 }
 
 .tableMatch {

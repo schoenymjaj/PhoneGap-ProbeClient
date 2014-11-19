@@ -42,12 +42,15 @@ $(function () {
         var GameState = { "Idle": 0, "Active": 1, "Submitted": 2, "ReadOnly": 3 };
         var SexType = { 'Unknow': 0, 'Male': 1, 'Female': 2 };
         var ReportType = { 'MatchSummary': 0, 'MatchDetail': 1, 'TestDetail': 2 };
+        var ConfigType = { 'Global': 0, 'Game': 1 };
         var gameState = GameState.Idle;
         var gamePlayQueueMax = 10;  //number of submitted games save client-side
         var codeFromURL = undefined;
         var ajaxCallMaxTries = 3;  //number of tries app will make on an ajax call to server
         var aboutIFrameLoaded = false; //used specifically to display mobile loader (spinner) for About page
         var adjustedTopPadding = false //this is a hack to ensure top padding is correct the first time home page is rendered
+        var minutesToCache = 5; //how long to cache global incommon configuration
+        var lastUpdatedCacheDateTime = new Date('1/1/2001');
 
         app.init = function () {
             //this occurs after document is ready (runs once)
@@ -110,22 +113,6 @@ $(function () {
             {
                 app.SetHeaderImage();
             });
-
-            /*
-            the pageshow for info page bind and the iframe load bind are events bound just to show the user the spinner 
-            during the about page load. This can take a while because of the round trip. Also need hack to check
-            if iframe has loaded before pageshow. In this case we don't show the spinner
-            */
-            $(document).on('pageshow', '#info', function () {
-                if (!aboutIFrameLoaded) {
-                    $.mobile.loading('show'); //to show the spinner
-                }
-                aboutIFrameLoaded = false;
-            });
-            $('#infoFrameId').get(0).onload = function () {
-                $.mobile.loading('hide'); //to show the spinner
-                aboutIFrameLoaded = true;
-            };
 
         }; //app.bindings = function () {
 
@@ -348,7 +335,7 @@ $(function () {
                                 app.PutGameConfigLocalStorage(gameConfig);
                                 if (gameConfig = {}) {
 
-                                    if (!app.IsGameSubmitted(gamePlayData.Id) || !$.parseJSON(app.GetConfigValue('DeviceCanPlayGameOnlyOnce'))) {
+                                    if (!app.IsGameSubmitted(gamePlayData.Id) || !$.parseJSON(app.GetConfigValue(ConfigType.Game,'DeviceCanPlayGameOnlyOnce'))) {
                                         app.InitalizeGamePlay(gamePlayData);
                                         app.SetGamePlayPlayerPrompt(); //SUCCESS - NEXT STEP IS FOR PLAYER TO ENTER PLAYER INFO
                                     } else {
@@ -552,6 +539,55 @@ $(function () {
 
             return returnErrMsg;
         };//app.PostGamePlayAnswersServer
+
+        /*
+        Get InCommon Configuration(global) from Probe Server
+        FYI. The GetJSON call to server is asynchronous. We wait for a good response, then
+        call the next display (About display)
+        */
+        app.GetInCommonConfigServer = function () {
+            console.log('func app.GetInCommonConfigServer');
+
+            $.mobile.loading('show'); //to show the spinner
+            url = ProbeAPIurl + 'GameConfigurations/GetConfiguration/incommon-code-around';
+
+            console.log('func app.GetInCommonConfigServer AJAX url:' + url);
+            $.getJSON(url)
+              .done(function (configuration) {
+                    console.log('return GetInCommonConfigServer success');
+
+                    // On success, 'data' contains a configuration JSON object
+                    if (configuration.errorid == undefined) {
+                        //SUCCESS
+                        //We prepare the new incommon configuration data and display the about page 
+                        app.PutInCommonConfigLocalStorage(configuration);
+
+                        aboutHtml = app.GetConfigValue(ConfigType.Global, "InCommon-About");
+                        minutesToCache = parseInt(app.GetConfigValue(ConfigType.Global, "InCommon-CacheMinutes"));
+                        $('#aboutContent').html(aboutHtml);
+
+                        $("#accordion").accordion({
+                            heightStyle: "content",
+                            autoHeight: false,
+                            clearStyle: true,
+                        });
+                        $.mobile.loading('hide'); //to hide the spinner
+                    } else {
+                        //THERE WAS A PROBE BUSINESS ERROR - THIS SHOULD NEVER HAPPEN FOR THIS CALL
+                        $.mobile.loading('hide'); //to hide the spinner
+                        errorMessage = configuration.errormessage;
+                        app.popUpHelper('Error', errorMessage, 'In Common request error occurred.');
+                    }
+
+                }) //done
+              .fail(function (jqxhr, textStatus, error) {
+                  console.log('return GetInCommonConfigServer fail');
+                  $.mobile.loading('hide'); //to hide the spinner
+
+                  app.popUpHelper('Error', app.GetAJAXFailureErrMessage('Get InCommon Configuration', textStatus, error), null);
+              }); //fail
+
+        };//app.GetInCommonConfigServer
         
         /*
         Update the home page with the game play information and a prompt for first name and nick name 
@@ -1286,14 +1322,22 @@ $(function () {
         */
         app.DisplayAboutPage = function () {
             console.log('func app.DisplayAboutPage');
-            url = root + 'Home/About/' + GetMobileIndForAPI(); //insert the portal About (for mobil) page.
-            $('#infoFrameId').attr("src", url);
-            setTimeout(function () {
 
-                $(':mobile-pagecontainer').pagecontainer('change', '#info', { transition: 'none' });
-                //$('#info').css("padding-top", "3em");
+            //check to see if we've reached the cached limit. if so then we go get the about content from the server
+            //otherwise we just change the page. the content is already there.
+            dateTimeToCache = new Date(lastUpdatedCacheDateTime.valueOf());
+            dateTimeToCache.setMinutes(dateTimeToCache.getMinutes() + minutesToCache);
 
-            }, 500);
+            var dateNow = new Date();
+            if (dateNow > dateTimeToCache || $('#aboutContent').length == 0) {
+                //change page before the asychronous ajax call - and you get the spinner 
+                $(':mobile-pagecontainer').pagecontainer('change', '#about', { transition: 'none' });
+                app.GetInCommonConfigServer();
+                lastUpdatedCacheDateTime = new Date(dateNow.valueOf()); //update last date updated cache
+            } else {
+                $(':mobile-pagecontainer').pagecontainer('change', '#about', { transition: 'none' });
+            }
+
         }
 
         /*
@@ -1545,9 +1589,11 @@ $(function () {
 
             //SET COLUMN WIDTHS
             setColumnWidths = function () {
-                //$('.googleReportTableHeader:contains("Percnt Choice")').css('width', '30px'); //set the width of the percent choice column
-                $('.googleReportTableHeader:contains("%")').css('width', '30px'); //set the width of the percent choice column
-                $('.googleReportTableHeader:contains("Matchup Choice")').css('width', '50px'); //set the width of the percent choice column
+                //we will restrict the width of these columns only if we need to
+                if ($(window).width() <= 900) {
+                    $('.googleReportTableHeader:contains("%")').css('width', '30px'); //set the width of the percent choice column
+                    $('.googleReportTableHeader:contains("Matchup Choice")').css('width', '50px'); //set the width of the percent choice column
+                } 
             };
 
             try {
@@ -1968,7 +2014,6 @@ $(function () {
             return 'There were connectivity issues for <i>' + requestDesc + '</i>.' + errorDetailDescLine;
         };
 
-
         /*
         Popup Helper
         */
@@ -2055,21 +2100,26 @@ $(function () {
 
 
         /*
-        GetConfigurationValue
+        GetConfigurationValue (supports both game and incommon global config parms)
         */
-        app.GetConfigValue = function (configName) {
+        app.GetConfigValue = function (configType, configName) {
             console.log('func app.GetConfigValue');
 
-            gameConfig = app.GetGameConfigLocalStorage();
-            parmValue = {};
+            if (configType == ConfigType.Game) {
+                config = app.GetGameConfigLocalStorage();
+            } else {
+                config = app.GetInCommonConfigLocalStorage();
+            }
 
-            for (i = 0; i < gameConfig.length; i++) {
+            parmValue = 'EmptyValue';
 
-                if (gameConfig[i].Name == configName) {
-                    parmValue = gameConfig[i].Value;
+            for (i = 0; i < config.length; i++) {
+
+                if (config[i].Name == configName) {
+                    parmValue = config[i].Value;
                 }
 
-                if(parmValue != {}) break;
+                if(parmValue != 'EmptyValue' ) break;
             }
             return parmValue;
             
@@ -2187,9 +2237,22 @@ $(function () {
         };
 
     /* ***************************************************
-    Helper routines for local storage of GamePlay, Results,
+    Helper routines for local storage of IncCommon(global), GamePlay, Results,
     GamePlayListQueue, and GamePlayListQueue data
     */
+    app.PutInCommonConfigLocalStorage = function (configuration) {
+        localStorage["InCommon"] = JSON.stringify(configuration);
+    };
+
+    app.GetInCommonConfigLocalStorage = function () {
+        localResult = undefined;
+        if (localStorage["InCommon"] != undefined) {
+            localResult = JSON.parse(localStorage["InCommon"]);
+        }
+
+        return localResult;
+    };
+
     app.PutGamePlayLocalStorage = function (gamePlay) {
         localStorage["GamePlay"] = JSON.stringify(gamePlay);
     };
