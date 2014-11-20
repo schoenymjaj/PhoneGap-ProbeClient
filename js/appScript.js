@@ -27,7 +27,7 @@ $(function () {
         /*
         Globals
         */
-        var probeVersion = '0.67';
+        var probeVersion = '1.0.0';
         var root = GetRootUrl();  //root directory of the web site serving mobile app (i.e. in-common-app.com)
 
         //alert('Probe Version: ' + probeVersion);
@@ -241,10 +241,10 @@ $(function () {
 
             app.SetHomePageStyle(true); //the only time we set bckground image to full opacity -first time
             gameInstructions = '<h3 style="text-align: center">Welcome to the <i>In Common</i> App!</h3>' +
-                               '<p>You will need a game code from a game organizer in order to play. Try the <a id="demoGameLink" data-democode="DEMO Match" href="#">demo game</a> if you don\'t have a code yet.</p>' +
-                               '<p>To enter a game code, click the Add icon on the top menu bar.' +
-                               ' After entering your code, you may have to wait a few moments for <i>In Common</i> to retrieve your game.</p>' +
-                                '<p>Enter your first name and a nickname so you can be recognized. Answer each of the questions and click submit. Your game organizer will provide you with access to the game results.</p>' +
+                               '<p>You will need a game code from a game organizer to play. Try the <a id="demoGameLink" data-democode="Practice Match" href="#">practice game</a> if you don\'t have a code yet.</p>' +
+                               '<p>To enter a code, click the Add icon on the top bar.' +
+                               ' <i>In Common</i> may take a few moments to retrieve your game.</p>' +
+                                '<p>Enter your first name and a nickname to be recognized. Answer each of questions and click submit. Your game organizer will provide you with access to the game results.</p>' +
                                 '<button id="aboutBtn" class="ui-btn" data-icon="book">Want to know more?</button>';
 
             $('#homePageContent').html(gameInstructions);
@@ -253,7 +253,7 @@ $(function () {
             $('#homePageContent').css('font-weight', 'bold');
             $('#home').trigger('create');
 
-            //let's kick start the 'DEMO Match' game
+            //let's kick start the 'Practice Match' game
             $("#demoGameLink").click(function (event) {
                 app.SetHomePageStyle(false);
                 app.GetGamePlayServer($(this).attr("data-democode"));
