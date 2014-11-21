@@ -108,10 +108,17 @@ $(function () {
 
             }); //$(document).on
 
-            $(document).on('blur', 'input, textarea', function () {
+            // Workaround for buggy header/footer fixed position when virtual keyboard is on/off
+            $('input, textarea')
+            .on('focus', function (e) {
+                $('header, footer').css('position', 'absolute');
+            })
+            .on('blur', function (e) {
+                $('header, footer').css('position', 'fixed');
+                //force page redraw to fix incorrectly positioned fixed elements
                 setTimeout(function () {
-                    window.scrollTo(document.body.scrollLeft, document.body.scrollTop);
-                }, 0);
+                    window.scrollTo($.mobile.window.scrollLeft(), $.mobile.window.scrollTop());
+                }, 20);
             });
 
             //sets the padding when window is resized. Not going to happen on a phone.
