@@ -1102,26 +1102,28 @@ $(function () {
         app.GameResumeAction = function (index) {
             console.log('func app.GameResumeAction');
 
-            //get the game from the queue first
-            gamePlayQueueBeforPush = app.GetGamePlayQueueLocalStorage();
-            gamePlayDataBeforePush = gamePlayQueueBeforPush[index].GamePlay;
-            resultBeforePush = gamePlayQueueBeforPush[index].Result;
+            alert('MNS Debug 11/21/14 - GameResumeAction');
+            //  MNS DEBUG 11/21/14 425pm COMMENTED OUT BELOW
+            ////get the game from the queue first
+            //gamePlayQueueBeforPush = app.GetGamePlayQueueLocalStorage();
+            //gamePlayDataBeforePush = gamePlayQueueBeforPush[index].GamePlay;
+            //resultBeforePush = gamePlayQueueBeforPush[index].Result;
 
-            //if game is in progess, then we want to push active game onto the queue
-            if (app.IsGameInProgress()) {
-                app.PushQueueGamePlays(GameState.Active);
-            }
+            ////if game is in progess, then we want to push active game onto the queue
+            //if (app.IsGameInProgress()) {
+            //    app.PushQueueGamePlays(GameState.Active);
+            //}
 
-            app.PutGamePlayLocalStorage(gamePlayDataBeforePush);
-            app.PutResultLocalStorage(resultBeforePush);
+            //app.PutGamePlayLocalStorage(gamePlayDataBeforePush);
+            //app.PutResultLocalStorage(resultBeforePush);
 
-            try {
-                app.GetGamePlayStatusServer(resultBeforePush.GameCode);
-                $.mobile.loading('hide'); //to show the spinner
-            } catch (err) {
-                $.mobile.loading('hide'); //to show the spinner
-                app.popUpHelper("Error", "GetGamePlayStatusServer: " + err);
-            }
+            //try {
+            //    app.GetGamePlayStatusServer(resultBeforePush.GameCode);
+            //    $.mobile.loading('hide'); //to show the spinner
+            //} catch (err) {
+            //    $.mobile.loading('hide'); //to show the spinner
+            //    app.popUpHelper("Error", "GetGamePlayStatusServer: " + err);
+            //}
 
             //set the home page for read-only view
             gameState = GameState.ReadOnly;
@@ -1291,9 +1293,6 @@ $(function () {
         */
         app.StartGame = function (questionNbr) {
             console.log('func app.StartGame');
-
-            alert('MNS debug');
-            gameState = GameState.ReadOnly; //We are doing this for debug 11/21/14 MNS
 
             /*
             we are starting up the game. If the game state is original idle; then we
