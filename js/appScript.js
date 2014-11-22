@@ -30,6 +30,7 @@ $(function () {
         var probeVersion = '1.0.0';
         var root = GetRootUrl();  //root directory of the web site serving mobile app (i.e. in-common-app.com)
 
+        alert('MNS - made a change 11/22/14');
         //alert('Probe Version: ' + probeVersion);
         var ProbeAPIurl = root + "api/";
         var ProbeMatchSummaryAPIurl = ProbeAPIurl + "Reports/GetPlayerMatchSummaryData/";
@@ -695,10 +696,10 @@ $(function () {
             //bind event handlers to the start and cancel buttons
             $('#startGamePlay').click(function (event) {
 
-                //MNS - HACK FIX FOR IPAD KEYBOARD ISSUE
-                $('header, footer').css('position', 'absolute');
-                window.scrollTo($.mobile.window.scrollLeft(), $.mobile.window.scrollTop());
-                //MNS END
+                //This is a hack to ensure that the fixed nav bar is positioned corrected
+                //USED IN CONJUNCTION WITH HACK ON BOTTOM OF THIS EVENT HANDLER (SEE TIMEOUT 0.1)
+                //$('header, footer').css('position', 'absolute');
+                //window.scrollTo($.mobile.window.scrollLeft(), $.mobile.window.scrollTop());
 
                 //error handling 
                 if ($('#firstName').val().length < 3 ||
@@ -728,12 +729,13 @@ $(function () {
 
                 app.PutResultLocalStorage(result);
 
-                console.log('WAIT .1 SECONDS TO START GAME');
-                setTimeout(function () {
-                    app.StartGame(0);
-                }, 100);
+                //Wait a tenth of a second to ensure the IPAD soft keyboard is down. This is a hack to
+                //ensure the fixed bottom nav bar doesnt jump up to the middle on the question page
+                //setTimeout(function () {
+                //    app.StartGame(0);
+                //}, 100);
             
-                //app.StartGame(0);
+                app.StartGame(0);
 
             });
 
@@ -761,21 +763,6 @@ $(function () {
             $('#reportGamePlay').click(function (event) {
                 app.DisplayReportPage();
             });
-
-            //// Workaround for buggy header/footer fixed position when virtual keyboard is on/off - MOVES THE FIXED BOTTOM BAR DOWN - KWERKY AND ISSUE WITH BACKGROUND
-            //$('input, textarea')
-            //.on('focus', function (e) {
-            //    console.log('TEXTAREA FOCUS');
-            //    $('header, footer').css('position', 'absolute');
-            //})
-            //.on('blur', function (e) {
-            //    $('header, footer').css('position', 'fixed');
-            //    //force page redraw to fix incorrectly positioned fixed elements
-            //    setTimeout(function () {
-            //        console.log('BLUR HEADER FOOTER');
-            //        window.scrollTo($.mobile.window.scrollLeft(), $.mobile.window.scrollTop());
-            //    }, 20);
-            //});
 
         };
 
