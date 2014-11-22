@@ -725,7 +725,7 @@ $(function () {
 
 
                 //This is a hack for IPAD to ensure that the fixed nav bar is positioned corrected
-                if (isIpad()) {
+                if (navigator.userAgent.match(/iPad/i)) {
                     alert('Im an ipad');
                     $('header, footer').css('position', 'absolute');
                     window.scrollTo($.mobile.window.scrollLeft(), $.mobile.window.scrollTop());
