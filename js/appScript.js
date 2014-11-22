@@ -30,7 +30,6 @@ $(function () {
         var probeVersion = '1.0.0';
         var root = GetRootUrl();  //root directory of the web site serving mobile app (i.e. in-common-app.com)
 
-        alert('MNS - made a change 11/22/14');
         //alert('Probe Version: ' + probeVersion);
         var ProbeAPIurl = root + "api/";
         var ProbeMatchSummaryAPIurl = ProbeAPIurl + "Reports/GetPlayerMatchSummaryData/";
@@ -696,11 +695,6 @@ $(function () {
             //bind event handlers to the start and cancel buttons
             $('#startGamePlay').click(function (event) {
 
-                //This is a hack to ensure that the fixed nav bar is positioned corrected
-                //USED IN CONJUNCTION WITH HACK ON BOTTOM OF THIS EVENT HANDLER (SEE TIMEOUT 0.1)
-                //$('header, footer').css('position', 'absolute');
-                //window.scrollTo($.mobile.window.scrollLeft(), $.mobile.window.scrollTop());
-
                 //error handling 
                 if ($('#firstName').val().length < 3 ||
                     $('#firstName').val().length > 10 ||
@@ -729,13 +723,21 @@ $(function () {
 
                 app.PutResultLocalStorage(result);
 
-                //Wait a tenth of a second to ensure the IPAD soft keyboard is down. This is a hack to
-                //ensure the fixed bottom nav bar doesnt jump up to the middle on the question page
-                //setTimeout(function () {
-                //    app.StartGame(0);
-                //}, 100);
-            
-                app.StartGame(0);
+
+                //This is a hack for IPAD to ensure that the fixed nav bar is positioned corrected
+                if (isIpad()) {
+                    alert('Im an ipad');
+                    $('header, footer').css('position', 'absolute');
+                    window.scrollTo($.mobile.window.scrollLeft(), $.mobile.window.scrollTop());
+                    //Wait a tenth of a second to ensure the IPAD soft keyboard is down. This is a hack to
+                    //ensure the fixed bottom nav bar doesnt jump up to the middle on the question page
+                    setTimeout(function () {
+                        app.StartGame(0);
+                    }, 100);
+                } else { //Just have to start game if your not an IPAD
+                    alert('Im NOT an ipad');
+                    app.StartGame(0);
+                }
 
             });
 
