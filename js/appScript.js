@@ -723,10 +723,10 @@ $(function () {
 
                 app.PutResultLocalStorage(result);
 
-                console.log('WAIT 5 SECONDS TO START GAME');
+                console.log('WAIT .1 SECONDS TO START GAME');
                 setTimeout(function () {
                     app.StartGame(0);
-                }, 5000);
+                }, 100);
             
                 //app.StartGame(0);
 
