@@ -695,6 +695,11 @@ $(function () {
             //bind event handlers to the start and cancel buttons
             $('#startGamePlay').click(function (event) {
 
+                //MNS - HACK FIX FOR IPAD KEYBOARD ISSUE
+                $('header, footer').css('position', 'absolute');
+                window.scrollTo($.mobile.window.scrollLeft(), $.mobile.window.scrollTop());
+                //MNS END
+
                 //error handling 
                 if ($('#firstName').val().length < 3 ||
                     $('#firstName').val().length > 10 ||
@@ -757,20 +762,20 @@ $(function () {
                 app.DisplayReportPage();
             });
 
-            // Workaround for buggy header/footer fixed position when virtual keyboard is on/off - MOVES THE FIXED BOTTOM BAR DOWN - KWERKY AND ISSUE WITH BACKGROUND
-            $('input, textarea')
-            .on('focus', function (e) {
-                console.log('TEXTAREA FOCUS');
-                $('header, footer').css('position', 'absolute');
-            })
-            .on('blur', function (e) {
-                $('header, footer').css('position', 'fixed');
-                //force page redraw to fix incorrectly positioned fixed elements
-                setTimeout(function () {
-                    console.log('BLUR HEADER FOOTER');
-                    window.scrollTo($.mobile.window.scrollLeft(), $.mobile.window.scrollTop());
-                }, 20);
-            });
+            //// Workaround for buggy header/footer fixed position when virtual keyboard is on/off - MOVES THE FIXED BOTTOM BAR DOWN - KWERKY AND ISSUE WITH BACKGROUND
+            //$('input, textarea')
+            //.on('focus', function (e) {
+            //    console.log('TEXTAREA FOCUS');
+            //    $('header, footer').css('position', 'absolute');
+            //})
+            //.on('blur', function (e) {
+            //    $('header, footer').css('position', 'fixed');
+            //    //force page redraw to fix incorrectly positioned fixed elements
+            //    setTimeout(function () {
+            //        console.log('BLUR HEADER FOOTER');
+            //        window.scrollTo($.mobile.window.scrollLeft(), $.mobile.window.scrollTop());
+            //    }, 20);
+            //});
 
         };
 
