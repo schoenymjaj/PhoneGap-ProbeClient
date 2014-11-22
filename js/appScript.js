@@ -108,19 +108,6 @@ $(function () {
 
             }); //$(document).on
 
-            // Workaround for buggy header/footer fixed position when virtual keyboard is on/off
-            $('input, textarea')
-            .on('focus', function (e) {
-                $('header, footer').css('position', 'absolute');
-            })
-            .on('blur', function (e) {
-                $('header, footer').css('position', 'fixed');
-                //force page redraw to fix incorrectly positioned fixed elements
-                setTimeout(function () {
-                    window.scrollTo($.mobile.window.scrollLeft(), $.mobile.window.scrollTop());
-                }, 20);
-            });
-
             //sets the padding when window is resized. Not going to happen on a phone.
             $(window).resize(function ()
             {
@@ -763,6 +750,21 @@ $(function () {
 
             $('#reportGamePlay').click(function (event) {
                 app.DisplayReportPage();
+            });
+
+            // Workaround for buggy header/footer fixed position when virtual keyboard is on/off
+            $('input, textarea')
+            .on('focus', function (e) {
+                console.log('TEXTAREA FOCUS');
+                $('header, footer').css('position', 'absolute');
+            })
+            .on('blur', function (e) {
+                $('header, footer').css('position', 'fixed');
+                //force page redraw to fix incorrectly positioned fixed elements
+                setTimeout(function () {
+                    console.log('BLUR HEADER FOOTER');
+                    window.scrollTo($.mobile.window.scrollLeft(), $.mobile.window.scrollTop());
+                }, 20);
             });
 
         };
