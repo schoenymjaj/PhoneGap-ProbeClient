@@ -723,7 +723,12 @@ $(function () {
 
                 app.PutResultLocalStorage(result);
 
-                app.StartGame(0);
+                console.log('WAIT 5 SECONDS TO START GAME');
+                setTimeout(function () {
+                    app.StartGame(0);
+                }, 5000);
+            
+                //app.StartGame(0);
 
             });
 
@@ -752,7 +757,7 @@ $(function () {
                 app.DisplayReportPage();
             });
 
-            // Workaround for buggy header/footer fixed position when virtual keyboard is on/off
+            // Workaround for buggy header/footer fixed position when virtual keyboard is on/off - MOVES THE FIXED BOTTOM BAR DOWN - KWERKY AND ISSUE WITH BACKGROUND
             $('input, textarea')
             .on('focus', function (e) {
                 console.log('TEXTAREA FOCUS');
