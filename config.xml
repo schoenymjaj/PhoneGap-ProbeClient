@@ -73,5 +73,5 @@ Mike Schoenfeld
     <gap:plugin name="org.apache.cordova.network-information"  />
     <gap:plugin name="org.apache.cordova.splashscreen"  />
     <gap:plugin name="com.phonegap.plugins.barcodescanner" />
-    <access origin="debug.phonegap.com" subdomains="true" />
+    <access origin="*" subdomains="true" />
 </widget>
