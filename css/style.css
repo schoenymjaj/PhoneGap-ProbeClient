@@ -272,7 +272,9 @@ CLIENT TEST - NEW STYLES (MNS - 9/25/14
 
 .reportLabelText {
     font-size: 0.9em;
-    color: #f6f6f6;
+    /*color: #f6f6f6;*/
+    color: black;
+    font-style: italic;
 }
 
 .reportLabelMargin {
