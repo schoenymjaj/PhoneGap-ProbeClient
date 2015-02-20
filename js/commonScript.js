@@ -105,6 +105,9 @@ window.onerror = function (msg, url, line) {
     if (typeof msg == 'object') {
         //alert('onerror handled an error with message an Object')
         console.log('onerror handled an error with message an Object')
+    } else if (msg == 'Script error.' && url == "" && line == 0)
+    {
+        console.log('Unknown script error, url="", line = 0');
     } else {
         handleAppError(msg, url, line);
     }
@@ -160,5 +163,6 @@ GetMobileIndForAPI = function () {
         return 1;
     }
 }
+
 
 
