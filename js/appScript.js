@@ -1791,13 +1791,7 @@ $(function () {
             //HANDLER FOR INTERACTIVITY
             selectHandler = function () {
                 console.log('selectHandler');
-                var selectedItem = chart.getSelection()[0]; //will get question id
-                if (selectedItem) {
-                    var questionId = data[selectedItem.row].QuestionId;
-                    console.log('The question selected ' + questionId);
-
                     //no handling of an event at this time (9/4/14)
-                }
             };//selectHandler = function ()
 
             try {
