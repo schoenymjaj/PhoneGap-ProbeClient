@@ -1,0 +1,126 @@
+
+ul.countdownStyle {
+  list-style: none;
+  margin: 0px;
+  padding: 0;
+  display: block;
+  text-align: center;
+}
+
+ul.countdownStyle li { display: inline-block; }
+
+ul.countdownStyle li span {
+  font-size: 15px;
+  font-weight: 100;
+  line-height: 15px;
+}
+
+#clockSepD, #clockSepH, #clockSepM {
+  font-size: 15px;
+  line-height: 15px;
+  vertical-align: middle;
+}
+
+ul.countdownStyle li p {
+  color: #a7abb1;
+}
+
+#listviewCountdown.countdownStyle {
+  list-style: none;
+  display: block;
+  text-align: left;
+  margin: 0px;
+  padding: 0px;
+}
+
+#listviewCountdown.countdownStyle li { display: inline-block; }
+
+#listviewCountdown.countdownStyle li span {
+  font-size: 12px;
+  font-weight: 100;
+  line-height: 12px;
+  margin: 0px;
+  padding: 0px;
+}
+
+#listviewCountdown #clockSepD, #clockSepH, #clockSepM {
+  font-size: 12px;
+  line-height: 12px;
+  vertical-align: middle;
+  margin: 0px;
+  padding: 0px;
+}
+
+#listviewCountdown.countdownStyle li p {
+  color: #a7abb1;
+}
+
+/*
+    Popup Countdown/Date
+ */
+
+#popupCountdownParent {
+    /*background-color : rgba(255,255,255, 1.0);*/
+    background-color : #f5f5f5;
+    border-width: 2px;
+    border-style: solid;
+    border-color: #a1a1a1;
+}
+
+#popupCountdown {
+list-style: none;
+margin: 3px 0 5px 0;
+padding: 0;
+display: block;
+text-align: center;
+}
+
+.popupCountdown {
+    margin: 0px;
+    padding: 0px;
+}
+
+#popupCountdown li {
+display: inline-block;
+}
+#popupCountdown li span {
+font-size: 32px;
+font-weight: 200;
+line-height: 32px;
+}
+#popupCountdown li.seperator {
+font-size: 30px;
+line-height: 30px;
+vertical-align: top;
+}
+#popupCountdown li p {
+color: #a7abb1;
+font-size: 14px;
+}
+#popupClockDate {
+font-size: 25px;
+font-weight: 200;
+line-height: 25px;
+text-align: center;
+}
+
+.popupClockCountdownTitle {
+    text-align: center;
+    font-weight: bold;
+}
+
+.popupClockDateTitle {
+    text-align: center;
+    font-weight: bold;
+}
+
+.popupClockDate {
+    padding-top: 5px;
+    text-align: center;
+}
+
+.days_ref, .hours_ref, .minutes_ref, .seconds_ref {
+    margin: 0px;
+    padding: 5px 0px 0px 0px;
+}
+

@@ -8,6 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
     <!-- WEINRE SERVER - REMOTE DEBUGGING--> 
+    <!-- MNS 6/4/15 FOR WEINRE SERVER - REMOTE DEBUGGING USED FOR V1.3 WAS HTTPS (PORT 8050)-->
     <!--<script src="./js/set-weinre.js"></script>-->                                        <!--USED ONLY FOR HTTPS CLIENTS-->
     <!--<script src="https://169.254.80.80:8050/target/target-script-min.js#anonymous"></script>--> <!--USED ONLY FOR HTTPS CLIENTS-->
     <!--<script src="http://192.168.1.195:8080//target/target-script-min.js#anonymous"></script>--> <!--USED ONLY FOR NON HTTPS CLIENTS-->
@@ -26,6 +27,8 @@
 
     <link rel="stylesheet" href="./css/style.css" />
 
+    <link rel="stylesheet" href="./js/jquery.countdown.css" />
+
     <!-- CDN jquery 
     <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
     -->
@@ -38,6 +41,9 @@
 
     <!-- JQuery UI-->
     <script src="./css/custom-accordian/js/jquery-ui-1.10.4.custom.min.js"></script>
+
+    <!-- 3rd party -->
+    <script src="./js/3party/iso8601.min.js"></script>
 
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
@@ -86,9 +92,14 @@
                 <div>
                     <table style="margin: auto">
                         <tr>
-                            <td><button class="backButton" data-icon="carat-l" data-iconpos="notext">Back</button></td>
-                            <td><div id="choiceListLegend" class="legendTextDiv"></div></td>
-                            <td><button class="nextButton" data-icon="carat-r" data-iconpos="notext">Next</button></td>
+                            <td align="center"><button class="backButton backButtonAbrev" data-icon="carat-l" data-iconpos="notext">Back</button></td>
+                            <td align="center"><div id="choiceListLegend" class="legendTextDiv"></div></td>
+                            <td align="center" style="margin: 1px"><button class="nextButton backButtonAbrev" data-icon="carat-r" data-iconpos="notext">Next</button></td>
+                        </tr>
+                    </table>
+                    <table style="margin: auto">
+                        <tr>
+                            <td align="center"><div id="playerConsoleText" style="border:1px;border-color:red"></div></td>
                         </tr>
                     </table>
                 </div>
@@ -97,6 +108,20 @@
             <!--<div id="choiceListLegend" class="legendTextDiv"></div>-->
             <div id="questionText" class="questionText" data-theme="a">Question Text Goes Here</div>
             <div id="choiceList" data-theme="a"></div>
+            <div id="popupCountdownParent" data-role="popup" data-position-to="window">
+                <p>
+                    <table style="margin:0px; padding:0px">
+                        <tr><td class="popupClockCountdownTitle"><span id="popupClockCountdownTitle"></span></td></tr>
+                        <tr>
+                            <td class="popupCountdown">
+                                <ul id="popupCountdown" class="countdownStyle" style="padding: 5px 5px 5px 5px"></ul>
+                            </td>
+                        </tr>
+                        <tr><td class="popupClockDateTitle"><span id="popupClockDateTitle"></span></td></tr>
+                        <tr><td class="popupClockDate"><span id="popupClockDate"></span></td></tr>
+                    </table>
+                </p>
+            </div>
         </article>
         <footer data-role="footer" data-position="fixed" data-id="ftrPersist">
             <nav data-role="navbar" data-theme="a">
@@ -118,7 +143,7 @@
         </header>
         <article data-role="content" style="margin: 0px 0px 0px 0px; padding: 0px 10px 0px 10px">
             <div class="insetBug">
-                <div id="summaryText" data-theme="a" class="summaryTest"><h2>Questions</h2></div>
+                <div id="summaryText" class="summaryText" data-theme="a">Questions</div>
                 <div id="questionList" data-theme="a"></div>
             </div>
 
@@ -164,7 +189,34 @@
             <a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
         </header>
         <article data-role="content" style="margin: 0px 0px 0px 0px; padding: 0px 5px 0px 5px">
-            <div id="charttitle" class="reportTitle">Player Match Totals</div>
+            <div id="charttitle" class="reportTitle">Chart Report</div>
+            <div class="reportReturnLink"></div>
+            <div class="reportResetSytle"></div>
+            <div id="chartheader" class="reportHeader"></div>
+            <div id="chartparent_chart_div">
+                <div id="chart_div" class="chartDiv"></div>
+            </div>
+        </article>
+        <footer data-role="footer" data-position="fixed" data-id="ftrPersist">
+            <nav data-role="navbar" data-theme="a">
+                <ul>
+                    <li><a class="backButton" href="#" data-icon="carat-l" data-iconpos="notext" data-theme="a">Back</a></li>
+                    <li><a class="summaryButton" href="#" data-icon="grid" data-theme="a">Summary</a></li>
+                    <li><a class="submitButton" href="#" data-icon="cloud" data-theme="a">Submit</a></li>
+                    <li><a class="nextButton" href="#" data-icon="carat-r" data-iconpos="notext" data-theme="a">Next</a></li>
+                </ul>
+
+            </nav>
+        </footer>
+    </section>
+    <section id="chartreportback" data-role="page" data-theme="a" data-title="In Common" class="backimageInCommon">
+        <header data-role="header" data-position="fixed" data-id="hdrPersist">
+            <div class="headerImage"><img src="./images/header/header180x40.png" alt="In Common Logo" /></div>
+            <a href="#" data-icon="back" data-iconpos="notext" data-transition="none">Return</a>
+            <a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
+        </header>
+        <article data-role="content" style="margin: 0px 0px 0px 0px; padding: 0px 5px 0px 5px">
+            <div id="charttitle" class="reportTitle">Chart Report Back</div>
             <div class="reportReturnLink"></div>
             <div class="reportResetSytle"></div>
             <div id="chartheader" class="reportHeader"></div>
@@ -239,6 +291,7 @@
     <script src="./js/eventScript.js"></script>
     <script src="./js/commonScript.js"></script>
     <script src="./js/commonGraphicScript.js"></script>
+    <script src="./js/jquery.countdown.min.js"></script>
     <script src="./js/appScript.min.js"></script>
 </body>
     </html>

@@ -129,39 +129,81 @@ body {
 .dynamicFontSize {
 }
 
-
 /*
-    
-CLIENT TEST - NEW STYLES (MNS - 9/25/14
-    
-    */
-.summaryButton {
+    GAME PLAYER PROMT PAGE
+*/
+
+.sexLabel {
+    font-size: 0.8em;
+    color: red;
+    font-weight: bold;
+    text-shadow: 0 0 0; 
+} 
+
+#homePageContent label {
+    font-size: 0.8em;
+    color: black;
+    font-weight: bold;
+    text-shadow: 0 0 0; 
 }
 
-.submitButton {
+.gpType, .gameCode {
+    font-size: 0.8em;
+    color: black;
+    font-weight: bold;
+    text-shadow: 0 0 0; 
+}
+#homePageContent legend {
+    font-size: 0.8em;
+    color: black;
+    font-weight: bold;
+    text-shadow: 0 0 0; 
 }
 
+#homePageContent  input {
+    font-size: 0.8em;
+    color: black;
+    text-shadow: 0 0 0; 
+}
+
+#gameCode {
+    font-size: 0.8em;
+    color: black;
+    text-shadow: 0 0 0; 
+}
+#homePageContent button {
+    color: black;
+    font-size: 0.8em;
+    text-shadow: 0 0 0; 
+}
 
 /*
     QUESTION PAGE
 */
-
-.nextButton {
-
-}
-
-.backButton {
-
-} 
-
 .bodyText {
     color: black;
     font-weight: bold;
+    text-shadow: 0 0 0; 
 }
 
+/*
+    .questionText and #choiceList .ui-btn classes determine the question and choice text font
+ */
 .questionText {
-    padding-top: 6px;
-    font-size: 1.4em;
+    padding-top: 10px;
+    font-size: 1.1em;
+    text-shadow: 0 0 0; 
+}
+
+.backButtonAbrev,.nextButtonAbrev {
+    margin-top: 5px;
+    margin-bottom: 0px;
+}
+
+#choiceList .ui-btn {
+    font-size: 0.9em;
+    color:  black;
+    text-shadow: 0 0 0; 
 }
 
 .questionNavButtonsParentDiv {
@@ -187,6 +229,7 @@ CLIENT TEST - NEW STYLES (MNS - 9/25/14
     text-align: center;
     padding-top: 8px;
     padding-bottom: 0px;
+    text-shadow: 0 0 0; 
 }
 
 .nextButtonDiv {
@@ -213,6 +256,37 @@ CLIENT TEST - NEW STYLES (MNS - 9/25/14
     text-align: right;
 }
 
+
+#aboutBtn {
+    background-color: #00edf0;
+    color: #000000;
+    text-shadow: 0 0 0; 
+    border: solid;
+    border-color: #ffffff;
+    border-width: 3px;
+    height: 35px;
+    padding: 0px;
+    width: 250px
+}
+
+.demoGameLinkDiv {
+    margin: 0px;
+    padding-top: 3px;
+}
+
+#demoGameLink {
+    padding: 0px;
+    background-color: #00edf0;
+    color: #000000;
+    text-shadow: 0 0 0; 
+    width: 250px;
+    height: 35px;
+    border: solid;
+    border-color: #ffffff;
+    border-width: 3px;
+    /*margin: 0 auto;*/
+}
+
 /*
  HOME PAGE LIST VIEW OF GAMES   
  */
@@ -233,11 +307,27 @@ CLIENT TEST - NEW STYLES (MNS - 9/25/14
 
 }
 
+/* text for listview text*/
+#gameList a {
+    color: black;
+    text-shadow: 0 0 0; 
+}
+
 /*
   SUMMARY PAGE   
  */
-.summaryTest {
-    padding-bottom: 1px;
+.summaryText {
+    padding-top: 15px;
+    font-size: 1.1em;
+    text-shadow: 0 0 0; 
+    padding-bottom: 12px;
+    text-align: center;
+}
+
+#questionList .ui-btn {
+    font-size: 0.9em;
+    color:  black;
+    text-shadow: 0 0 0; 
 }
 
 /*
@@ -249,6 +339,7 @@ CLIENT TEST - NEW STYLES (MNS - 9/25/14
     font-weight: bolder;
     color: black;
     float: left; 
+    text-shadow: 0 0px 0;
     width: 70%
     /*text-align: center;*/
 }
@@ -268,6 +359,7 @@ CLIENT TEST - NEW STYLES (MNS - 9/25/14
 .reportLabel {
     font-size: 1em;
     color: black;
+    text-shadow: 0 0px 0;
 }
 
 .reportLabelText {
@@ -275,6 +367,7 @@ CLIENT TEST - NEW STYLES (MNS - 9/25/14
     /*color: #f6f6f6;*/
     color: black;
     font-style: italic;
+    text-shadow: 0 0px 0;
 }
 
 .reportLabelMargin {
@@ -376,3 +469,38 @@ CLIENT TEST - NEW STYLES (MNS - 9/25/14
     width: 100%;
 }
 
+
+/*
+ Navigation Bar   
+ */
+#question .summaryButton {
+   color: black;
+}
+
+#question .submitButton {
+    color: black;
+}
+
+#question .nextButton {
+    color: black;
+}
+
+#question .backButton {
+    color: black;
+} 
+
+#summary .summaryButton {
+   color: black;
+}
+
+#summary .submitButton {
+    color: black;
+}
+
+#summary .nextButton {
+    color: black;
+}
+
+#summary .backButton {
+    color: black;
+} 

@@ -72,8 +72,10 @@ function handleAppError(msg, url, line) {
     console.log('msg:' + msg);
     console.log('url:' + url);
     console.log('line:' + line);
+
     page = '<section id="errorpage" data-role="page" data-title="Error Page" data-theme="h">\
               <div data-role="header">\
+            <a href="#home" data-icon="home">Home</a>\
                   <h1>Error Page</h1>\
               </div>\
               <article data-role="content">\
@@ -164,5 +166,15 @@ GetMobileIndForAPI = function () {
     }
 }
 
+
+function DatePad(n) { return n < 10 ? "0" + n : n; }
+/*
+    This function will replace Date.toLocateDateString() since the support of this
+    is different from browswer to browser
+    Return date string 'MM/DD/YY'
+*/
+GetInCommmonLocaleDateString = function (dateobj) {
+    return dateobj.getMonth() + 1 + "/" + DatePad(dateobj.getDate()) + "/" + dateobj.getFullYear();
+}
 
 
