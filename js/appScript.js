@@ -868,7 +868,7 @@ $(function () {
             }
 
 
-            console.log('Start Date=' + GetInCommmonLocaleDateString(StartDate) + ' ' + StartDate.toLocaleTimeString());
+            console.log('Start Date=' + GetInCommmonLocaleDateString(StartDate) + ' ' + GetInCommmonLocaleTimeString(StartDate));
 
             questionCount = 0;
             decreaseForSlope = 0;
@@ -925,7 +925,7 @@ $(function () {
 
                     NextQuestionDeadlineDT = QuestionDeadlineDT;
 
-                    console.log('QuesNbr=' + index + ' QuesStartDT=' + GetInCommmonLocaleDateString(QuestionStartDT) + ' ' + QuestionStartDT.toLocaleTimeString());
+                    console.log('QuesNbr=' + index + ' QuesStartDT=' + GetInCommmonLocaleDateString(QuestionStartDT) + ' ' + GetInCommmonLocaleTimeString(QuestionStartDT));
 
 
                 }//if (JSONdata.GameType == GameType.LMS)
@@ -2229,7 +2229,7 @@ $(function () {
                  if (data.MostRecentQuestionNbrDeadlinePassed != VAR_NONE) {
                      mostRecentQuestionNbrDeadlinePassed = data.MostRecentQuestionNbrDeadlinePassed + 1;
                      dateMostRecentDeadline = new Date(data.MostRecentQuestionDeadlinePassed);
-                     mostRecentQuestionDeadlinePassed = (GetInCommmonLocaleDateString(dateMostRecentDeadline) + ' ' + dateMostRecentDeadline.toLocaleTimeString());
+                     mostRecentQuestionDeadlinePassed = (GetInCommmonLocaleDateString(dateMostRecentDeadline) + ' ' + GetInCommmonLocaleTimeString(dateMostRecentDeadline));
                  } else {
                     mostRecentQuestionNbrDeadlinePassed = "None";
                     mostRecentQuestionDeadlinePassed = "None";
@@ -2422,13 +2422,19 @@ $(function () {
                 Header will be different - dependent on the mobile indicator
                 Back button will not exist if report loads within an iFrame (then its in mobile mode)
                 */
-                dateMostRecentDeadline = new Date(data[0].MostRecentQuestionDeadlinePassed);
+                mostRecentQuestionDeadlinePassed = new Date(data[0].MostRecentQuestionDeadlinePassed);
+                if (mostRecentQuestionDeadlinePassed.getTime() != DATETIME_MINIMUM) {
+                    mostRecentQuestionDeadlinePassedV = GetInCommmonLocaleDateString(mostRecentQuestionDeadlinePassed) + ' ' + GetInCommmonLocaleTimeString(mostRecentQuestionDeadlinePassed);
+                } else {
+                    mostRecentQuestionDeadlinePassedV = "None";
+                }
+
                 $('#chartreportback #chartheader').html('<span class="reportLabel">Game:</span> ' +
                                   '<span class="reportLabelText">' + GameData.Name + '</span>' + 
                                   '<br/><span class="reportLabel">#Ques Submitted:</span> ' +
                                   '<span class="reportLabelText">' + maxSubmittedQuestionNbr + '</span> ' +
                                   '</br><span class="reportLabel">Last Ques Dead:</span> ' + 
-                                  '<span class="reportLabelText">' + (GetInCommmonLocaleDateString(dateMostRecentDeadline) + ' ' + dateMostRecentDeadline.toLocaleTimeString()) + '</span>');
+                                  '<span class="reportLabelText">' + mostRecentQuestionDeadlinePassedV + '</span>');
 
                 var tdata = google.visualization.arrayToDataTable(dSeries);
 
