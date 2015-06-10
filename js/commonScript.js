@@ -103,13 +103,15 @@ Windows handler of all errors
 */
 window.onerror = function (msg, url, line) {
     console.log('func oneerror');
+    alert('Error::' + msg + '::');
 
     if (typeof msg == 'object') {
         //alert('onerror handled an error with message an Object')
         console.log('onerror handled an error with message an Object')
-    } else if (msg == 'Script error.' && url == "" && line == 0)
-    {
+    } else if (msg == 'Script error.' && url == "" && line == 0) {
         console.log('Unknown script error, url="", line = 0');
+    } else if (msg == 'ReferenceError: Can\'t find variable: StatusBar') {
+        console.log(msg);
     } else {
         handleAppError(msg, url, line);
     }
