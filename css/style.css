@@ -175,9 +175,7 @@
 }
 
 .stackedDivs {
-    border: solid;
     border-width: 1px;
-    border-color: red;
     width: 100%;
     float: left;
 }
