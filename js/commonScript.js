@@ -177,5 +177,8 @@ function DatePad(n) { return n < 10 ? "0" + n : n; }
 GetInCommmonLocaleDateString = function (dateobj) {
     return dateobj.getMonth() + 1 + "/" + DatePad(dateobj.getDate()) + "/" + dateobj.getFullYear();
 }
+GetInCommmonLocaleTimeString = function (dateobj) {
+        return dateobj.getHours() + ":" + dateobj.getMinutes() + ":" + dateobj.getSeconds();
+}
 
 

@@ -10,7 +10,7 @@ ul.countdownStyle {
 ul.countdownStyle li { display: inline-block; }
 
 ul.countdownStyle li span {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 100;
   line-height: 15px;
 }

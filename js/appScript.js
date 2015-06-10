@@ -3444,7 +3444,7 @@ $(function () {
             //Changing the Question Choice radiobox background color for correct/incorrect answers 
             //will only happen for LMS
             if (this._result.GameType == GameType.LMS) {
-                $('#questionText').css('padding-top', '20px');
+                $('#questionText').css('padding-top', '6px');
 
                 //if (this.IsClockCountdownEnable('qstart') || this.IsClockCountdownEnable('qdeadline')) { //MNS DEBUG
                 //    alert('clock countdown going!');
@@ -3506,7 +3506,7 @@ $(function () {
 
             //We only do something if the game is LMS
             if (this._result.GameType == GameType.LMS) {
-                $('#questionText').css('padding-top', '20px');
+                $('#questionText').css('padding-top', '6px');
 
                 countDownClockHtml = '<ul id="qCountdown" class="countdownStyle"></ul>';
 
@@ -3544,7 +3544,6 @@ $(function () {
                             dateBufferSecs: CLOCKCOUNTDOWN_BUFFER_SECS,
                             bufferTimeSecs: SUBMIT_BUFFERTIME_SECS,
                             clockInd: true,
-                            size: '17px',
                             color: '#00edf0',
                             warningSecs: 60,
                             warningColor: '#00edf0',
@@ -3611,7 +3610,6 @@ $(function () {
                             dateBufferSecs: CLOCKCOUNTDOWN_BUFFER_SECS,
                             bufferTimeSecs: SUBMIT_BUFFERTIME_SECS,
                             clockInd: true,
-                            size: '17px',
                             color: '#00edf0',
                             warningSecs: 60,
                             warningColor: '#00edf0',
