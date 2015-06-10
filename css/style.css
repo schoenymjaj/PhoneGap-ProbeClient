@@ -3,18 +3,6 @@
     GENERAL   
  *****************/
 
-/*
-header h1 {
-    font-size: 10px;
-    font-family: Tahoma;
-    font-weight: bold;
-}
-*/
-
-body {
-    /*overflow-y:hidden;*/ /*we need this because jqm erroneously creates vertical scrollbar for menus and popup markup outside a page*/
-}
-
 #home, #question, #summary, #about, #chartreport, #tablereport, #about, #menu {
     -webkit-background-size: cover;
     -moz-background-size: cover;
@@ -186,31 +174,31 @@ body {
     text-shadow: 0 0 0; 
 }
 
-/*
-    .questionText and #choiceList .ui-btn classes determine the question and choice text font
- */
-.questionText {
-    padding-top: 10px;
-    font-size: 1.1em;
-    text-shadow: 0 0 0; 
+.stackedDivs {
+    border: solid;
+    border-width: 1px;
+    border-color: red;
+    width: 100%;
+    float: left;
 }
 
 .backButtonAbrev,.nextButtonAbrev {
-    margin-top: 5px;
+    margin-top: 2px;
     margin-bottom: 0px;
-}
-
-#choiceList .ui-btn {
-    font-size: 0.9em;
-    color:  black;
-    text-shadow: 0 0 0; 
 }
 
 .questionNavButtonsParentDiv {
     width: 100%;
-    height: 40px;
-    padding-bottom: 8px;
+    height: 35px;
+    padding-bottom: 3px;
 }
+
+.playerConsoleTextDiv {
+    width: 100%;
+    margin:0px;
+    padding:0px;
+}
+
 
 .backButtonDiv {
     text-align: center;
@@ -240,6 +228,24 @@ body {
     width: 27%;
     height: 100%;
 }
+
+/*
+    .questionText and #choiceList .ui-btn classes determine the question and choice text font
+ */
+.questionText {
+    font-size: 1.1em;
+    text-shadow: 0 0 0;
+}
+
+.choiceList {
+}
+
+#choiceList .ui-btn {
+    font-size: 0.9em;
+    color:  black;
+    text-shadow: 0 0 0; 
+}
+
 
 /*
     HOME PAGE BUTTONS   
