@@ -103,7 +103,6 @@ Windows handler of all errors
 */
 window.onerror = function (msg, url, line) {
     console.log('func oneerror');
-    alert('Error::' + msg + '::');
 
     if (typeof msg == 'object') {
         //alert('onerror handled an error with message an Object')
