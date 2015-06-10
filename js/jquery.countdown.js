@@ -218,7 +218,7 @@ Example call:
 
 		    //Display deadline date
 		    settingsDateLocal = new Date(settings.date.getFullYear(), settings.date.getMonth(), settings.date.getDate(), settings.date.getHours(), settings.date.getMinutes() + settings.date.getTimezoneOffset(), settings.date.getSeconds());
-		    $('#popupClockDate').html('<span>' + GetInCommmonLocaleDateString(settingsDateLocal) + '</span><br/><span>' + settingsDateLocal.toLocaleTimeString() + '</span>');
+		    $('#popupClockDate').html('<span>' + GetInCommmonLocaleDateString(settingsDateLocal) + '</span><br/><span>' + GetInCommmonLocaleTimeString(settingsDateLocal) + '</span>');
 
 		}//function renderClockFullPopup() {
 
@@ -350,7 +350,7 @@ Example call:
 			            }
 
 			            settingsDateLocal = new Date(settings.date.getFullYear(), settings.date.getMonth(), settings.date.getDate(), settings.date.getHours(), settings.date.getMinutes() + settings.date.getTimezoneOffset(), settings.date.getSeconds());
-			            dateLocalStr = GetInCommmonLocaleDateString(settingsDateLocal) + ' ' + settingsDateLocal.toLocaleTimeString()
+			            dateLocalStr = GetInCommmonLocaleDateString(settingsDateLocal) + ' ' + GetInCommmonLocaleTimeString(settingsDateLocal);
 			            container.find('.tailHtml').html('<span style="background-color:black">' + dateLocalStr + '</span>' + tailHtmlDateNow);
 			            if (settings.auxId1 != null) {
 			                containerAuxillary1.find('.tailHtml').html('<span style="background-color:black">' + dateLocalStr + '</span>' + tailHtmlDateNow);

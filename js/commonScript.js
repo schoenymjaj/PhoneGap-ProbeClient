@@ -170,15 +170,23 @@ GetMobileIndForAPI = function () {
 
 function DatePad(n) { return n < 10 ? "0" + n : n; }
 /*
-    This function will replace Date.toLocateDateString() since the support of this
+    These functions will replace Date.toLocaleDateString() and Date.toLocaleTimeString() since the support of this
     is different from browswer to browser
-    Return date string 'MM/DD/YY'
+    Return date string 'MM/DD/YY' and HH:MM:SS (We don't need timezone)
 */
 GetInCommmonLocaleDateString = function (dateobj) {
     return dateobj.getMonth() + 1 + "/" + DatePad(dateobj.getDate()) + "/" + dateobj.getFullYear();
 }
 GetInCommmonLocaleTimeString = function (dateobj) {
-        return dateobj.getHours() + ":" + dateobj.getMinutes() + ":" + dateobj.getSeconds();
+    orgString = dateobj.toLocaleTimeString();
+    returnString = orgString;
+    if (orgString.toLowerCase().indexOf("pm") != -1) {
+        returnString = orgString.substring(0, orgString.toLowerCase().indexOf("pm") + 2)
+    } if (orgString.toLowerCase().indexOf("am") != -1) {
+        returnString = orgString.substring(0, orgString.toLowerCase().indexOf("am") + 2)
+    }
+
+    return returnString;
 }
 
 
