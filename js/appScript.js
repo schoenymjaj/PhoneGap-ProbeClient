@@ -368,9 +368,12 @@ $(function () {
 
                     if ($('#gameCode').val() == 'incommon-settings') {
                         app.popUpHelper('Info'
-                            ,'probe version =' + probeVersion +
+                            , 'InCommon version =' + probeVersion + '</br>' +
+                            'InCommon version =' + probeVersionNumber + '</br>' +
+                            'InCommon rootUrl =' + ProbeAPIurl + '</br>' +
                             'screen width = ' + $(window).width() + '</br>' +
                             'screen height = ' + $(window).height() + '</br>' +
+                            'timezone offset = ' + new Date().getTimezoneOffset() + '</br>' +
                             'browser = ' + navigator.userAgent, null);
                     } else if ($('#gameCode').val().indexOf('incommon-ping-') != -1) { //incommon-ping-<interval in seconds>
                         pingInterval = parseInt($('#gameCode').val().substr(14, $('#gameCode').val().length)) * 1000;
