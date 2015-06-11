@@ -40,6 +40,15 @@ PopupArgs = function () {
     this.popupStyle = undefined;
 }
 
+DynamicFunctionArgs = function () {
+    this.App = undefined;
+    this.ErrorId = undefined;
+    this.ErrorMessage = undefined;
+    this.UserArg1 = undefined;
+    this.UserArg2 = undefined;
+    this.UserArg3 = undefined;
+}
+
 /*
 Var to determine mobile device
 */

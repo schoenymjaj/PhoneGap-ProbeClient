@@ -77,6 +77,7 @@ $(function () {
         var SERVER_GAME_STATUS_SUSPENDED = 4;
         var SERVER_GAME_STATUS_COMPLETED = 5;
         var DATETIME_MINIMUM = -62135596800000;
+        var AJAX_TIMEOUT = 30000; //30 seconds
 
         var currentQuestionNbr = FIRST_QUESTION_NBR;
         var NO_ANSWER = -1;
@@ -403,7 +404,7 @@ $(function () {
         */
         app.PingInCommonServer = function () {
             console.log('Ping Date: ' + new Date());
-            app.GetGameStatusServer('Practice Match');
+            app.GetGameStatusServer('GameStatusResponseForPing', 'Practice Match');
         }; //app.PingInCommonServer
 
         /*
@@ -419,40 +420,66 @@ $(function () {
 
             console.log('START app.GetGameServer AJAX url:' + url);
             $.getJSON(url)
-                .done(function (GameData) {
+              .done(function (GameData) {
                     console.log('return GetGame success');
 
                     // On success, 'data' contains a Game JSON object
                     if (GameData.errorid == undefined) {
                         //SUCCESS
                         //We've got the game data; we also need the game configuration
+ 
+                        url = ProbeAPIurl + 'GameConfigurations/GetGameConfiguration/' + GameData.Code;
+                        console.log('START app.GetConfigServer AJAX url:' + url);
+                        app.ajaxHelper(url, 'GET', true, null)
+                          .done(function (gameConfig) {
+                              console.log('return GetConfigServer success');
+                              $.mobile.loading('hide'); //to hide the spinner
+
+                              // On success, 'data' contains a GameConfiguration JSON object
+                              if (gameConfig.errorid == undefined) {
+                                  //SUCCESS OF THE ENTIRE SEQUENCE OF CALLS AND RESPONSES
+                                  //CALL GAMES/GETGAME AND GAMECONFIGURATIONS/GETGAMECONFIGURATION
+
+                                  app.PutGameConfigLocalStorage(gameConfig);
+
+                                  if (!app.IsGameSubmitted(GameData.Id) || !$.parseJSON(app.GetConfigValue(ConfigType.Game, 'DeviceCanPlayGameOnlyOnce'))) {
+                                      app.InitalizeGame(GameData);
+                                      app.SetGamePlayerPrompt(); //SUCCESS - NEXT STEP IS FOR PLAYER TO ENTER PLAYER INFO
 
 
-                        try {
-                            app.GetConfigServer(gameCode)
-                            $.mobile.loading('hide'); //to hide the spinner
-
-                            if (!app.IsGameSubmitted(GameData.Id) || !$.parseJSON(app.GetConfigValue(ConfigType.Game, 'DeviceCanPlayGameOnlyOnce'))) {
-                                app.InitalizeGame(GameData);
-                                app.SetGamePlayerPrompt(); //SUCCESS - NEXT STEP IS FOR PLAYER TO ENTER PLAYER INFO
-                            } else {
-                                app.popUpHelper('Error', 'Game \'' + GameData.Name + '\' has already been submitted.', 'A device cannot submit the same game twice for this game type.');
-                            }//if (!app.IsGameSubmitted(GameData.Id))
-                        } catch (err)
-                        {
-                            $.mobile.loading('hide'); //to hide the spinner
-                            app.popUpHelper("Error", 'Configuration could not be found for Game \'' + GameData.Name + '\'', null);
-                        }
+                                  } else {
+                                      app.popUpHelper('Error', 'Game \'' + GameData.Name + '\' has already been submitted.', 'A device cannot submit the same game twice for this game type.');
+                                  }//if (!app.IsGameSubmitted(GameData.Id))
+                              } else {
+                                  //THERE WAS A PROBE BUSINESS ERROR
+                                  errorMessage = gameConfig.errormessage;
+                                  switch (gameConfig.errorid) {
+                                      case 1:
+                                          errorMessage = 'There is no configuration for the game code entered.';
+                                          break;
+                                      default:
+                                          errorMessage = gameConfig.errormessage;
+                                          break;
+                                  }
+                                  app.popUpHelper('Error', errorMessage, null);
+                              }//if (gameConfig.errorid == undefined) for GameConfigurations/GetGameConfiguration CALL
+                          }) //done for GameConfigurations/GetGameConfiguration CALL
+                          .fail(function (jqxhr, textStatus, error) {
+                              console.log('return GetConfigServer fail');
+                              $.mobile.loading('hide'); //to hide the spinner
+                              errorMessage = app.GetAJAXFailureErrMessage('Get Game Configuration Status', textStatus, error);
+                              app.popUpHelper('Error', errorMessage, null);
+                          }); //fail for GameConfigurations/GetGameConfiguration CALL
                         
                     } else {
-                        //THERE WAS A PROBE BUSINESS ERROR
+                        //THERE WAS A PROBE BUSINESS ERROR for Games/GetGame CALL
                         $.mobile.loading('hide'); //to hide the spinner
                         errorMessage = GameData.errormessage;
-                        errorMessagePrompt = 'Please enter the correct code.';
+                        errorMessagePrompt = '';
                         switch (GameData.errorid) {
                             case 1:
                                 errorMessage = 'There is no game found for the code entered.';
-
+                                errorMessagePrompt = 'Please enter the correct code.';
                                 break;
                             case 2:
                                 errorMessage = 'The game found for the entered code is no longer active.';
@@ -461,93 +488,85 @@ $(function () {
                                 errorMessage = GameData.errormessage;
                                 errorMessagePrompt = ''; //no prompt warranted for this message
                                 break;
+                            case 18:
+                                errorMessage = 'The game found has been suspended.';
+                                break;
                             default:
                                 errorMessage = GameData.errormessage;
+                                errorMessagePrompt = 'Please enter the correct code.';
                                 break;
                         }
                         app.popUpHelper('Error', errorMessage, errorMessagePrompt);
-                    }
-
-                }) //done
+                    }//if (GameData.errorid == undefined) for Games/GetGame CALL
+              }) //done for Games/GetGame CALL
               .fail(function (jqxhr, textStatus, error) {
                   console.log('return GetGame fail');
                   $.mobile.loading('hide'); //to hide the spinner
 
                   app.popUpHelper('Error',app.GetAJAXFailureErrMessage('Get Game', textStatus, error), null);
-              }); //fail
+              }); //fail Games/GetGame CALL
 
             console.log('END app.GetGameServer MNS');
         };//app.GetGameServer
 
         /*
-        (RETURNS ReportClientAccess indicator - true or false)
+        Get GameStatus from Probe Server 
         result["ClientReportAccess"] is recorded
         result["PlayerCount"] is recorded
-        Get GameStatus from Probe Server 
-        FYI. The GetJSON call to server is synchronous
+        After receiving response from Probe Server, calls the passed in response handler
         */
-        app.GetGameStatusServer = function (gameCode) {
+        app.GetGameStatusServer = function (fncResponsHandlerName,gameCode) {
             console.log('START app.GetGameStatusServer');
             var clientReportAccess = false; //global within the GetGameStatusServer function
-            var ajaxCallTries = 0;
-            var ajaxIsSuccessful = true;
-            var errorMessage = "";
+            var errorMessage = undefined;
 
-            do {
-                errorMessage = ""; //error mess must be blank for each ajax try
-                ajaxCallTries++;   //counting ajax tries
-                console.log('START app.GetGameStatusServer ajax try:' + ajaxCallTries);
+            url = ProbeAPIurl + 'Games/GetGameByCode/' + gameCode;
+            console.log('START app.GetGameStatusServer AJAX url:' + url);
+            app.ajaxHelper(url, 'GET', true, null)
+                .done(function (GameStatusData) {
+                    console.log('return GetGameStatus success');
 
-                url = ProbeAPIurl + 'Games/GetGameByCode/' + gameCode;
-                console.log('START app.GetGameStatusServer AJAX url:' + url);
-                app.ajaxHelper(url, 'GET', null)
-                  .done(function (GameStatusData) {
-                      console.log('return GetGameStatus success');
+                    //Setup response handler function
+                    respArgs = new DynamicFunctionArgs();
+                    respArgs.App = app; //app pointer
+                    respArgs.UserArg1 = false;  //clientReportAccess
 
-                      // On success, 'data' contains a Game(only one level) JSON object
-                      if (GameStatusData.errorid == undefined) {
-                          //SUCCESS
-                          result = app.GetResultLocalStorage(result);
-                          clientReportAccess = GameStatusData.ClientReportAccess;
-                          result["ClientReportAccess"] = GameStatusData.ClientReportAccess;
-                          result["PlayerCount"] = GameStatusData.PlayerCount;
-                          app.PutResultLocalStorage(result);
-                          ajaxIsSuccessful = true;
-                      } else {
-                          //THERE WAS A PROBE BUSINESS ERROR
-                          errorMessage = GameStatusData.errormessage;
-                          switch (GameStatusData.errorid) {
-                              case 1:
-                                  errorMessage = 'There is no game found for the id entered.';
-                                  break;
-                              default:
-                                  errorMessage = GameStatusData.errormessage;
-                                  break;
-                          }
-                          ajaxIsSuccessful = false;
+                    // On success, 'data' contains a Game(only one level) JSON object
+                    if (GameStatusData.errorid == undefined) {
+                        //SUCCESS
+                        result = app.GetResultLocalStorage(result);
+                        clientReportAccess = GameStatusData.ClientReportAccess;
+                        result["ClientReportAccess"] = GameStatusData.ClientReportAccess;
+                        result["PlayerCount"] = GameStatusData.PlayerCount;
+                        app.PutResultLocalStorage(result);
+                        respArgs.UserArg1 = clientReportAccess;  //clientReportAccess
+                    } else {
+                        //THERE WAS A PROBE BUSINESS ERROR
+                        errorMessage = GameStatusData.errormessage;
+                        switch (GameStatusData.errorid) {
+                            case 1:
+                                errorMessage = 'There is no game found for the id entered.';
+                                break;
+                            default:
+                                errorMessage = GameStatusData.errormessage;
+                                break;
+                        }
+                        respArgs.ErrorId = GameStatusData.errorid;
+                        respArgs.ErrorMessage = errorMessage;
+                    }//if (GameStatusData.errorid == undefined)
 
-                      }
+                    window[fncResponsHandlerName](respArgs); //CALL FUNCTION RESPONSE HANDLER (if no error. ErrorMessage will be undefined)
+                }) //done
+                .fail(function (jqxhr, textStatus, error) {
+                    console.log('return GetGameStatus fail');
 
-                  }) //done
-                  .fail(function (jqxhr, textStatus, error) {
-                      console.log('return GetGameStatus fail');
-
-                      errorMessage = app.GetAJAXFailureErrMessage('Get Game Play Status', textStatus, error);
-                      ajaxIsSuccessful = false;
-
-                  }); //fail
-
-            } while (!ajaxIsSuccessful && ajaxCallTries < ajaxCallMaxTries)
-
+                    errorMessage = app.GetAJAXFailureErrMessage('Get Game Play Status', textStatus, error);
+                    respArgs.ErrorMessage = errorMessage;
+                    window[fncResponsHandlerName](respArgs); //CALL FUNCTION RESPONSE HANDLER
+                }); //fail
 
             console.log('END app.GetGameStatusServer');
-            if (errorMessage == "") {
-                return clientReportAccess;
-            } else {
-                throw errorMessage;
-            }
-
-        };//app.GetGameStatusServer
+        };//app.GetGameStatusServer 
 
         /*
         Submit Player and Game Answers for Player
@@ -566,10 +585,12 @@ $(function () {
 
             url = ProbeAPIurl + 'Players/PostPlayer';
             console.log('START app.PostGameAnswersServer AJAX url:' + url);
-            app.ajaxHelper(url, 'POST', playerDTOin)
+            app.ajaxHelper(url, 'POST', true, playerDTOin)
                 .done(function (playerDTO) {
                     console.log('return POSTPlayer success');
                     returnErrMsg = new app.Game().PostGAResponse(playerDTO);
+
+                    app.CompleteConfirmSubmit(returnErrMsg);
                 })//done for POST Player
                 .fail(function (jqxhr, textStatus, error) {
                     console.log('return POSTPlayer fail');
@@ -578,11 +599,12 @@ $(function () {
                     result = app.GetResultLocalStorage();
                     result["ServerResponse"] = SERVER_UNKNOWN_ERROR;
                     app.PutResultLocalStorage(result);
-                    return returnErrMsg = app.GetAJAXFailureErrMessage('Post Player', textStatus, error);
+                    returnErrMsg = app.GetAJAXFailureErrMessage('Post Player', textStatus, error);
+
+                    app.CompleteConfirmSubmit(returnErrMsg);
                 }) //fail for POST Player
 
             console.log('END app.PostGameAnswersServer');
-            return returnErrMsg;
         };//app.PostGameAnswersServer
 
         /*
@@ -654,7 +676,7 @@ $(function () {
 
                 url = ProbeAPIurl + 'GameConfigurations/GetGameConfiguration/' + gameCode;
                 console.log('START app.GetConfigServer AJAX url:' + url);
-                app.ajaxHelper(url, 'GET', null)
+                app.ajaxHelper(url, 'GET', true, null)
                   .done(function (gameConfig) {
                       console.log('return GetConfigServer success');
 
@@ -1323,25 +1345,29 @@ $(function () {
             console.log('START app.GameResumeAction');
 
             app.SetCurrentGameData(index);
-
             result = app.GetResultLocalStorage();
-            try {
-                app.GetGameStatusServer(result.GameCode);
-                $.mobile.loading('hide'); //to show the spinner
-            } catch (err) {
-                $.mobile.loading('hide'); //to show the spinner
-                app.popUpHelper("Error", "GetGameStatusServer: " + err);
-            }
-
-            //set the home page for read-only view
-            new app.Game().SetGameState(GameState.ReadOnly);
-
-            app.SetHomePageStyle(false); //set backgrounded faded
-            app.ResumeGame(GameState.ReadOnly); //resume game read-only
-            $.mobile.loading('hide'); //to show the spinner
+            app.GetGameStatusServer('GameStatusResponseForGameResumeAction', result.GameCode);
 
             console.log('END app.GameResumeAction');
         }//app.GameResumeAction
+        app.CompleteGameResumeAction = function (clientReportAccess, errorId, errorMessage) {
+            console.log('START app.CompleteGameResumeAction');
+
+            $.mobile.loading('hide'); //to hide the spinner
+
+            //we check to see if there is an error message, if not all is well
+            if (errorMessage == undefined) {
+                //set the home page for read-only view
+                new app.Game().SetGameState(GameState.ReadOnly);
+
+                app.SetHomePageStyle(false); //set backgrounded faded
+                app.ResumeGame(GameState.ReadOnly); //resume game read-only
+            } else {
+                app.popUpHelper("Error", "GetGameStatusServer: " + errorMessage);
+            }
+
+            console.log('END app.CompleteGameResumeAction');
+        }//app.CompleteGameResumeAction
 
         /*
         Game Report Action (from Submitted State)
@@ -1354,24 +1380,30 @@ $(function () {
             if (index != -1) {
                 app.SetCurrentGameData(index);
             }
-
             result = app.GetResultLocalStorage();
-            try {
-                if (app.GetGameStatusServer(result.GameCode)) {
-                    $.mobile.loading('hide'); //to show the spinner
-                    app.DisplayReportPage();
-                } else {
-                    $.mobile.loading('hide'); //to show the spinner
-                    app.popUpHelper("Info", "The game organizer has not made game results accessible to the players yet.");
-                }
-            } catch (err) {
-                $.mobile.loading('hide'); //to show the spinner
-                app.popUpHelper("Error", "GetGameStatusServer: " + err);
-            }
-            $.mobile.loading('hide'); //to show the spinner
+            app.GetGameStatusServer('GameStatusResponseForGameReportAction', result.GameCode);
 
             console.log('END app.GameReportAction');
         }//app.GameReportAction
+        app.CompleteGameReportAction = function (clientReportAccess, errorId, errorMessage) {
+            console.log('START app.CompleteGameReportAction');
+
+            $.mobile.loading('hide'); //to show the spinner
+
+            //we check to see if there is an error message, if not all is well
+            if (errorMessage == undefined) {
+                if (clientReportAccess) {
+                    app.DisplayReportPage();
+                } else {
+                    app.popUpHelper("Info", "The game organizer has not made game results accessible to the players yet.");
+                }
+            } else {
+                app.popUpHelper("Error", "GetGameStatusServer: " + errorMessage);
+            }
+
+            console.log('END app.CompleteGameReportAction');
+        }//app.GameReportAction
+
 
         /*
             Set Game, Result, and GameConfig Data for Current
@@ -1406,7 +1438,7 @@ $(function () {
         }//app.SetCurrentGameData()
 
         /*
-        Confirm Submit Logic
+        Pre GAMEANSWER Submit Logic - Calls Ajax POST 
         */
         app.ConfirmSubmit = function () {
             console.log('START app.ConfirmSubmit');
@@ -1426,24 +1458,9 @@ $(function () {
                 //Disarm countdown QUESTION DEADLINE clock (it may or may not  be armed) - only if LMS
                 gameObj.SetClockCountdownEnable('qdeadline', false);
 
-                returnErrMsg = app.PostGameAnswersServer();
+                app.PostGameAnswersServer();
                 console.log('completed app.PostGameAnswersServer');
 
-                //Disarm countdown QUESTION DEADLINE clock (it may or may not  be armed) - only if LMS
-                gameObj.SetClockCountdownEnable('qdeadline', false);
-
-                //we check if the GA response warrants a game submit. An active LMS game will be SubmittedActive
-                if (gameObj.IsGameSubmit()) {
-                    app.SubmitSuccess();
-                }
-
-                //We have now posted the answers to the server. And received a response.
-                //If returnErrMsg is not NULL, we got a problem
-                //If returnErrMsg is NULL, then we have to determine where we navigate next based on a number of conditions
-                gameObj.NavigateAfterGAResponse();
-
-                //We will display a message to the player depending on the GA response and the state of the player.
-                gameObj.ProcessMessageForGAResponse(returnErrMsg);
             }//if (gameObj.IsNewQuestionDeadlineNotPassed()) {
 
             $.mobile.loading('hide'); //to hide the spinner
@@ -1451,6 +1468,35 @@ $(function () {
             GASubmitToInCommonInProgress = false; //turn the flag off now. The Submit is complete.
             console.log('End - app.ConfirmSubmit');
         }//app.ConfirmSubmit
+
+        /*
+        Post GAMEANSWER Submit Logic - Handles Ajax POST response
+        */
+        app.CompleteConfirmSubmit = function () {
+            console.log('START app.CompleteConfirmSubmit');
+
+            gameObj = new app.Game();
+            //Disarm countdown QUESTION DEADLINE clock (it may or may not  be armed) - only if LMS
+            gameObj.SetClockCountdownEnable('qdeadline', false);
+
+            //we check if the GA response warrants a game submit. An active LMS game will be SubmittedActive
+            if (gameObj.IsGameSubmit()) {
+                app.SubmitSuccess();
+            }
+
+            //We have now posted the answers to the server. And received a response.
+            //If returnErrMsg is not NULL, we got a problem
+            //If returnErrMsg is NULL, then we have to determine where we navigate next based on a number of conditions
+            gameObj.NavigateAfterGAResponse();
+
+            //We will display a message to the player depending on the GA response and the state of the player.
+            gameObj.ProcessMessageForGAResponse(returnErrMsg);
+
+            $.mobile.loading('hide'); //to hide the spinner
+            GASubmitToInCommonInProgress = false; //turn the flag off now. The Submit is complete.
+
+            console.log('End - app.CompleteConfirmSubmit');
+        }//app.CompleteConfirmSubmit
 
         /*
         submit success
@@ -4458,11 +4504,12 @@ $(function () {
             return gameConfig;
         };
 
-        app.ajaxHelper = function (uri, method, data) {
+        app.ajaxHelper = function (uri, method, asyncInp, data) {
             console.log('START app.ajaxHelper uri:' + uri);
             return $.ajax({
                 type: method,
-                async: false,
+                async: asyncInp,
+                timeout: AJAX_TIMEOUT,
                 url: uri,
                 dataType: 'json',
                 contentType: 'application/json',
@@ -4475,8 +4522,37 @@ $(function () {
     //initialize the Prob app
     app.init();
 
-
 })(probeApp); //app
+
+    GameStatusResponseForPing = function (args) {
+        console.log('START GameStatusResponseForPing');
+        //There is no additional handling of GameStatusResponse for ping
+        console.log('END GameStatusResponseForPing');
+    };//GameStatusResponseForPing
+
+    GameStatusResponseForGameResumeAction = function (args) {
+        console.log('START GameStatusResponseForGameResumeAction');
+
+        theApp = args.App;
+        clientReportAccess = args.UserArg1;
+        errorId = args.ErrorId;
+        errorMessage = args.ErrorMessage;
+        theApp.CompleteGameResumeAction(clientReportAccess, errorId, errorMessage);
+
+        console.log('END GameStatusResponseForGameResumeAction');
+    };//GameStatusResponseForGameResumeAction
+
+    GameStatusResponseForGameReportAction = function (args) {
+        console.log('START GameStatusResponseForGameReportAction');
+
+        theApp = args.App;
+        clientReportAccess = args.UserArg1;
+        errorId = args.ErrorId;
+        errorMessage = args.ErrorMessage;
+        theApp.CompleteGameReportAction(clientReportAccess, errorId, errorMessage);
+
+        console.log('END GameStatusResponseForGameReportAction');
+    };//GameStatusResponseForGameReportAction
 
 });
 
