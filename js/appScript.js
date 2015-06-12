@@ -305,6 +305,8 @@ $(function () {
             $('#gameList').listview().listview("refresh").trigger("create");
             //$('#home').trigger('create');
 
+            gameObj.RunQuesCountdownOnce(); //if neccessary the countdown clock will display static
+
             console.log('END app.HomePageInitialDisplayListview');
         }//app.HomePageInitialDisplayListview
 
@@ -1042,7 +1044,10 @@ $(function () {
 
             gameObj.SetQuesCorrectionStyle(questionNbr); //sets the background of the radio box with answer
             gameObj.SetQuesNavigate(questionNbr); //sets the navigate possibilities
-            gameObj.SetQuesCountdown(questionNbr); //sets countdown clock is necessary
+
+            gameObj.SetQuesCountdown(questionNbr, false); //sets countdown clock is necessary
+            gameObj.RunQuesCountdownOnce(); //if neccessary the countdown clock will display static (perform below .SetQuesCountdown)
+
 
             //$('#question').trigger('create');
 
@@ -1468,7 +1473,6 @@ $(function () {
             GASubmitToInCommonInProgress = false; //turn the flag off now. The Submit is complete.
             console.log('End - app.ConfirmSubmit');
         }//app.ConfirmSubmit
-
         /*
         Post GAMEANSWER Submit Logic - Handles Ajax POST response
         */
@@ -1489,10 +1493,10 @@ $(function () {
             //If returnErrMsg is NULL, then we have to determine where we navigate next based on a number of conditions
             gameObj.NavigateAfterGAResponse();
 
+            $.mobile.loading('hide'); //to hide the spinner
             //We will display a message to the player depending on the GA response and the state of the player.
             gameObj.ProcessMessageForGAResponse(returnErrMsg);
 
-            $.mobile.loading('hide'); //to hide the spinner
             GASubmitToInCommonInProgress = false; //turn the flag off now. The Submit is complete.
 
             console.log('End - app.CompleteConfirmSubmit');
@@ -3423,6 +3427,8 @@ $(function () {
             console.log('START app.ProcessMessageForGAResponse');
             this.GameRefresh();
 
+
+
             //depending on game type (LMS or not)
             if (this._result.GameType == GameType.LMS) {
                 if (this._result.PlayerActive && this._result.ServerResponse == SERVER_NO_ERROR) {
@@ -3550,9 +3556,11 @@ $(function () {
 
             console.log('END app.IsNewQuestionDeadlineNotPassed');
         }//app.this.IsNewQuestionTooLate = function () 
-        app.SetQuesCountdown = function (questionNbr) {
+        app.SetQuesCountdown = function (questionNbr,oneTimeInd) {
             console.log('START app.SetQuesCountdown - questionNbr:' + questionNbr);
             this.GameRefresh();
+
+            CountdownIntervalInSecs = parseInt(app.GetConfigValue(ConfigType.Game, "CountdownIntervalInSecs"));
 
             $('#questionText').css('padding-top', '6px');
 
@@ -3583,8 +3591,8 @@ $(function () {
                     //Added the html infrastructure for the countdown clock
                     $('#playerConsoleText').html(countDownClockHtml);
 
-                    //We won't start another countdown if already enabled.
-                    if (!this.IsClockCountdownEnable('qdeadline')) {
+                    //We won't start another countdown if already enabled. Unless we are doing a one-time only call which really isn't a countdown
+                    if (!this.IsClockCountdownEnable('qdeadline') || oneTimeInd) {
                         GASubmitToInCommonInProgress = false; //reset the in progress boolean
 
                         //Setup for COUNT DOWN TO QUESTION DEADLINE
@@ -3596,6 +3604,8 @@ $(function () {
                             dateBufferSecs: CLOCKCOUNTDOWN_BUFFER_SECS,
                             bufferTimeSecs: SUBMIT_BUFFERTIME_SECS,
                             clockInd: true,
+                            OneTimeInd: oneTimeInd,
+                            interval: CountdownIntervalInSecs,
                             color: '#00edf0',
                             warningSecs: 60,
                             warningColor: '#00edf0',
@@ -3652,7 +3662,7 @@ $(function () {
                     $('#playerConsoleText').html(countDownClockHtml);
 
                     //We won't start another countdown if already enabled.
-                    if (!this.IsClockCountdownEnable('qstart')) {
+                    if (!this.IsClockCountdownEnable('qstart') || oneTimeInd) {
                         //Setup for COUNT DOWN TO QUESTION START
                         questionStartDTUTC = app.DateLocalToUTC(dateQuestionStartLocal);
                         $('#qCountdown').countdown({
@@ -3662,6 +3672,8 @@ $(function () {
                             dateBufferSecs: CLOCKCOUNTDOWN_BUFFER_SECS,
                             bufferTimeSecs: SUBMIT_BUFFERTIME_SECS,
                             clockInd: true,
+                            OneTimeInd: oneTimeInd,
+                            interval: CountdownIntervalInSecs,
                             color: '#00edf0',
                             warningSecs: 60,
                             warningColor: '#00edf0',
@@ -3686,6 +3698,24 @@ $(function () {
 
             console.log('END app.SetQuesCountdown');
         }//app.SetQuesCountdown
+        app.RunQuesCountdownOnce = function () {
+            console.log('START app.RunClockCountdownOnce');
+            this.GameRefresh();
+
+            //We only run the countdown once if the game is LMS
+            if (this._result.GameType == GameType.LMS) {
+
+                questionNbrToUse = 0;
+
+                if (this._result.QuestionNbrSubmitted != QUESTION_NOT_SUBMITTED) {
+                    questionNbrToUse = this._result.QuestionNbrSubmitted;
+                }
+
+                this.SetQuesCountdown(questionNbrToUse, true);
+            }
+
+            console.log('END app.RunClockCountdownOnce');
+        }//app.RunQuesCountdownOnce
         app.GetListviewClockCountdownHtml = function () {
             console.log('START app.GetListviewClockCountdownHtml');
             this.GameRefresh();
@@ -3762,7 +3792,7 @@ $(function () {
             if (this._result.GameType == GameType.LMS &&
                 (this._result.GameState == GameState.Active || this._result.GameState == GameState.SubmittedActive)) {
                 questionNbr = this.StartQuestionNbr();
-                this.SetQuesCountdown(questionNbr);
+                this.SetQuesCountdown(questionNbr,false);
             }
             console.log('END app.StartupClockCountdown');
         }//
@@ -3846,12 +3876,12 @@ $(function () {
 
             if (this._result.GameType == GameType.LMS) {
                 this.StartGame(true);
-                $.mobile.loading('hide'); //hide the spinner
+                //$.mobile.loading('hide'); //hide the spinner
             } else {
                 app.SetHomePageStyle(false);
                 app.SetHomePageInitialDisplay();
                 $(":mobile-pagecontainer").pagecontainer('change', '#home', { transition: 'none' });
-                $.mobile.loading('hide'); //hide the spinner
+                //$.mobile.loading('hide'); //hide the spinner
             }
 
             console.log('END app.NavigateAfterGAResponse');
@@ -4340,6 +4370,13 @@ $(function () {
                 $('#startGame,#cancelGame,#reportGame').addClass('GameReadOnlyButtons');
             }
 
+            //when it's an LMS game and in a state of SubmittedActive; we don't want it so easy to cancel
+            if (this._result.GameType == GameType.LMS && gameState == GameState.SubmittedActive) {
+                $('#cancelGame').hide();
+            } else {
+                $('#cancelGame').show();
+            }
+
             console.log('END app.PlayerPromptInteractive');
         }//app.PlayerPromptInteractive
         app.PlayerPromptActions = function () {
@@ -4361,7 +4398,6 @@ $(function () {
                 }
                 $('#reportGame').show();
 
-                //$('[data-role="controlgroup"]').addClass('ui-disabled') //works but the legend is also greyed out
                 $('#startGame').text('View Game');
             } else {
                 $('#startGame').text('Resume Game');
@@ -4399,6 +4435,7 @@ $(function () {
             this.StartupClockCountdown = app.StartupClockCountdown;
             this.StopClockCountdown = app.StopClockCountdown;
             this.SetQuesCountdown = app.SetQuesCountdown;
+            this.RunQuesCountdownOnce = app.RunQuesCountdownOnce;
             this.GetListviewClockCountdownHtml = app.GetListviewClockCountdownHtml;
             this.GetListViewReportBtnHtml = app.GetListViewReportBtnHtml;
             this.GetListViewReportIconHtml = app.GetListViewReportIconHtml;

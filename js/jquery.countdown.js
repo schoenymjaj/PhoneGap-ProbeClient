@@ -13,6 +13,8 @@ Args: id           - identification for the clock countdown (string identificati
                        countdown deadline handler goes into action. Gives the player a little break.
       clockInd     - true or false. True renders the countdown clock. false will not render clock, 
                      but will still fire event when countdown is done
+      OneTimeInd   - If true then the countdown is only performed once
+      interval     - interval in seconds of the countdown
       color        - color of the clock
       warningSecs  - how many seconds left before the clock turns to the warningColor
       warningColor - color the clock turns at warning time
@@ -43,6 +45,8 @@ Example call:
         dateBufferSecs: 5,
 	    bufferTimeSecs: 1,
         clockInd: true,
+        OneTimeInd: false,
+        interval: 1,
         size: '30px',
         color: 'green',
         warningSecs: 60,
@@ -62,14 +66,32 @@ Example call:
             date: null,
             dateBufferSecs: 0,
             bufferTimeSecs: 0,
-		    clockInd: false,
+            clockInd: false,
+	        OneTimeInd: false,
+            interval: 1,
 		    color: '#a7abb1',
 		    warningSecs: 60,
 		    warningColor: 'red',
 		    dateViewSecs: 10,
+            staticInd: false,
 	        auxId1: null,
 	        auxId2: null
 		}, options);
+
+	    //Set up the text to be displayed at the tail end of the clock
+	    var tailHtmlClock, tailHtmlClockAbrev, tailHtmlDate, tailHtmlDateAbrev, clockTitleHtml, dateTitleHtml = '';
+	    // Save container
+	    var containerAnchor = this;
+	    /**
+		 * Change client's local date to match offset timezone
+		 * @return {Object} Fixed Date object.
+		 */
+	    var currentDate = function () {
+	        // get client's current date in UTC
+	        var dateC = new Date();
+	        var new_date = new Date(Date.UTC(dateC.getFullYear(), dateC.getMonth(), dateC.getDate(), dateC.getHours(), dateC.getMinutes(), dateC.getSeconds()));
+	        return new_date;
+	    };
 
 		// Throw error if date is not set
 		if (!settings.date) {
@@ -81,30 +103,139 @@ Example call:
 			$.error('Incorrect date format, it should look like this, 12/24/2012 12:00:00.');
 		}
 
-		// Save container
-		var containerAnchor = this;
+	    //Set the clock enabled attribute on the div anchor. This attribute will be used to stop the countdown at any time.
+		setEnableClock('true');
 
-		//container.html('hello there!');
-
-		/**
-		 * Change client's local date to match offset timezone
-		 * @return {Object} Fixed Date object.
-		 */
-		var currentDate = function () {
-			// get client's current date in UTC
-			var dateC = new Date();
-			var new_date = new Date(Date.UTC(dateC.getFullYear(), dateC.getMonth(), dateC.getDate(), dateC.getHours(), dateC.getMinutes(), dateC.getSeconds()));
-			return new_date;
-		};
-
-        //Set the clock enabled attribute on the div anchor. This attribute will be used to stop the countdown at any time.
-		$('#' + settings.divAnchor).attr('countdown-enabled-' + settings.id, 'true');
-
-        //Set up the text to be displayed at the tail end of the clock
-		var tailHtmlClock, tailHtmlClockAbrev, tailHtmlDate, tailHtmlDateAbrev, clockTitleHtml, dateTitleHtml = '';
 		setTextHtml(settings);
 
 		renderClockFullPopup();
+
+		/**
+		 * Main countdown function that calculates everything
+		 */
+		function countdown() {
+
+            //We need to refresh the container, because it's possible that the calling program will refresh and change the jQuery container (anchor).
+		    var container = $('#' + containerAnchor.attr('id'));
+
+		    if (settings.auxId1 != null) {
+		        var containerAuxillary1 = $('#' + settings.auxId1);
+		    }
+		    if (settings.auxId2 != null) {
+		        var containerAuxillary2 = $('#' + settings.auxId2);
+		    }
+
+		    //if countdown is NOT enabled, we stop the timer
+		    if (getEnableClockValue() != 'true') {
+		        console.log('(id = ' + settings.id + ') countdown aborted!!!!!');
+		        clearInterval(interval);
+		        return;
+		    }
+
+            //Use buffered date and time ONLY for deadline countdowns
+		    bufferDate = settings.date;
+		    bufferTimeInMilliseconds = 0;
+		    if (settings.id == 'qdeadline') {
+		        bufferDate = settings.date - 1000 * settings.dateBufferSecs;
+		        bufferTimeInMilliseconds = 1000 * settings.bufferTimeSecs;
+		    }
+
+		    var target_date = new Date(bufferDate), // set target date - we used the buffered date for this.
+				current_date = currentDate(); // get fixed current date
+
+		    // difference of dates
+			var difference = target_date - current_date;
+
+		    // if difference is negative than it's past the target date
+		    //we want to subtract the buffered seconds so it actually doesn't
+		    //start the handler for that additional second. Gives the player a little break.
+			if (difference < (0 - bufferTimeInMilliseconds)) {
+				// stop timer
+				clearInterval(interval);
+				setEnableClock('false');   //set countdown clock to disabled.
+				if (callback && typeof callback === 'function') callback();
+				return;
+			}
+
+            //if the target date is less than current date than we don't need to update countdown clock anymore
+			if (difference >= 0) {
+
+			    // basic math variables
+			    var _second = 1000,
+                    _minute = _second * 60,
+                    _hour = _minute * 60,
+                    _day = _hour * 24;
+
+			    // calculate dates
+			    var days = Math.floor(difference / _day),
+                    hours = Math.floor((difference % _day) / _hour),
+                    minutes = Math.floor((difference % _hour) / _minute),
+                    seconds = Math.floor((difference % _minute) / _second);
+
+			    if (settings.clockInd) {
+
+                    //We will show just the date deadline the first configured seconds and then we will show the countdown thereafter
+			        if (seconds >= (60 - settings.dateViewSecs) && seconds <= 59) {
+                        //Display the date here
+			            innerCountDownClockHtml = '<li><span class="tailHtml"></span></li>';
+			            container.html(innerCountDownClockHtml);
+			            if (settings.auxId1 != null) {
+			                containerAuxillary1.html(innerCountDownClockHtml);
+			            }
+
+			            if (days != 0) {
+			                tailHtmlDateNow = tailHtmlDateAbrev;
+			            } else {
+			                tailHtmlDateNow = tailHtmlDate;
+			            }
+
+			            settingsDateLocal = new Date(settings.date.getFullYear(), settings.date.getMonth(), settings.date.getDate(), settings.date.getHours(), settings.date.getMinutes() + settings.date.getTimezoneOffset(), settings.date.getSeconds());
+			            dateLocalStr = GetInCommmonLocaleDateString(settingsDateLocal) + ' ' + GetInCommmonLocaleTimeString(settingsDateLocal);
+			            container.find('.tailHtml').html('<span style="background-color:black">' + dateLocalStr + '</span>' + tailHtmlDateNow);
+			            if (settings.auxId1 != null) {
+			                containerAuxillary1.find('.tailHtml').html('<span style="background-color:black">' + dateLocalStr + '</span>' + tailHtmlDateNow);
+			            }
+
+			            if (settings.auxId2 != null) renderClockFull(days, minutes, hours, seconds, containerAuxillary2); //full
+
+
+			        } else {
+                        //Display countdown clock here
+			            renderClock(days, minutes, hours, seconds, container); //condensed
+			            if (settings.auxId1 != null) renderClock(days, minutes, hours, seconds, containerAuxillary1); //condensed
+			            if (settings.auxId2 != null) renderClockFull(days, minutes, hours, seconds, containerAuxillary2); //full
+
+			        }//if (seconds >= 50 && seconds <= 59) {
+
+			        styleClock(difference, settings, container); 
+			        if (settings.auxId1 != null) styleClock(difference, settings, containerAuxillary1);
+                    if (settings.auxId2 != null) styleClock(difference, settings, containerAuxillary2);
+
+			        console.log('countdown:(id=' + settings.id + ')'); // sec:' + secondsV + ')');
+			    }//if (settings.clockInd)
+
+			}//if(difference < 0)
+
+		};//function countdown ()
+
+
+		function getEnableClockValue() {
+            //we don't want to deal with countdown enable toogle if it's a one time only
+		    if (!settings.OneTimeInd) {
+		        return $('#' + settings.divAnchor).attr('countdown-enabled-' + settings.id);
+		    } else {
+		        return 'true';
+		    }
+		}//function getEnableClockValue
+
+		function setEnableClock(enableInd) {
+		    //Set the clock enabled attribute on the div anchor. This attribute will be used to start or stop the countdown at any time.
+            //BTW - WE DONT MESS WITH THE COUNTDOWN ENABLE TOGGLE IF IT'S A ONE TIME ONLY
+		    if (!settings.OneTimeInd) {
+		        $('#' + settings.divAnchor).attr('countdown-enabled-' + settings.id, enableInd);
+		    }
+
+		}//function setEnableClock(enableInd)
 
 		function setTextHtml(settings) {
 
@@ -270,116 +401,13 @@ Example call:
 
 		}//		function renderClockFull(days, minutes, hours, seconds) {
 
-		/**
-		 * Main countdown function that calculates everything
-		 */
-		function countdown() {
+	    //The jQuery extension code initiates HERE!!!!!!
 
-            //We need to refresh the container, because it's possible that the calling program will refresh and change the jQuery container (anchor).
-		    var container = $('#' + containerAnchor.attr('id'));
+		countdown(); //run it once to begin with... and then let the interval take over
 
-		    if (settings.auxId1 != null) {
-		        var containerAuxillary1 = $('#' + settings.auxId1);
-		    }
-		    if (settings.auxId2 != null) {
-		        var containerAuxillary2 = $('#' + settings.auxId2);
-		    }
-
-		    //if countdown is NOT enabled, we stop the timer
-		    if ($('#' + settings.divAnchor).attr('countdown-enabled-' + settings.id) != 'true') {
-		        console.log('(id = ' + settings.id + ') countdown aborted!!!!!');
-		        clearInterval(interval);
-		        return;
-		    }
-
-            //Use buffered date and time ONLY for deadline countdowns
-		    bufferDate = settings.date;
-		    bufferTimeInMilliseconds = 0;
-		    if (settings.id == 'qdeadline') {
-		        bufferDate = settings.date - 1000 * settings.dateBufferSecs;
-		        bufferTimeInMilliseconds = 1000 * settings.bufferTimeSecs;
-		    }
-
-		    var target_date = new Date(bufferDate), // set target date - we used the buffered date for this.
-				current_date = currentDate(); // get fixed current date
-
-		    // difference of dates
-			var difference = target_date - current_date;
-
-		    // if difference is negative than it's pass the target date
-		    //we want to subtract the buffered seconds so it actually doesn't
-		    //start the handler for that additional second. Gives the player a little break.
-			if (difference < (0 - bufferTimeInMilliseconds)) {
-				// stop timer
-				clearInterval(interval);
-				$('#' + settings.divAnchor).attr('countdown-enabled-' + settings.id, 'false'); //set countdown clock to disabled.
-				if (callback && typeof callback === 'function') callback();
-				return;
-			}
-
-            //if the target date is less than current date than we don't need to update countdown clock anymore
-			if (difference >= 0) {
-
-			    // basic math variables
-			    var _second = 1000,
-                    _minute = _second * 60,
-                    _hour = _minute * 60,
-                    _day = _hour * 24;
-
-			    // calculate dates
-			    var days = Math.floor(difference / _day),
-                    hours = Math.floor((difference % _day) / _hour),
-                    minutes = Math.floor((difference % _hour) / _minute),
-                    seconds = Math.floor((difference % _minute) / _second);
-
-			    if (settings.clockInd) {
-
-                    //We will show just the date deadline the first configured seconds and then we will show the countdown thereafter
-			        if (seconds >= (60 - settings.dateViewSecs) && seconds <= 59) {
-                        //Display the date here
-			            innerCountDownClockHtml = '<li><span class="tailHtml"></span></li>';
-			            container.html(innerCountDownClockHtml);
-			            if (settings.auxId1 != null) {
-			                containerAuxillary1.html(innerCountDownClockHtml);
-			            }
-
-			            if (days != 0) {
-			                tailHtmlDateNow = tailHtmlDateAbrev;
-			            } else {
-			                tailHtmlDateNow = tailHtmlDate;
-			            }
-
-			            settingsDateLocal = new Date(settings.date.getFullYear(), settings.date.getMonth(), settings.date.getDate(), settings.date.getHours(), settings.date.getMinutes() + settings.date.getTimezoneOffset(), settings.date.getSeconds());
-			            dateLocalStr = GetInCommmonLocaleDateString(settingsDateLocal) + ' ' + GetInCommmonLocaleTimeString(settingsDateLocal);
-			            container.find('.tailHtml').html('<span style="background-color:black">' + dateLocalStr + '</span>' + tailHtmlDateNow);
-			            if (settings.auxId1 != null) {
-			                containerAuxillary1.find('.tailHtml').html('<span style="background-color:black">' + dateLocalStr + '</span>' + tailHtmlDateNow);
-			            }
-
-			            if (settings.auxId2 != null) renderClockFull(days, minutes, hours, seconds, containerAuxillary2); //full
-
-
-			        } else {
-                        //Display countdown clock here
-			            renderClock(days, minutes, hours, seconds, container); //condensed
-			            if (settings.auxId1 != null) renderClock(days, minutes, hours, seconds, containerAuxillary1); //condensed
-			            if (settings.auxId2 != null) renderClockFull(days, minutes, hours, seconds, containerAuxillary2); //full
-
-			        }//if (seconds >= 50 && seconds <= 59) {
-
-			        styleClock(difference, settings, container); 
-			        if (settings.auxId1 != null) styleClock(difference, settings, containerAuxillary1);
-                    if (settings.auxId2 != null) styleClock(difference, settings, containerAuxillary2);
-
-			        console.log('countdown:(id=' + settings.id + ')'); // sec:' + secondsV + ')');
-			    }//if (settings.clockInd)
-
-			}//if(difference < 0)
-
-		};//function countdown ()
-		
-		// start
-		var interval = setInterval(countdown, 1000);
+		if (!settings.OneTimeInd) {
+		    var interval = setInterval(countdown, settings.interval * 1000);
+		} 
 	};
 
 })(jQuery);
