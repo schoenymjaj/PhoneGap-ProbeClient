@@ -4468,7 +4468,7 @@ $(function () {
 
                     //setup notification click handler - to go to the game and question nearing the deadline
                     cordova.plugins.notification.local.on("click", function (notification) {
-                        alert("notification clicked on: " + notification.id);
+                        console.log("notification clicked on: " + notification.id);
                         app.PopActiveGameFromQueueIntoCurrent();
                         app.StartGame(true);
                     });
@@ -4482,23 +4482,22 @@ $(function () {
             console.log('END app.SetLocalNotifications');
         }
         app.ResetLocalNotifications = function () {
-            console.log('START app.ResetLocalNotifications');
-            this.GameRefresh();
-            var isCordovaApp = document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1;
+            //console.log('START app.ResetLocalNotifications');
+            //this.GameRefresh();
+            //var isCordovaApp = document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1;
 
-            if (this._result.GameType == GameType.LMS) {
+            //if (this._result.GameType == GameType.LMS) {
 
-                if (isCordovaApp &&
-                    (isMobile.Android() != null || isMobile.iOS() != null)) { //cordova - NEED TO CHECK FOR ANDROID OR IOS (ONLY SUPPORTED)
+            //    if (isCordovaApp &&
+            //        (isMobile.Android() != null || isMobile.iOS() != null)) { //cordova - NEED TO CHECK FOR ANDROID OR IOS (ONLY SUPPORTED)
 
-                    cordova.plugins.notification.local.cancelAll(function () {
-                        console.log('cancel all local notifications');
-                    }, this);
+            //        cordova.plugins.notification.local.cancelAll(function () {
+            //            console.log('cancel all local notifications');
+            //        }, this);
 
-                }
+            //    }
 
-            }
-
+            //}
             console.log('END app.ResetLocalNotifications');
         }
         app.GameRefresh = function () {
