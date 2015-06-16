@@ -27,8 +27,8 @@ $(function () {
         /*
         Globals
         */
-        var probeVersion = '1.3.0';
-        var probeVersionNumber = 5;
+        var probeVersion = '1.3.1';
+        var probeVersionNumber = 6;
         var root = GetRootUrl();  //root directory of the web site serving mobile app (i.e. in-common-app.com)
 
         //alert('Probe Version: ' + probeVersion);
@@ -1046,7 +1046,7 @@ $(function () {
             gameObj.SetQuesNavigate(questionNbr); //sets the navigate possibilities
 
             gameObj.SetQuesCountdown(questionNbr, false); //sets countdown clock is necessary
-            gameObj.RunQuesCountdownOnce(); //if neccessary the countdown clock will display static (perform below .SetQuesCountdown)
+            gameObj.RunQuesCountdownOnce(questionNbr); //if neccessary the countdown clock will display static (perform below .SetQuesCountdown)
 
 
             //$('#question').trigger('create');
@@ -3734,21 +3734,37 @@ $(function () {
 
             console.log('END app.SetQuesCountdown');
         }//app.SetQuesCountdown
-        app.RunQuesCountdownOnce = function () {
+        app.RunQuesCountdownOnce = function (questionNbr) {
             console.log('START app.RunClockCountdownOnce');
             this.GameRefresh();
+
+            /*
+            questionNbr is an optional argument. If it exists; then we use it to call SetQuestionCountdown. If not; we find the question nbr in other ways
+            */
 
             //We only run the countdown once if the game is LMS
             if (this._result.GameType == GameType.LMS) {
 
                 questionNbrToUse = 0;
 
-                if (this._result.QuestionNbrSubmitted != QUESTION_NOT_SUBMITTED) {
-                    questionNbrToUse = this._result.QuestionNbrSubmitted;
-                }
+                if (questionNbr != undefined) {
+                    questionNbrToUse = questionNbr;
+                } else {
+
+                    if (this._result.QuestionNbrSubmitted != QUESTION_NOT_SUBMITTED) {
+
+                        if (this.IsClockCountdownEnable('qstart')) {
+                            questionNbrToUse = this._result.QuestionNbrSubmitted;
+                        } else {
+                            questionNbrToUse = this._result.QuestionNbrSubmitted + 1;
+
+                        }                    
+                    }
+                }//if (questionNbr != undefined) {
 
                 this.SetQuesCountdown(questionNbrToUse, true);
-            }
+
+            }//if (this._result.GameType == GameType.LMS) {
 
             console.log('END app.RunClockCountdownOnce');
         }//app.RunQuesCountdownOnce
