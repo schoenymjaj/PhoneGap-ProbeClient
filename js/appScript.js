@@ -3590,7 +3590,9 @@ $(function () {
                 dateCurrentQuestionStartLocal = this.GetQuesStartDate(questionNbr);
                 dateNextQuestionStartLocal = this.GetQuesStartDate(this._result.QuestionNbrSubmitted + 1); //not really next - its the new question not answered
                 dateCurrentQuestionDeadlineLocal = this.GetQuesDeadlineDate(questionNbr);
+                dateNextQuestionDeadlineLocal = this.GetQuesDeadlineDate(this._result.QuestionNbrSubmitted + 1); //not really next - its the new question not answered
                 dateCurrentQuestionWarningLocal = this.GetQuesWarningDate(questionNbr);
+                dateNextQuestionWarningLocal = this.GetQuesWarningDate(this._result.QuestionNbrSubmitted + 1);
                 dateCurrentLocal = new Date();
 
                 if (((this._result.QuestionNbrSubmitted == QUESTION_NOT_SUBMITTED && questionNbr == 0) ||
@@ -3694,7 +3696,7 @@ $(function () {
                         //Since we know that; we also may want to set a 'warning' local notification for the QUESTION DEADLINE
                         //enable all local notifications if necessary for the game
                         if (!oneTimeInd) {
-                            new app.Game().SetLocalNotifications(dateCurrentLocal, dateCurrentQuestionWarningLocal, dateCurrentQuestionDeadlineLocal);
+                            new app.Game().SetLocalNotifications(dateCurrentLocal, dateNextQuestionWarningLocal, dateNextQuestionDeadlineLocal);
                         }
 
                         //Setup for COUNT DOWN TO QUESTION START
@@ -4482,22 +4484,22 @@ $(function () {
             console.log('END app.SetLocalNotifications');
         }
         app.ResetLocalNotifications = function () {
-            //console.log('START app.ResetLocalNotifications');
-            //this.GameRefresh();
-            //var isCordovaApp = document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1;
+            console.log('START app.ResetLocalNotifications');
+            this.GameRefresh();
+            var isCordovaApp = document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1;
 
-            //if (this._result.GameType == GameType.LMS) {
+            if (this._result.GameType == GameType.LMS) {
 
-            //    if (isCordovaApp &&
-            //        (isMobile.Android() != null || isMobile.iOS() != null)) { //cordova - NEED TO CHECK FOR ANDROID OR IOS (ONLY SUPPORTED)
+                if (isCordovaApp &&
+                    (isMobile.Android() != null || isMobile.iOS() != null)) { //cordova - NEED TO CHECK FOR ANDROID OR IOS (ONLY SUPPORTED)
 
-            //        cordova.plugins.notification.local.cancelAll(function () {
-            //            console.log('cancel all local notifications');
-            //        }, this);
+                    cordova.plugins.notification.local.cancelAll(function () {
+                        console.log('cancel all local notifications');
+                    }, this);
 
-            //    }
+                }
 
-            //}
+            }
             console.log('END app.ResetLocalNotifications');
         }
         app.GameRefresh = function () {
