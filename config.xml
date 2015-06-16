@@ -63,6 +63,7 @@ Mike Schoenfeld
     <gap:config-file platform="ios" parent="UIViewControllerBasedStatusBarAppearance">
         <false/>
     </gap:config-file>
+    <gap:plugin name="de.appplant.cordova.plugin.local-notification" version="0.8.1" />
     <gap:plugin name="org.apache.cordova.camera"  />
     <gap:plugin name="org.apache.cordova.geolocation"  />
     <gap:plugin name="org.apache.cordova.dialogs"  />
