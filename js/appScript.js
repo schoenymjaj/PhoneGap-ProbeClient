@@ -4466,13 +4466,20 @@ $(function () {
                          data: null
                      });
 
-                    alert('scheduled local notification at ' + GetInCommmonLocaleDateString(dateWarningLocal) + ' ' + GetInCommmonLocaleTimeString(dateWarningLocal));
+                    //setup notification click handler - to go to the game and question nearing the deadline
+                    cordova.plugins.notification.local.on("click", function (notification) {
+                        alert("notification clicked on: " + notification.id);
+                        app.PopActiveGameFromQueueIntoCurrent();
+                        app.StartGame(true);
+                    });
+
+                    console.log('scheduled local notification at ' + GetInCommmonLocaleDateString(dateWarningLocal) + ' ' + GetInCommmonLocaleTimeString(dateWarningLocal));
 
                 }
 
             }
 
-            alert('END app.SetLocalNotifications');
+            console.log('END app.SetLocalNotifications');
         }
         app.ResetLocalNotifications = function () {
             console.log('START app.ResetLocalNotifications');
@@ -4485,14 +4492,14 @@ $(function () {
                     (isMobile.Android() != null || isMobile.iOS() != null)) { //cordova - NEED TO CHECK FOR ANDROID OR IOS (ONLY SUPPORTED)
 
                     cordova.plugins.notification.local.cancelAll(function () {
-                        alert('cancel all local notifications');
+                        console.log('cancel all local notifications');
                     }, this);
 
                 }
 
             }
 
-            alert('END app.ResetLocalNotifications');
+            console.log('END app.ResetLocalNotifications');
         }
         app.GameRefresh = function () {
             console.log('START app.GameRefresh');
