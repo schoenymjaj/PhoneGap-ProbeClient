@@ -119,6 +119,10 @@ window.onerror = function (msg, url, line) {
     } else if (msg == 'Script error.' && url == "" && line == 0) {
         console.log('Unknown script error, url="", line = 0');
     } else if (msg == 'ReferenceError: Can\'t find variable: StatusBar') {
+        //ignore any statusbar plug exceptions. shouldn't stop the show
+        console.log(msg);
+    } else if (msg.indexOf('.notification.') != -1) {
+        //we will ignore any local notification error exceptions. shouldn't stop the show
         console.log(msg);
     } else {
         handleAppError(msg, url, line);

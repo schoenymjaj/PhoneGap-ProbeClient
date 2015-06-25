@@ -2886,7 +2886,7 @@ $(function () {
         };//app.IsGamesInQueue(gameState)
 
         /*
-        return if the game has been submitted already (looking at the queue)
+        return true if the game has been submitted already (looking at the queue)
         arguments
         GameId
         */
@@ -4067,15 +4067,20 @@ $(function () {
             console.log('START app.IsGameSubmit');
             this.GameRefresh();
 
-            gameSubmitInd = false;
+            gameToSubmitInd = false;
 
-            if (this._result["ServerResponse"] == SERVER_NO_ERROR ||
+            if (app.IsGameSubmitted(result["GameId"])) {
+                //if game already submitted - we don't want to again. This may happen in some exceptional timing cases
+                //where the player may submit an answer very close to the deadline. The countdown handler might of already
+                //inactivated player and submitted game
+                gameToSubmitInd = false;
+            } else if (this._result["ServerResponse"] == SERVER_NO_ERROR ||
                 this._result["ServerResponse"] == SERVER_SUBM_NOT_ONTIME) {
-                gameSubmitInd = true;
+                gameToSubmitInd = true;
             }
 
             console.log('END app.IsGameSubmit');
-            return gameSubmitInd;
+            return gameToSubmitInd;
         }//app.IsGameSubmit 
         app.AlertPlayerComplete = function (questionNbr, questionNbrToCheck) {
             console.log('START app.AlertPlayerComplete');
@@ -4474,11 +4479,12 @@ $(function () {
 
                     dateStr = GetInCommmonLocaleDateString(dateDeadlineLocal) + ' ' + GetInCommmonLocaleTimeString(dateDeadlineLocal);
 
+                    //Note: Android requires a string for the notification id
                     cordova.plugins.notification.local.schedule(
                      {
-                         id: 1,
-                         title: 'Your game question is approaching its deadline.',
-                         text: dateStr,
+                         id: isMobile.Android() != null ? "1" : 1,
+                         title: 'Question deadline approaching',
+                         text: 'Question Deadline: ' + dateStr,
                          at: dateWarningLocal,
                          sound: null,
                          data: null
