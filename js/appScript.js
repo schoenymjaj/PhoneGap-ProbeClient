@@ -3555,8 +3555,8 @@ $(function () {
                 $('#playerConsoleText').css('font-weight', 'bold');
                 $('#playerConsoleText').css('text-align', 'center');
 
-                alert('questionNbr=' + questionNbr + '   selChoiceId=' + selChoiceId + '   QuestionNbrSubmitted=' + this._result.QuestionNbrSubmitted +
-                    '   Reason=' + this._result["GameQuestions"][questionNbr]["Reason"] + '   Correct=' + this._result["GameQuestions"][questionNbr]["Correct"]);
+                //alert('questionNbr=' + questionNbr + '   selChoiceId=' + selChoiceId + '   QuestionNbrSubmitted=' + this._result.QuestionNbrSubmitted +
+                //    '   Reason=' + this._result["GameQuestions"][questionNbr]["Reason"] + '   Correct=' + this._result["GameQuestions"][questionNbr]["Correct"]);
 
 
                 //Let's decide what/if anything we say about the status of the answer (if there is an answer)
