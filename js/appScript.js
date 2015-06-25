@@ -2781,6 +2781,7 @@ $(function () {
             GameListQueue[0]["Email"] = result.Email;
             GameListQueue[0]["GameState"] = gameState;
             GameListQueue[0]["GameType"] = result.GameType;
+            GameListQueue[0]["PlayerId"] = result.PlayerId;
 
             GameQueue[0].Game = GameData;
             GameQueue[0].Result = result;
@@ -2906,6 +2907,30 @@ $(function () {
             }
 
             console.log('END app.IsGameSubmitted');
+            return isSubmitted;
+        };//app.IsGameSubmitted 
+
+        /*
+        return true if the game for a player has been submitted already (looking at the queue)
+        arguments
+        PlayerId
+        */
+        app.IsPlayerGameSubmitted = function (PlayerId) {
+            console.log('START app.IsPlayerGameSubmitted');
+
+            isSubmitted = false;
+
+            GameListQueue = app.GetGameListQueueLocalStorage();
+
+            for (i = 0; i < GameListQueue.length; i++) {
+                if (GameListQueue[i]["PlayerId"] == PlayerId) {
+                    isSubmitted = true;
+                }
+
+                if (isSubmitted) break;
+            }
+
+            console.log('END app.IsPlayerGameSubmitted');
             return isSubmitted;
         };//app.IsGameSubmitted 
 
@@ -3529,6 +3554,11 @@ $(function () {
                 $('#playerConsoleText').html(''); //blank it out
                 $('#playerConsoleText').css('font-weight', 'bold');
                 $('#playerConsoleText').css('text-align', 'center');
+
+                alert('questionNbr=' + questionNbr + '   selChoiceId=' + selChoiceId + '   QuestionNbrSubmitted=' + this._result.QuestionNbrSubmitted +
+                    '   Reason=' + this._result["GameQuestions"][questionNbr]["Reason"] + '   Correct=' + this._result["GameQuestions"][questionNbr]["Correct"]);
+
+
                 //Let's decide what/if anything we say about the status of the answer (if there is an answer)
                 if (selChoiceId != NO_ANSWER && questionNbr <= this._result.QuestionNbrSubmitted &&
                     !(this._result["GameQuestions"][questionNbr]["Reason"] == ANSWER_REASON_DEADLINE)) {
@@ -4069,8 +4099,8 @@ $(function () {
 
             gameToSubmitInd = false;
 
-            if (app.IsGameSubmitted(result["GameId"])) {
-                //if game already submitted - we don't want to again. This may happen in some exceptional timing cases
+            if (app.IsPlayerGameSubmitted(result["PlayerId"])) {
+                //if player game already submitted - we don't want to again. This may happen in some exceptional timing cases
                 //where the player may submit an answer very close to the deadline. The countdown handler might of already
                 //inactivated player and submitted game
                 gameToSubmitInd = false;
