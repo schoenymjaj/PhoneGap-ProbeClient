@@ -57,6 +57,7 @@ $(function () {
         var CONFIG_SUBMITCONFIRM = "SubmitConfirmMessage";
         var CONFIG_QUESTIMEWARN = "QuestionTimeWarningMessage";
         var CONFIG_QUESTIMEDEADLINE = "QuestionTimeDeadlineMessage";
+        var CONFIG_QUESTIMEDEADLINESECS = "QuestionTimeWarningInSecs";
         var SERVER_NO_ERROR = 0;
         var SERVER_UNKNOWN_ERROR = 1;
         var SERVER_GAME_NOTACTIVE = 2;
@@ -870,7 +871,7 @@ $(function () {
             FindGameTimeCompleteInSecs = parseInt(app.GetConfigValue(ConfigType.Game, "FindGameTimeCompleteInSecs"));
             FirstQuestionTimeCompleteInSecs = parseInt(app.GetConfigValue(ConfigType.Game, "FirstQuestionTimeCompleteInSecs"));
             QuestionTimeCompleteInSecs = parseInt(app.GetConfigValue(ConfigType.Game, "QuestionTimeCompleteInSecs"));
-            QuestionTimeWarningInSecs = parseInt(app.GetConfigValue(ConfigType.Game, "QuestionTimeWarningInSecs"));
+            QuestionTimeWarningInSecs = parseInt(app.GetConfigValue(ConfigType.Game, CONFIG_QUESTIMEDEADLINESECS));
             QuestionTimeSlopeInSecs = parseInt(app.GetConfigValue(ConfigType.Game, "QuestionTimeSlopeInSecs"));
             ServerClientTimeSyncInSecs = parseInt(app.GetConfigValue(ConfigType.Game, "ServerClientTimeSyncInSecs"));
 
@@ -4519,7 +4520,9 @@ $(function () {
 
                 //Will only do a local notification if (1)//cordova - NEED TO CHECK FOR ANDROID OR IOS (ONLY SUPPORTED)
                 //(2) it makes sense to give a warning within the current date and the deadline date
-                if (isCordovaApp &&
+                //Note: if the question warning time is zero; we won't have warning messages
+                if ((parseInt(app.GetConfigValue(ConfigType.Game, CONFIG_QUESTIMEDEADLINESECS) != 0)) &&
+                    isCordovaApp &&
                     (isMobile.Android() != null || isMobile.iOS() != null) &&
                     (dateWarningLocal > dateNowLocal) &&
                     (dateWarningLocal < dateDeadlineLocal)) { 
@@ -4546,7 +4549,7 @@ $(function () {
 
                     console.log('scheduled local notification at ' + GetInCommmonLocaleDateString(dateWarningLocal) + ' ' + GetInCommmonLocaleTimeString(dateWarningLocal));
 
-                }
+                }//if (parseInt(app.GetConfigValue(ConfigType.Game
 
             }
 
@@ -4559,7 +4562,8 @@ $(function () {
 
             if (this._result.GameType == GameType.LMS) {
 
-                if (isCordovaApp &&
+                if ((parseInt(app.GetConfigValue(ConfigType.Game, CONFIG_QUESTIMEDEADLINESECS) != 0)) &&
+                    isCordovaApp &&
                     (isMobile.Android() != null || isMobile.iOS() != null)) { //cordova - NEED TO CHECK FOR ANDROID OR IOS (ONLY SUPPORTED)
 
                     cordova.plugins.notification.local.cancelAll(function () {
