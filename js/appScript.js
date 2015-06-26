@@ -4518,10 +4518,12 @@ $(function () {
 
             if (this._result.GameType == GameType.LMS) {
 
+                QuestionTimeWarningInSecs = parseInt(app.GetConfigValue(ConfigType.Game, CONFIG_QUESTIMEDEADLINESECS));
+
                 //Will only do a local notification if (1)//cordova - NEED TO CHECK FOR ANDROID OR IOS (ONLY SUPPORTED)
                 //(2) it makes sense to give a warning within the current date and the deadline date
                 //Note: if the question warning time is zero; we won't have warning messages
-                if ((parseInt(app.GetConfigValue(ConfigType.Game, CONFIG_QUESTIMEDEADLINESECS)) != 0) &&
+                if ((QuestionTimeWarningInSecs != 0) &&
                     isCordovaApp &&
                     (isMobile.Android() != null || isMobile.iOS() != null) &&
                     (dateWarningLocal > dateNowLocal) &&
@@ -4562,7 +4564,9 @@ $(function () {
 
             if (this._result.GameType == GameType.LMS) {
 
-                if ((parseInt(app.GetConfigValue(ConfigType.Game, CONFIG_QUESTIMEDEADLINESECS) != 0)) &&
+                QuestionTimeWarningInSecs = parseInt(app.GetConfigValue(ConfigType.Game, CONFIG_QUESTIMEDEADLINESECS));
+
+                if ((QuestionTimeWarningInSecs != 0) &&
                     isCordovaApp &&
                     (isMobile.Android() != null || isMobile.iOS() != null)) { //cordova - NEED TO CHECK FOR ANDROID OR IOS (ONLY SUPPORTED)
 
