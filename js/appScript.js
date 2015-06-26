@@ -1222,9 +1222,9 @@ $(function () {
 
                         app.confirmDialog('Submit', new app.Game().ProcessMessage(CONFIG_SUBMITCONFIRM),
                             function () {
+                                app.SetQuestionChoicesSensitivity(false); //make sure player doesn't mess with answers after submit confirmation
                                 $.mobile.loading('show'); //to show the spinner
-                                setTimeout(function () { app.ConfirmSubmit(); }, 1000 * SUBMIT_BUFFERTIME_SECS); //give a 1 second delay. So the user see's the spinner when submitting
-
+                                setTimeout(function () { app.ConfirmSubmit(); } , 1000 * SUBMIT_BUFFERTIME_SECS); //give a 1 second delay. So the user see's the spinner when submitting
                         });
 
                     });//$('.submitButton').click
@@ -2759,35 +2759,42 @@ $(function () {
             GameQueue = app.GetGameQueueLocalStorage();
             GameListQueue = app.GetGameListQueueLocalStorage();
 
-            queueNbrStart = Math.min(GameQueue.length - 1, GameQueueMax - 2); //we are only going to save (GameQueueMax) submitted games
+            //if player game already submitted - we don't want to again. This may happen in some exceptional timing cases
+            //where the player may submit an answer very close to the deadline. The countdown handler might of already
+            //inactivated player and submitted game
+            if (!app.IsPlayerGameSubmitted(result["PlayerId"])) {
 
-            for (var i = queueNbrStart; i >= 0; i--) {
-                GameListQueue[i + 1] = {};
-                GameQueue[i + 1] = {};
-                GameListQueue[i + 1] = GameListQueue[i];
-                GameQueue[i + 1] = GameQueue[i];
+                queueNbrStart = Math.min(GameQueue.length - 1, GameQueueMax - 2); //we are only going to save (GameQueueMax) submitted games
+
+                for (var i = queueNbrStart; i >= 0; i--) {
+                    GameListQueue[i + 1] = {};
+                    GameQueue[i + 1] = {};
+                    GameListQueue[i + 1] = GameListQueue[i];
+                    GameQueue[i + 1] = GameQueue[i];
+                }
+
+                GameListQueue[0] = {};
+                GameQueue[0] = {};
+
+                //we want to save certain game data for the home page list of submitted games
+                GameListQueue[0]["GameId"] = result["GameId"];
+                GameListQueue[0]["GameCode"] = result["GameCode"];
+                GameListQueue[0]["Name"] = GameData.Name;
+                GameListQueue[0]["FirstName"] = result.FirstName;
+                GameListQueue[0]["NickName"] = result.NickName;
+                GameListQueue[0]["LastName"] = result.LastName;
+                GameListQueue[0]["Email"] = result.Email;
+                GameListQueue[0]["GameState"] = gameState;
+                GameListQueue[0]["GameType"] = result.GameType;
+                GameListQueue[0]["PlayerId"] = result.PlayerId;
+
+                GameQueue[0].Game = GameData;
+                GameQueue[0].Result = result;
+                GameQueue[0].GameConfig = gameConfig; //storing game configs local - MNS 4-19-15
+                app.PutGameListQueueLocalStorage(GameListQueue);
+                app.PutGameQueueLocalStorage(GameQueue);
+
             }
-
-            GameListQueue[0] = {};
-            GameQueue[0] = {};
-
-            //we want to save certain game data for the home page list of submitted games
-            GameListQueue[0]["GameId"] = result["GameId"];
-            GameListQueue[0]["GameCode"] = result["GameCode"];
-            GameListQueue[0]["Name"] = GameData.Name;
-            GameListQueue[0]["FirstName"] = result.FirstName;
-            GameListQueue[0]["NickName"] = result.NickName;
-            GameListQueue[0]["LastName"] = result.LastName;
-            GameListQueue[0]["Email"] = result.Email;
-            GameListQueue[0]["GameState"] = gameState;
-            GameListQueue[0]["GameType"] = result.GameType;
-            GameListQueue[0]["PlayerId"] = result.PlayerId;
-
-            GameQueue[0].Game = GameData;
-            GameQueue[0].Result = result;
-            GameQueue[0].GameConfig = gameConfig; //storing game configs local - MNS 4-19-15
-            app.PutGameListQueueLocalStorage(GameListQueue);
-            app.PutGameQueueLocalStorage(GameQueue);
 
             console.log('END app.PushQueueGames');
         };//app.PushQueueGames
@@ -3014,6 +3021,22 @@ $(function () {
 
             console.log('END app.popUp');
         };//app.popUp
+
+        /*
+        Set Sensitivity of the question choices on the question page
+        */
+        app.SetQuestionChoicesSensitivity = function(sensId) {
+            console.log('START app.SetQuestionChoicesSensitivity');
+
+            if (sensId) {
+                $("input[name ='choice']").checkboxradio().checkboxradio('enable').trigger("create");
+            } else {
+                $("input[name ='choice']").checkboxradio().checkboxradio('disable').trigger("create");
+                $('[for^="choice-"]').css("color", "black"); //needs a little help with the chosen background
+            }
+
+            console.log('END app.SetQuestionChoicesSensitivity');
+        }
 
         /*
         Confirmation Dialog
@@ -3928,10 +3951,9 @@ $(function () {
             //already submitted
             if (gameState == GameState.ReadOnly ||
                 (gameState == GameState.SubmittedActive && this._result.GameType == GameType.LMS && this._result.QuestionNbrSubmitted >= currentQuestionNbr)) {
-                $("input[name ='choice']").checkboxradio().checkboxradio('disable').trigger("create");
-                $('[for^="choice-"]').css("color", "black"); //needs a little help with the chosen background
+                app.SetQuestionChoicesSensitivity(false);
             } else {
-                $("input[name ='choice']").checkboxradio().checkboxradio('enable').trigger("create");
+                app.SetQuestionChoicesSensitivity(true);
             }
 
             console.log('END app.SetQuesChoiceSensitivity');
@@ -4099,12 +4121,7 @@ $(function () {
 
             gameToSubmitInd = false;
 
-            if (app.IsPlayerGameSubmitted(result["PlayerId"])) {
-                //if player game already submitted - we don't want to again. This may happen in some exceptional timing cases
-                //where the player may submit an answer very close to the deadline. The countdown handler might of already
-                //inactivated player and submitted game
-                gameToSubmitInd = false;
-            } else if (this._result["ServerResponse"] == SERVER_NO_ERROR ||
+            if (this._result["ServerResponse"] == SERVER_NO_ERROR ||
                 this._result["ServerResponse"] == SERVER_SUBM_NOT_ONTIME) {
                 gameToSubmitInd = true;
             }

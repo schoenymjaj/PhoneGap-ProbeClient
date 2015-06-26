@@ -3,7 +3,7 @@
     GENERAL   
  *****************/
 
-#home, #question, #summary, #about, #chartreport, #tablereport, #about, #menu {
+#home, #question, #summary, #about, #chartreport, #chartreportback, #tablereport, #about, #menu {
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
