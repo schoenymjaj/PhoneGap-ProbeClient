@@ -27,8 +27,8 @@ $(function () {
         /*
         Globals
         */
-        var probeVersion = '1.3.2';
-        var probeVersionNumber = 7;
+        var probeVersion = '1.3.3';
+        var probeVersionNumber = 8;
         var root = GetRootUrl();  //root directory of the web site serving mobile app (i.e. in-common-app.com)
 
         //alert('Probe Version: ' + probeVersion);
@@ -1477,7 +1477,7 @@ $(function () {
         /*
         Post GAMEANSWER Submit Logic - Handles Ajax POST response
         */
-        app.CompleteConfirmSubmit = function () {
+        app.CompleteConfirmSubmit = function (returnErrMsg) {
             console.log('START app.CompleteConfirmSubmit');
 
             gameObj = new app.Game();
@@ -3481,20 +3481,31 @@ $(function () {
             console.log('START app.ProcessMessageForGAResponse');
             this.GameRefresh();
 
-
+            //THERE IS AN ERROR WHEN THERE IS A DUP.. I GUESS THERE IS NO ["Correct"] value. It is undefined.
 
             //depending on game type (LMS or not)
             if (this._result.GameType == GameType.LMS) {
-                if (this._result.PlayerActive && this._result.ServerResponse == SERVER_NO_ERROR) {
-                    //LMS and player is still active. That means correct answer submission
-                    popupMessage = this.ProcessMessage(CONFIG_ANSWERSUCCESS);
-                } else if (!this._result.PlayerActive && this._result.ServerResponse == SERVER_NO_ERROR) {
-                    //LMS and player is not active. That means incorrect answer submission
-                    popupMessage = this.ProcessMessage(CONFIG_ANSWERFAIL);
+
+                //If no question has been submitted; then the message will be returnErrMsg (passed in).
+                //there obviously has not be an answer yet (correct or not)
+                if (this._result.QuestionNbrSubmitted != QUESTION_NOT_SUBMITTED) {
+
+                    if (this._result["GameQuestions"][this._result.QuestionNbrSubmitted]["Correct"] &&
+                        this._result.ServerResponse == SERVER_NO_ERROR) {
+                        //LMS and player is still active. That means correct answer submission
+                        popupMessage = this.ProcessMessage(CONFIG_ANSWERSUCCESS);
+                    } else if (!this._result["GameQuestions"][this._result.QuestionNbrSubmitted]["Correct"] &&
+                               this._result.ServerResponse == SERVER_NO_ERROR) {
+                        //LMS and player is not active. That means incorrect answer submission
+                        popupMessage = this.ProcessMessage(CONFIG_ANSWERFAIL);
+                    } else {
+                        popupMessage = returnErrMsg;
+                    }
+
                 } else {
                     popupMessage = returnErrMsg;
                 }
-
+        
                 if (popupMessage != null) {
                     app.popUpHelper('Info', popupMessage, null);
                 }
@@ -3521,6 +3532,39 @@ $(function () {
             originalMsg = app.GetConfigValue(ConfigType.Game, configName);
             returnMsg = originalMsg.replace('Game.Name', this._GameData.Name)
             returnMsg = returnMsg.replace('Player.Name', app.GetPlayerName(this._result.FirstName, this._result.NickName, this._result.LastName, this._result.Email));
+
+            //the following message placeholders are only applicable to LMS game and a game where at least one question
+            //has been submitted
+            if (this._result.GameType == GameType.LMS &&
+                this._result.QuestionNbrSubmitted != QUESTION_NOT_SUBMITTED) {
+
+                //Assumption - this function will only be called after a GA submission and a response where there were no errors
+                //(this._result.ServerResponse == SERVER_NO_ERROR). The this._result.QuestionNbrSubmitted will always be the currentQuestionNbr, the
+                //question number that was just submitted
+
+                //Grab all these local date/time
+                dateCurrentQuestionStartLocal = this.GetQuesStartDate(this._result.QuestionNbrSubmitted);
+                dateNextQuestionStartLocal = this.GetQuesStartDate(this._result.QuestionNbrSubmitted + 1);
+                dateCurrentQuestionDeadlineLocal = this.GetQuesDeadlineDate(this._result.QuestionNbrSubmitted);
+                dateNextQuestionDeadlineLocal = this.GetQuesDeadlineDate(this._result.QuestionNbrSubmitted + 1);
+
+                returnMsg = returnMsg.replace('Stats.NbrQuestionsSubmitted', this._result.QuestionNbrSubmitted + 1);
+                returnMsg = returnMsg.replace('Stats.NbrPlayers', this._result.NbrPlayers);
+                returnMsg = returnMsg.replace('Stats.NbrPlayersRemaining', this._result.NbrPlayersRemaining);
+                returnMsg = returnMsg.replace('Deadline.CurrentQuestion', GetInCommonLocaleDTString(dateCurrentQuestionDeadlineLocal));
+
+                if (this._result.QuestionNbrSubmitted < this._result.GameQuestions.length - 1) {
+                    returnMsg = returnMsg.replace('Start.NextQuestion', GetInCommonLocaleDTString(dateNextQuestionStartLocal));
+                } else {
+                    returnMsg = returnMsg.replace('Start.NextQuestion', 'NO MORE QUESTIONS AND STILL STANDING');
+                }
+
+                if (this._result.QuestionNbrSubmitted < this._result.GameQuestions.length - 1) {
+                    returnMsg = returnMsg.replace('Deadline.NextQuestion', GetInCommonLocaleDTString(dateNextQuestionDeadlineLocal));
+                } else {
+                    returnMsg = returnMsg.replace('Deadline.NextQuestion', 'NO MORE QUESTIONS AND STILL STANDING');
+                }
+            }
 
             console.log('END app.ProcessMessage');
             return returnMsg;
@@ -4087,7 +4131,7 @@ $(function () {
                             break;
                     }//switch (playerDTO.PlayerGameStatus.MessageId) {
 
-                    //If the game is LMS and the last question is answer. The player becomes inactive.
+                    //If the game is LMS and the last question is answered. The player becomes inactive.
                     //This rule trumps everything
                     if (this._result.GameType == GameType.LMS) {
                         if (this._result["QuestionNbrSubmitted"] >= this._result.GameQuestions.length - 1) {

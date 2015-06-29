@@ -201,5 +201,8 @@ GetInCommmonLocaleTimeString = function (dateobj) {
 
     return returnString;
 }
+GetInCommonLocaleDTString = function (dateobj) {
+    return GetInCommmonLocaleDateString(dateobj) + ' ' + GetInCommmonLocaleTimeString(dateobj);
+}
 
 
