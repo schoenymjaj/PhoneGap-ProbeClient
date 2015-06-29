@@ -796,7 +796,8 @@ $(function () {
 
                 defaultHackWaitmsec = 100;
                 //Android - you have to wait a little longer for the soft keyboard to reset. The ipad took 100msec, Android 300
-                (navigator.userAgent.match(/Android/i)) ? defaultHackWaitmsec = 1000 : defaultHackWaitmsec = 100;
+                //(navigator.userAgent.match(/Android/i)) ? defaultHackWaitmsec = 1000 : defaultHackWaitmsec = 100;
+                (navigator.userAgent.match(/Android/i)) ? defaultHackWaitmsec = 10000 : defaultHackWaitmsec = 100; //MNS DEBUG
 
                 console.log('defaultHackWaitmsec for softkeyboardhack=' + defaultHackWaitmsec);
                 //This is a hack for IPAD to ensure that the fixed nav bar is positioned corrected
@@ -4501,14 +4502,43 @@ $(function () {
             Dynamically update the Player Prompt based on the GameState
             */
             $('#reportGame').hide();
+
             if (gameState != GameState.Idle) {
+
+                //prompt for all enabled person identification properties
                 new app.JQMWidget("firstName").JQMSetValue();
                 new app.JQMWidget("nickName").JQMSetValue();
                 new app.JQMWidget("lastName").JQMSetValue();
                 new app.JQMWidget("email").JQMSetValue();
                 new app.JQMWidget("sex").JQMSetValue();
 
-                this.PlayerPromptActions();
+                //We will desensitize all PI properties if READONLY or SUBMITTEDACTIVE
+                if (gameState == GameState.ReadOnly ||
+                    (this._result.GameType == GameType.LMS && gameState == GameState.SubmittedActive)) {
+                    app.JQMWidgetsAllDisable();
+                }
+
+                //We call start button - View button when READ ONLY
+                if (gameState == GameState.ReadOnly) {
+                    /*
+                    Display the Report Button - it will only be enabled if the Game.ClientReportAccess 
+                    field is TRUE.
+                    */
+                    if (this._result.ClientReportAccess) {
+                        $('#reportGame').removeClass('ui-disabled')
+                    } else {
+                        $('#reportGame').addClass('ui-disabled')
+
+                    }
+                    $('#reportGame').show();
+
+                    $('#startGame').text('View Game');
+                } else if (this._result.GameType == GameType.LMS && gameState == GameState.SubmittedActive) {
+                    $('#startGame').text('Resume Game');
+                    $('#reportGame').show();
+                } else {
+                    $('#startGame').text('Resume Game');
+                }//if (gameState == GameState.ReadOnly)
 
                 //$('#cancelGame').hide(); //if game is not idle; we don't want to give the user the cancel ability here (too easy)
             }//if (gameState != GameState.Idle)
@@ -4529,32 +4559,6 @@ $(function () {
 
             console.log('END app.PlayerPromptInteractive');
         }//app.PlayerPromptInteractive
-        app.PlayerPromptActions = function () {
-            console.log('START app.PlayerPromptActions');
-            this.GameRefresh();
-
-            if (gameState == GameState.ReadOnly) {
-                app.JQMWidgetsAllDisable();
-
-                /*
-                Display the Report Button - it will only be enabled if the Game.ClientReportAccess 
-                field is TRUE.
-                */
-                if (this._result.ClientReportAccess) {
-                    $('#reportGame').removeClass('ui-disabled')
-                } else {
-                    $('#reportGame').addClass('ui-disabled')
-
-                }
-                $('#reportGame').show();
-
-                $('#startGame').text('View Game');
-            } else {
-                $('#startGame').text('Resume Game');
-            }//if (gameState == GameState.ReadOnly)
-
-            console.log('END app.PlayerPromptActions');
-        }//app.PlayerPromptActions
         app.SetLocalNotifications = function (dateNowLocal,dateWarningLocal,dateDeadlineLocal) {
             console.log('START app.SetLocalNotifications');
             this.GameRefresh();
@@ -4638,7 +4642,6 @@ $(function () {
             this._GameData = app.GetGameLocalStorage();
             this._app = app;
             this.PlayerPromptInteractive = app.PlayerPromptInteractive;
-            this.PlayerPromptActions = app.PlayerPromptActions;
             this.StartGame = app.StartGame;
             this.SetGamePostSubmit = app.SetGamePostSubmit;
             this.SetGameStatePostSubmit = app.SetGameStatePostSubmit;
