@@ -759,6 +759,11 @@ $(function () {
             //Setup all interactivity based on game state and game configuration
             new app.Game().PlayerPromptInteractive();
 
+            //Set focus blur handlers for all enabled widgets. When in focus - we hide the header and footer
+            //This is to avoid the misplaced header/footer issue when the using the soft keyboard. Occurs on android and ios phones.
+            //Added by MNS 6/30/15
+            app.JQMWidgetsAllSetFocusBlur();
+
             //Hack for male radio box is showing for Android phone
             $('#sex-male').parent().css('width', '70px')
 
@@ -797,22 +802,26 @@ $(function () {
                 defaultHackWaitmsec = 100;
                 //Android - you have to wait a little longer for the soft keyboard to reset. The ipad took 100msec, Android 300
                 //(navigator.userAgent.match(/Android/i)) ? defaultHackWaitmsec = 1000 : defaultHackWaitmsec = 100;
-                (navigator.userAgent.match(/Android/i)) ? defaultHackWaitmsec = 10000 : defaultHackWaitmsec = 100; //MNS DEBUG
+                //Also if game state is READ ONLY or SUBMITTED ACTIVE then all controls are disabled and the keyboard will never come up
+                //so we don't need such a long wait period before going into action.
+                if (gameState != GameState.ReadOnly &&
+                    gameState != GameState.SubmittedActive && 
+                    (navigator.userAgent.match(/Android/i))) {
+                    defaultHackWaitmsec = 1500; //the long wait is needed for android bug
+                    $.mobile.loading('show'); //to show the spinner
+                }
 
                 console.log('defaultHackWaitmsec for softkeyboardhack=' + defaultHackWaitmsec);
-                //This is a hack for IPAD to ensure that the fixed nav bar is positioned corrected
-                    //$('header, footer').css('position', 'absolute'); //MNS COMMENTED OUT 12-9-14
-                    window.scrollTo($.mobile.window.scrollLeft(), $.mobile.window.scrollTop());
-                    //Wait a tenth of a second to ensure the IPAD soft keyboard is down. This is a hack to
-                    //ensure the fixed bottom nav bar doesnt jump up to the middle on the question page
-                    setTimeout(function () {
-                        new app.Game().StartGame(false);
-                    }, defaultHackWaitmsec);
-                //} else { //Just have to start game if your not an IPAD
-                   //app.StartGame(0);
-                //}
 
-            });
+                //This is a hack for IPAD to ensure that the fixed nav bar is positioned corrected
+                //$('header, footer').css('position', 'absolute'); //MNS COMMENTED OUT 12-9-14
+                //Wait a tenth of a second to ensure the IPAD soft keyboard is down. This is a hack to
+                    //ensure the fixed bottom nav bar doesnt jump up to the middle on the question page
+                setTimeout(function () {
+                    new app.Game().StartGame(false);
+                }, defaultHackWaitmsec);
+
+            });//$('#startGame').click
 
             $('#cancelGame').click(function (event) {
 
@@ -3221,6 +3230,17 @@ $(function () {
             console.log('END app.JQMWidgetsAllDisable');
         }
         /*
+        Disable all widgets
+        */
+        app.JQMWidgetsAllSetFocusBlur = function () {
+            console.log('START app.JQMWidgetsAllSetFocusBlur');
+            new app.JQMWidget("firstName").JQMSetFocusBlur();
+            new app.JQMWidget("nickName").JQMSetFocusBlur();
+            new app.JQMWidget("lastName").JQMSetFocusBlur();
+            new app.JQMWidget("email").JQMSetFocusBlur();
+            console.log('END app.JQMWidgetsAllSetFocusBlur');
+        }
+        /*
         Validate all JQM Widgets that are enabled.
         If all is successful; will return true.
         If one is not successful then will throw an error
@@ -3261,7 +3281,7 @@ $(function () {
 
             console.log('END app.JQMWidgetsAllValidate');
             return true;
-        }
+        }//app.JQMWidgetsAllValidate
 
         /*
         jQuery Mobile Widget class and methods
@@ -3354,7 +3374,18 @@ $(function () {
                 $('#' + this.Widget).attr(attr, attrValue);
             }
             console.log('END app.JQMSetAttr');
-        }// app.JQMSetAttr
+        }// app.JQMSetFocusBlur
+        app.JQMSetFocusBlur = function (attr, attrValue) {
+            console.log('START app.JQMSetFocusBlur');
+            if (this.Enabled) {
+                $('#' + this.Widget).focus(function () {
+                });
+
+                $('#' + this.Widget).blur(function () {
+                });
+            }
+            console.log('END app.JQMSetFocusBlur');
+        }// app.JQMSetFocusBlur
         app.JQMWidget = function (widget) {
             console.log('START app.JQMWidget');
             _result = app.GetResultLocalStorage();
@@ -3394,10 +3425,11 @@ $(function () {
                     break;
             }//switch (this.Widget)
 
-            this.JQMRender = app.JQMRender
-            this.JQMSetValue = app.JQMSetValue
-            this.JQMGetValue = app.JQMGetValue
-            this.JQMSetAttr = app.JQMSetAttr
+            this.JQMRender = app.JQMRender;
+            this.JQMSetValue = app.JQMSetValue;
+            this.JQMGetValue = app.JQMGetValue;
+            this.JQMSetAttr = app.JQMSetAttr;
+            this.JQMSetFocusBlur = app.JQMSetFocusBlur;
 
             console.log('END app.JQMWidget');
         }//app.RenderJQM(widget)
@@ -4412,6 +4444,7 @@ $(function () {
             console.log('START app.StartGame');
             this.GameRefresh();
 
+            $.mobile.loading('hide'); //to hide the spinner (if its spinning)
             //All selected games from submitted queue will start viewing from the first question.
             //Otherwise we will use the StartQuestionNbr method of the game class to calculate what
             //question number will be viewed first.
