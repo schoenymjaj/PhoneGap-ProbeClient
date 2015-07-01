@@ -3385,17 +3385,15 @@ $(function () {
             if (navigator.userAgent.match(/iphone/i) || navigator.userAgent.match(/ipad/i)) {
                 if (this.Enabled) {
                     $('#' + this.Widget).focus(function () { // in focus on control
-                        alert('focus');
                         $('header, footer').css('position', 'absolute');
                     });
 
                     $('#' + this.Widget).blur(function () { //out of focus on control
-                        alert('blur');
                         $('header, footer').css('position', 'fixed');
                         //force page redraw to fix incorrectly positioned fixed elements
                         setTimeout(function () {
                             window.scrollTo($.mobile.window.scrollLeft(), $.mobile.window.scrollTop());
-                        }, 20);
+                        }, 2000);
                     });
                 }
             }//if (navigator.userAgent.match(/Android/i)) {
