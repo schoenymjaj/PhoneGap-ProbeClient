@@ -3380,14 +3380,23 @@ $(function () {
         }// app.JQMSetFocusBlur
         app.JQMSetFocusBlur = function (attr, attrValue) {
             console.log('START app.JQMSetFocusBlur');
-            if (this.Enabled) {
-                $('#' + this.Widget).focus(function () { // in focus on control
-                });
 
-                $('#' + this.Widget).blur(function () { //out of focus on control
-                    window.scrollTo($.mobile.window.scrollLeft(), $.mobile.window.scrollTop()); 
-                });
-            }
+            //this is hack to fix this ios fixed toolbar soft keyboard problem
+            if (navigator.userAgent.match(/iphone/i) || navigator.userAgent.match(/ipad/i)) {
+                if (this.Enabled) {
+                    $('#' + this.Widget).focus(function () { // in focus on control
+                        $('header, footer').css('position', 'absolute');
+                    });
+
+                    $('#' + this.Widget).blur(function () { //out of focus on control
+                        $('header, footer').css('position', 'fixed');
+                        //force page redraw to fix incorrectly positioned fixed elements
+                        setTimeout(function () {
+                            window.scrollTo($.mobile.window.scrollLeft(), $.mobile.window.scrollTop());
+                        }, 20);
+                    });
+                }
+            }//if (navigator.userAgent.match(/Android/i)) {
             console.log('END app.JQMSetFocusBlur');
         }// app.JQMSetFocusBlur
         app.JQMWidget = function (widget) {
