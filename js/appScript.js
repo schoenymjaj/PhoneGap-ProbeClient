@@ -3393,7 +3393,7 @@ $(function () {
                         //force page redraw to fix incorrectly positioned fixed elements
                         setTimeout(function () {
                             window.scrollTo($.mobile.window.scrollLeft(), $.mobile.window.scrollTop());
-                        }, 2000);
+                        }, 20);
                     });
                 }
             }//if (navigator.userAgent.match(/Android/i)) {
