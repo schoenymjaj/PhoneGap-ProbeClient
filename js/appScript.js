@@ -805,9 +805,12 @@ $(function () {
                 //Also if game state is READ ONLY or SUBMITTED ACTIVE then all controls are disabled and the keyboard will never come up
                 //so we don't need such a long wait period before going into action.
                 if (gameState != GameState.ReadOnly &&
-                    gameState != GameState.SubmittedActive && 
-                    (navigator.userAgent.match(/Android/i))) {
-                    defaultHackWaitmsec = 1500; //the long wait is needed for android bug
+                    gameState != GameState.SubmittedActive) { 
+                    if (navigator.userAgent.match(/Android/i)) {
+                        defaultHackWaitmsec = 1500; //the long wait is needed for android bug
+                    } else {
+                        defaultHackWaitmsec = 500;
+                    }
                     $.mobile.loading('show'); //to show the spinner
                 }
 
