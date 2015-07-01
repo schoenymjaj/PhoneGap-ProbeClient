@@ -799,7 +799,7 @@ $(function () {
                 result["Sex"] = new app.JQMWidget("sex").JQMGetValue();
                 app.PutResultLocalStorage(result);
 
-                defaultHackWaitmsec = 100;
+                defaultHackWaitmsec = 200;
                 //Android - you have to wait a little longer for the soft keyboard to reset. The ipad took 100msec, Android 300
                 //(navigator.userAgent.match(/Android/i)) ? defaultHackWaitmsec = 1000 : defaultHackWaitmsec = 100;
                 //Also if game state is READ ONLY or SUBMITTED ACTIVE then all controls are disabled and the keyboard will never come up
@@ -3378,10 +3378,11 @@ $(function () {
         app.JQMSetFocusBlur = function (attr, attrValue) {
             console.log('START app.JQMSetFocusBlur');
             if (this.Enabled) {
-                $('#' + this.Widget).focus(function () {
+                $('#' + this.Widget).focus(function () { // in focus on control
                 });
 
-                $('#' + this.Widget).blur(function () {
+                $('#' + this.Widget).blur(function () { //out of focus on control
+                    window.scrollTo($.mobile.window.scrollLeft(), $.mobile.window.scrollTop()); 
                 });
             }
             console.log('END app.JQMSetFocusBlur');
