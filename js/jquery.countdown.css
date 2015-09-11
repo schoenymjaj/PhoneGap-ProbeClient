@@ -22,7 +22,6 @@ ul.countdownStyle li span {
 }
 
 ul.countdownStyle li p {
-  color: #a7abb1;
 }
 
 #listviewCountdown.countdownStyle {
@@ -52,7 +51,6 @@ ul.countdownStyle li p {
 }
 
 #listviewCountdown.countdownStyle li p {
-  color: #a7abb1;
 }
 
 /*
@@ -60,7 +58,6 @@ ul.countdownStyle li p {
  */
 
 #popupCountdownParent {
-    /*background-color : rgba(255,255,255, 1.0);*/
     background-color : #f5f5f5;
     border-width: 2px;
     border-style: solid;
@@ -124,3 +121,15 @@ text-align: center;
     padding: 5px 0px 0px 0px;
 }
 
+/*
+    Styles the amount of black background for the clock countdown
+*/
+
+.days, .hours, .minutes, .seconds {
+    padding:1px 2px 1px 2px; /* top,right,bottom,left */
+}
+
+/*
+    END OF Styles the amount of black background for the clock countdown
+
+*/

@@ -27,8 +27,8 @@ $(function () {
         /*
         Globals
         */
-        var probeVersion = '1.3.3';
-        var probeVersionNumber = 8;
+        var probeVersion = '1.4.1';
+        var probeVersionNumber = 9;
         var root = GetRootUrl();  //root directory of the web site serving mobile app (i.e. in-common-app.com)
 
         //alert('Probe Version: ' + probeVersion);
@@ -1312,7 +1312,7 @@ $(function () {
 
                         //Only popup a countdown popup if a count down is currently happening.
                         if ($('#qCountdown').length > 0) {
-                            $('#popupCountdownParent').enhanceWithin().popup().popup("open", { transition: "flip" });
+                            $('#popupCountdownParent').enhanceWithin().popup().popup("open", { transition: "fade" });
                         }
 
                     });
@@ -3781,6 +3781,7 @@ $(function () {
                             color: '#00edf0',
                             warningSecs: 60,
                             warningColor: '#00edf0',
+                            tailHtmlColor: 'black',
                             dateViewSecs: 10,
                             auxId1: 'listviewCountdown',
                             auxId2: 'popupCountdown'
@@ -3857,6 +3858,7 @@ $(function () {
                             color: '#00edf0',
                             warningSecs: 60,
                             warningColor: '#00edf0',
+                            tailHtmlColor: 'black',
                             dateViewSecs: 10,
                             auxId1: 'listviewCountdown',
                             auxId2: 'popupCountdown'

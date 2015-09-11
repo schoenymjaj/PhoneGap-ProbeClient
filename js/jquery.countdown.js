@@ -18,6 +18,7 @@ Args: id           - identification for the clock countdown (string identificati
       color        - color of the clock
       warningSecs  - how many seconds left before the clock turns to the warningColor
       warningColor - color the clock turns at warning time
+      tailHtmlColor - color of the tailHtml text
       dateViewSecs - number of seconds from 60th second that the deadline date will be displayed rather than the countdown clock.
       auxId1        - id of the aux1 UL clock that will render the countdown if visible
       auxId2        - id of the aux2 UL clock that will render the countdown if visible
@@ -51,6 +52,7 @@ Example call:
         color: 'green',
         warningSecs: 60,
         warningColor: 'red',
+        tailHtmlColor: 'black',
         dateViewSecs: 5,
         auxId1: 'listviewCountdown',
         auxId2: 'popupCountdown'
@@ -72,6 +74,7 @@ Example call:
 		    color: '#a7abb1',
 		    warningSecs: 60,
 		    warningColor: 'red',
+	        tailHtmlColor: 'black',
 		    dateViewSecs: 10,
             staticInd: false,
 	        auxId1: null,
@@ -106,8 +109,14 @@ Example call:
 	    //Set the clock enabled attribute on the div anchor. This attribute will be used to stop the countdown at any time.
 		setEnableClock('true');
 
+	    /*
+        Set up the tail html text that appears after the clock countdown
+        */
 		setTextHtml(settings);
 
+	    /*
+        Sets up the deadline countdown popup that can be displayed when clicked on the clock countdown on the question page
+        */
 		renderClockFullPopup();
 
 		/**
@@ -191,12 +200,15 @@ Example call:
 
 			            settingsDateLocal = new Date(settings.date.getFullYear(), settings.date.getMonth(), settings.date.getDate(), settings.date.getHours(), settings.date.getMinutes() + settings.date.getTimezoneOffset(), settings.date.getSeconds());
 			            dateLocalStr = GetInCommmonLocaleDateString(settingsDateLocal) + ' ' + GetInCommmonLocaleTimeString(settingsDateLocal);
-			            container.find('.tailHtml').html('<span style="background-color:black">' + dateLocalStr + '</span>' + tailHtmlDateNow);
+			            container.find('.tailHtml').html('<span style="background-color:black;padding:1px 2px 1px 2px;color:' + settings.color + '">' + dateLocalStr + '</span>' + tailHtmlDateNow);
 			            if (settings.auxId1 != null) {
-			                containerAuxillary1.find('.tailHtml').html('<span style="background-color:black">' + dateLocalStr + '</span>' + tailHtmlDateNow);
+			                containerAuxillary1.find('.tailHtml').html('<span style="background-color:black;padding:1px 2px 1px 2px;color:' + settings.color + '">' + dateLocalStr + '</span>' + tailHtmlDateNow);
 			            }
 
 			            if (settings.auxId2 != null) renderClockFull(days, minutes, hours, seconds, containerAuxillary2); //full
+
+			            //set the color of the tail html text (can be different than the clock countdown itself)
+			            $('.tailHtml').css('color', settings.tailHtmlColor);
 
 
 			        } else {
@@ -237,6 +249,9 @@ Example call:
 
 		}//function setEnableClock(enableInd)
 
+	    /*
+        Set up the tail html text that appears after the clock countdown
+        */
 		function setTextHtml(settings) {
 
 		    if (settings.id == 'qstart') {
@@ -262,6 +277,9 @@ Example call:
 
 		}//function setTailHtm(settings) {
 
+	    /*
+        Style the clock countdown. normal and warning states
+        */
 		function styleClock(difference, settings, aContainer) {
 		    //Style the text - black background on the clock data only. Get rid of the text shadows
 		    //that are somehow inherited from something (probably the probe theme)
@@ -281,6 +299,10 @@ Example call:
 		    aContainer.css('text-shadow', '0 0px 0');
 		}//function styleClock(difference, settings, aContainer) {
 
+	    /*
+        Render the clock countdown. Countdown clock components will be hidden if they are not applicable (i.e. days - when days are zero)
+        Used for question page, and listview on home page (auxilliary #1)
+        */
 		function renderClock(days, minutes, hours, seconds, aContainer) {
 
 		    innerCountDownClockHtml = '<li><span class="days"></span></li>\
@@ -340,8 +362,14 @@ Example call:
 		        aContainer.find('.tailHtml').html(tailHtmlClock);
 		    }
 
+            //set the color of the tail html text (can be different than the clock countdown itself)
+		    $('.tailHtml').css('color', settings.tailHtmlColor);
+
 		}//		function renderClock(days, minutes, hours, seconds) {
 
+	    /*
+        Sets up the deadline countdown popup that can be displayed when clicked on the clock countdown on the question page
+        */
 		function renderClockFullPopup() {
 		    //Display deadline date
 		    $('#popupClockCountdownTitle').html(clockTitleHtml);
@@ -353,6 +381,9 @@ Example call:
 
 		}//function renderClockFullPopup() {
 
+	    /*
+        Renders the full clock countdown for the Clock Countdown Popup (auxilliary #2).
+        */
 		function renderClockFull(days, minutes, hours, seconds, aContainer) {
 
 		    innerCountDownClockHtml =

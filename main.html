@@ -110,20 +110,6 @@
             <!--<div id="choiceListLegend" class="legendTextDiv"></div>-->
             <div id="questionText" class="questionText stackedDivs" data-theme="a">Question Text Goes Here</div>
             <div id="choiceList" class="choiceList stackedDivs" data-theme="a"></div>
-            <div id="popupCountdownParent" data-role="popup" data-position-to="window">
-                <p>
-                    <table style="margin:0px; padding:0px">
-                        <tr><td class="popupClockCountdownTitle"><span id="popupClockCountdownTitle"></span></td></tr>
-                        <tr>
-                            <td class="popupCountdown">
-                                <ul id="popupCountdown" class="countdownStyle" style="padding: 5px 5px 5px 5px"></ul>
-                            </td>
-                        </tr>
-                        <tr><td class="popupClockDateTitle"><span id="popupClockDateTitle"></span></td></tr>
-                        <tr><td class="popupClockDate"><span id="popupClockDate"></span></td></tr>
-                    </table>
-                </p>
-            </div>
         </article>
         <footer data-role="footer" data-position="fixed" data-id="ftrPersist">
             <nav data-role="navbar" data-theme="a">
@@ -289,6 +275,21 @@
             </div>
         </div>
     </div>
+    <div id="popupCountdownParent">
+        <p>
+            <table style="margin:0px; padding:0px">
+                <tr><td class="popupClockCountdownTitle"><span id="popupClockCountdownTitle"></span></td></tr>
+                <tr>
+                    <td class="popupCountdown">
+                        <ul id="popupCountdown" class="countdownStyle" style="padding: 5px 5px 5px 5px"></ul>
+                    </td>
+                </tr>
+                <tr><td class="popupClockDateTitle"><span id="popupClockDateTitle"></span></td></tr>
+                <tr><td class="popupClockDate"><span id="popupClockDate"></span></td></tr>
+            </table>
+        </p>
+    </div>
+
 
     <script src="./js/eventScript.js"></script>
     <script src="./js/commonScript.js"></script>
