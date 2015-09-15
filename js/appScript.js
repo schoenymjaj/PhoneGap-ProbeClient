@@ -367,10 +367,10 @@ $(function () {
             $(window).trigger('resize'); //ensure the background image covers the entire window
 
             $('#callGetPlays').click(function (event) {
-                gameCode = $('#gameCode').val();
+                gameCode = $.trim($('#gameCode').val()); //removes leading and trailing spaces and junk
                 if (gameCode.length > 0) { //check to see that a game code was entered
 
-                    if ($('#gameCode').val() == 'incommon-settings') {
+                    if (gameCode == 'incommon-settings') {
                         app.popUpHelper('Info'
                             , 'InCommon version =' + probeVersion + '</br>' +
                             'InCommon version =' + probeVersionNumber + '</br>' +
@@ -379,13 +379,13 @@ $(function () {
                             'screen height = ' + $(window).height() + '</br>' +
                             'timezone offset = ' + new Date().getTimezoneOffset() + '</br>' +
                             'browser = ' + navigator.userAgent, null);
-                    } else if ($('#gameCode').val().indexOf('incommon-ping-') != -1) { //incommon-ping-<interval in seconds>
-                        pingInterval = parseInt($('#gameCode').val().substr(14, $('#gameCode').val().length)) * 1000;
+                    } else if (gameCode.indexOf('incommon-ping-') != -1) { //incommon-ping-<interval in seconds>
+                        pingInterval = parseInt(gameCode.substr(14, gameCode.length)) * 1000;
                         app.popUpHelper('Info', 'Ping of In Common Server starting - ping interval: ' + pingInterval, null);
                         console.log('Ping of In Common Server starting - ping interval: ' + pingInterval);
                         setInterval(function () { app.PingInCommonServer(); }, pingInterval);
                     } else {
-                        app.GetGameServer($('#gameCode').val());
+                        app.GetGameServer(gameCode);
                     }
 
                 } else {
@@ -792,10 +792,12 @@ $(function () {
 
                 //Update the current result 
                 result = app.GetResultLocalStorage();
-                result["FirstName"] = new app.JQMWidget("firstName").JQMGetValue();
-                result["NickName"] = new app.JQMWidget("nickName").JQMGetValue();
-                result["LastName"] = new app.JQMWidget("lastName").JQMGetValue();
-                result["Email"] = new app.JQMWidget("email").JQMGetValue();
+
+                //Get player prompts and do a little cleanup. trimming
+                result["FirstName"] = $.trim(new app.JQMWidget("firstName").JQMGetValue());
+                result["NickName"] = $.trim(new app.JQMWidget("nickName").JQMGetValue());
+                result["LastName"] = $.trim(new app.JQMWidget("lastName").JQMGetValue());
+                result["Email"] = $.trim(new app.JQMWidget("email").JQMGetValue());
                 result["Sex"] = new app.JQMWidget("sex").JQMGetValue();
                 app.PutResultLocalStorage(result);
 
@@ -3256,27 +3258,30 @@ $(function () {
 
             if ($.parseJSON(app.GetConfigValue(ConfigType.Game, "PlayerFirstNamePrompted"))) {
 
-                if ($('#firstName').val().length < minNameLength ||
-                    $('#firstName').val().length > maxNameLength ||
-                    $('#firstName').val().indexOf(" ") != -1) {
+                firstNameVal = $.trim($('#firstName').val());
+                if (firstNameVal.length < minNameLength ||
+                    firstNameVal.length > maxNameLength ||
+                    firstNameVal.indexOf(" ") != -1) {
                     throw Error('The first name must be between ' + minNameLength + ' and ' + maxNameLength + ' characters and contain no spaces.');
                     return;
                 }
             }
 
+            nickNameVal = $.trim($('#nickName').val());
             if ($.parseJSON(app.GetConfigValue(ConfigType.Game, "PlayerNickNamePrompted"))) {
-                if ($('#nickName').val().length < minNameLength ||
-                    $('#nickName').val().length > maxNameLength ||
-                    $('#nickName').val().indexOf(" ") != -1) {
+                if (nickNameVal.length < minNameLength ||
+                    nickNameVal.length > maxNameLength ||
+                    nickNameVal.indexOf(" ") != -1) {
                     throw Error('The nickname must be between ' + minNameLength + ' and ' + maxNameLength + ' characters and contain no spaces.');
                     return;
                 }
             }
 
+            lastNameVal = $.trim($('#lastName').val());
             if ($.parseJSON(app.GetConfigValue(ConfigType.Game, "PlayerLastNamePrompted"))) {
-                if ($('#lastName').val().length < minNameLength ||
-                    $('#lastName').val().length > maxNameLength ||
-                    $('#lastName').val().indexOf(" ") != -1) {
+                if (lastNameVal.length < minNameLength ||
+                    lastNameVal.length > maxNameLength ||
+                    lastNameVal.indexOf(" ") != -1) {
                     throw Error('The last Name must be between ' + minNameLength + ' and ' + maxNameLength + ' characters and contain no spaces.');
                     return;
                 }
