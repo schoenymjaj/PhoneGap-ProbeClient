@@ -116,6 +116,13 @@ text-align: center;
     text-align: center;
 }
 
+.popupClockButton {
+    color:white;
+    font-size: 85%;
+    background: #a7abb1;
+    float:right
+}
+
 .days_ref, .hours_ref, .minutes_ref, .seconds_ref {
     margin: 0px;
     padding: 5px 0px 0px 0px;
