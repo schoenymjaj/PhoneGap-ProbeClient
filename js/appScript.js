@@ -367,7 +367,11 @@ $(function () {
             $(window).trigger('resize'); //ensure the background image covers the entire window
 
             $('#callGetPlays').click(function (event) {
+
+                /* first we cleanup the game code that has been entered */
                 gameCode = $.trim($('#gameCode').val()); //removes leading and trailing spaces and junk
+                if (gameCode.lastIndexOf(".") == gameCode.length - 1) gameCode = gameCode.substr(0, gameCode.length - 1); //remove the period if its the last character
+
                 if (gameCode.length > 0) { //check to see that a game code was entered
 
                     if (gameCode == 'incommon-settings') {
