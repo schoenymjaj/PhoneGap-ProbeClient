@@ -27,8 +27,8 @@ $(function () {
         /*
         Globals
         */
-        var probeVersion = '1.4.1';
-        var probeVersionNumber = 9;
+        var probeVersion = '1.4.2';
+        var probeVersionNumber = 10;
         var root = GetRootUrl();  //root directory of the web site serving mobile app (i.e. in-common-app.com)
 
         //alert('Probe Version: ' + probeVersion);
