@@ -1318,6 +1318,7 @@ $(function () {
 
                         //Only popup a countdown popup if a count down is currently happening.
                         if ($('#qCountdown').length > 0) {
+                            $('#popupCountdownParent').css('display', 'block');
                             $('#popupCountdownParent').enhanceWithin().popup().popup("open", { transition: "fade" });
                         }
 
